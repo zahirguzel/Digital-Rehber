@@ -442,4 +442,3 @@ Bu proje beyaz etiket bir yerel rehber sistemidir. Kullanım hakları yazılım�
 
 ---
 
-> 📌 **Not**: Detaylı kurulum talimatları için projedeki `kurulum.txt` dosyasını inceleyiniz.
