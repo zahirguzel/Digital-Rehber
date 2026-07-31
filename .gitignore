@@ -1,0 +1,40 @@
+# Environment
+.env
+.env.local
+
+# Dependencies
+/vendor/
+composer.lock
+
+# Logs
+/logs/*.log
+/logs/*.log.*
+
+# Cache
+/cache/*
+!/cache/.gitkeep
+
+# Backups
+/backups/*
+!/backups/.gitkeep
+
+# Uploads
+/public/images/uploads/*
+!/public/images/uploads/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.bak
+__pycache__/
+*.pyc

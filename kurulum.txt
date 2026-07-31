@@ -1,0 +1,267 @@
+================================================================================
+  YEREL İŞLETME REHBERİ — KURULUM REHBERİ
+  PHP + MySQL | Beyaz etiket (white-label) paket
+  Son güncelleme: Temmuz 2026
+================================================================================
+
+Bu paket, herhangi bir şehir veya ülkede (ör. Kıbrıs) kullanılmak üzere
+hazırlanmıştır. İçinde Hazır işletme, blog, influencer veya bölgeye özel
+içerik YOKTUR. Kurulum sonrası tüm içeriği admin panelinden siz eklersiniz.
+
+
+1. PAKET İÇERİĞİ
+--------------------------------------------------------------------------------
+
+  database.sql          → Temiz veritabanı (sadece tablolar + minimum ayar)
+  kurulum.txt           → Bu dosya
+  config/db.php         → Veritabanı bağlantı ayarları
+  admin/                → Yönetim paneli
+  isletme/              → İşletme menü paneli
+  public/               → CSS, JS, görseller
+  migrations/           → Geliştirici güncellemeleri (temiz kurulumda GEREKMEZ)
+
+  NOT — database-hatay-full.sql:
+  Orijinal geliştiricinin dolu demo/canlı yedeği. Bu pakette referans içindir;
+  yeni kurulum için KULLANMAYIN. Sadece database.sql import edin.
+
+  NOT — migrate.php:
+  Demo veri yükler ve mevcut veriyi siler. CANLI veya TEMİZ kurulumda
+  ASLA çalıştırmayın. İsterseniz sunucudan silin.
+
+
+2. GEREKSİNİMLER
+--------------------------------------------------------------------------------
+
+  PHP 7.4+ (8.x önerilir)
+  MySQL 5.7+ veya MariaDB 10.3+
+  Apache + mod_rewrite
+  PHP: PDO, pdo_mysql, curl, mbstring, json, session
+
+  Kontrol:
+    php -v
+    php -m | grep -E 'pdo|curl|mbstring'
+
+
+3. KURULUM ADIMLARI (YEREL — XAMPP / WAMP / LARAGON)
+--------------------------------------------------------------------------------
+
+Adım 1 — Dosyaları kopyalayın
+  Tüm proje klasörünü web köküne atın, örneğin:
+    Windows : C:\xampp\htdocs\rehber\
+    macOS   : /Applications/XAMPP/xamppfiles/htdocs/rehber/
+
+Adım 2 — Veritabanı oluşturun
+  phpMyAdmin → Yeni veritabanı
+  Ad örneği: rehber_db
+  Karakter seti: utf8mb4_unicode_ci
+
+Adım 3 — database.sql içe aktarın
+  phpMyAdmin → rehber_db → İçe Aktar → database.sql → Git
+
+  Bu dosya şunları içerir:
+    ✓ Tüm tablo yapıları
+    ✓ 9 varsayılan kategori
+    ✓ 1 admin hesabı
+    ✓ Boş site ayarları (genel başlık)
+    ✓ 6 örnek hizmet metni (hizmetlerimiz sayfası)
+
+  İçermez:
+    ✗ İşletme kaydı
+    ✗ Blog yazısı
+    ✗ Influencer / etkinlik / kampanya
+    ✗ İlçe / bölge sayfası
+    ✗ Demo mesaj
+
+Adım 4 — config/db.php düzenleyin
+
+  $host     = 'localhost';
+  $dbname   = 'rehber_db';
+  $username = 'root';
+  $password = '';
+
+Adım 5 — public/images/ yazılabilir olsun
+  Logo ve kapak yüklemek için klasör izni: 755 veya 775
+
+Adım 6 — Siteyi test edin
+  http://localhost/rehber/
+  http://localhost/rehber/admin/
+
+
+4. CANLI SUNUCU KURULUMU (HOSTİNG / KIBRIS)
+--------------------------------------------------------------------------------
+
+Adım 1 — Dosyaları FTP/SFTP ile yükleyin
+  public_html veya alt klasöre tüm dosyaları atın.
+  .htaccess mutlaka yüklensin.
+
+Adım 2 — Hosting panelinden MySQL oluşturun
+  Veritabanı adı, kullanıcı adı ve şifre alın.
+
+Adım 3 — phpMyAdmin ile database.sql import edin
+
+Adım 4 — config/db.php güncelleyin
+  Hosting bilgilerinizi girin.
+
+Adım 5 — .htaccess domain ayarı
+  Dosyada hatayrehbermedya.com için yazılmış yönlendirme satırları olabilir.
+  Kendi domaininize göre düzenleyin veya o satırları silin/yorum yapın:
+
+  Örnek (kendi domaininiz):
+    RewriteCond %{HTTP_HOST} ^www\.sizindomain\.com$ [NC]
+    RewriteRule ^ https://sizindomain.com%{REQUEST_URI} [L,R=301]
+
+Adım 6 — Güvenlik
+  Kurulumdan sonra admin şifresini değiştirin.
+  migrate.php dosyasını silin veya erişime kapatın.
+
+
+5. İLK GİRİŞ
+--------------------------------------------------------------------------------
+
+Admin paneli: /admin/login.php
+
+  Kullanıcı : admin
+  Şifre     : admin123
+
+  → Hemen şifreyi değiştirin: Admin → Yöneticiler
+
+İşletme paneli: /isletme/login.php
+  Her işletme için admin panelinden ayrı kullanıcı tanımlanır.
+
+
+6. KURULUM SONRASI YAPILACAKLAR (SIRAYLA)
+--------------------------------------------------------------------------------
+
+  1. Admin → Ayarlar
+     Site adı, açıklama, logo, iletişim, sosyal medya, renk
+
+  2. Admin → İlçeler (varsa) veya İlçe Sayfaları
+     Kendi bölgelerinizi ekleyin (Lefkoşa, Girne, Gazimağusa vb.)
+
+  3. Admin → İşletmeler
+     İlk işletme kayıtlarınızı girin
+
+  4. Admin → Blog (isteğe bağlı)
+     Kendi rehber yazılarınızı ekleyin
+
+  5. Admin → Influencer / Etkinlik / Kampanya (isteğe bağlı)
+     Modülleri ihtiyaca göre doldurun
+
+  6. Admin → SEO
+     Meta başlık ve anahtar kelimeleri güncelleyin
+
+
+7. MODÜLLER
+--------------------------------------------------------------------------------
+
+  Esnaf rehberi      → /esnaflar, /esnaf/{slug}
+  Dijital menü       → /menu/{slug}
+  QR kartvizit       → /{slug}
+  Blog               → /blog/{slug}.html
+  İlçe sayfası       → /ilce/{slug}
+  Kampanyalar        → /kampanyalar
+  Etkinlikler        → /etkinlikler
+  Influencer         → /influencerlar
+  Nöbetçi eczane     → /nobetci-eczane (Türkiye EczaneAPI; Kıbrıs'ta kullanılmayabilir)
+  Admin              → /admin
+  İşletme paneli     → /isletme
+
+
+8. migrations/ KLASÖRÜ HAKKINDA
+--------------------------------------------------------------------------------
+
+  Bu klasördeki .sql dosyaları orijinal projenin geliştirme güncellemeleridir
+  (belirli işletmeler, blog yazıları vb.).
+
+  TEMİZ KURULUM YAPTIYSANIZ:
+    migrations/ klasöründeki dosyaları ÇALIŞTIRMAYIN.
+    Hepsi database.sql şemasında zaten mevcuttur.
+
+  Sadece yazılım güncellemesi aldığınızda, geliştiricinin verdiği yeni
+  migration dosyasını o zaman çalıştırın.
+
+
+9. NÖBETÇİ ECZANE (TÜRKİYE — İSTEĞE BAĞLI)
+--------------------------------------------------------------------------------
+
+  Türkiye'de EczaneAPI ile çalışır. Kıbrıs veya farklı ülkede kullanmayacaksanız
+  menüden görmezden gelebilirsiniz; site diğer modüllerle normal çalışır.
+
+  Kullanacaksanız: Admin → Nöbetçi Eczane → API anahtarı girin.
+
+
+10. TELEGRAM BİLDİRİMLERİ (İSTEĞE BAĞLI)
+--------------------------------------------------------------------------------
+
+  Admin → Ayarlar → Telegram
+  İletişim formu bildirimleri için bot token ve chat ID.
+
+
+11. DOSYA YAPISI
+--------------------------------------------------------------------------------
+
+  config/db.php           Veritabanı bağlantısı
+  database.sql            Temiz kurulum (BU DOSYAYI KULLANIN)
+  database-hatay-full.sql Dolu yedek (KULLANMAYIN — referans)
+  includes/               Ortak PHP dosyaları
+  admin/                  Yönetim paneli
+  isletme/                İşletme menü paneli
+  public/css/style.css    Ana stil
+  public/images/          Yüklenen görseller
+  .htaccess               URL kuralları
+
+
+12. SORUN GİDERME
+--------------------------------------------------------------------------------
+
+  Veritabanı bağlantı hatası
+    → config/db.php bilgilerini kontrol edin
+
+  404 hatası
+    → mod_rewrite açık mı?
+    → .htaccess yüklendi mi?
+    → AllowOverride All (Apache)
+
+  Görseller yüklenmiyor
+    → public/images/ yazma izni
+
+  Türkçe karakter bozuk
+    → Veritabanı: utf8mb4_unicode_ci
+    → .htaccess: AddDefaultCharset UTF-8
+
+  Ana sayfa boş / işletme yok
+    → Normaldir. Admin panelinden işletme ekleyin.
+
+
+13. TASARIM RENKLERİ (VARSAYILAN — DEĞİŞTİRİLEBİLİR)
+--------------------------------------------------------------------------------
+
+  Birincil   : #D62828
+  İkincil    : #1F242B
+  Vurgu      : #C9622B
+  Fontlar    : Oswald + Plus Jakarta Sans
+
+  Admin → Ayarlar → admin_primary_color ile panel rengi değiştirilebilir.
+
+
+14. GÖNDERİM NOTU (PAKETİ ALAN KİŞİ İÇİN)
+--------------------------------------------------------------------------------
+
+  Bu yazılım beyaz etiket bir yerel rehber sistemidir.
+  Kurulum için sadece database.sql dosyasını import etmeniz yeterlidir.
+  migrations/ içindeki dosyaları çalıştırmayın.
+  migrate.php dosyasını çalıştırmayın.
+
+  Sorularınız için yazılımı size gönderen kişiyle iletişime geçin.
+
+
+================================================================================
+  Özet kontrol listesi:
+    [ ] database.sql import edildi
+    [ ] config/db.php düzenlendi
+    [ ] public/images/ yazılabilir
+    [ ] Admin girişi yapıldı, şifre değiştirildi
+    [ ] Ayarlar → site adı ve logo güncellendi
+    [ ] .htaccess domain satırları düzenlendi (canlı)
+    [ ] migrate.php silindi veya kapatıldı (canlı)
+================================================================================

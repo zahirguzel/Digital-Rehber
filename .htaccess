@@ -1,0 +1,89 @@
+ErrorDocument 404 404.php
+
+RewriteEngine On
+RewriteBase /digitalrehber/
+AddDefaultCharset UTF-8
+
+<IfModule mod_headers.c>
+    <Files "llms.txt">
+        Header set Content-Type "text/markdown; charset=utf-8"
+        Header set Cache-Control "public, max-age=86400"
+    </Files>
+    <FilesMatch "\.(mp4|webm|mov)$">
+        Header set X-Robots-Tag "noindex, nofollow"
+    </FilesMatch>
+</IfModule>
+
+# Canlı site için açın:
+# RewriteCond %{HTTP_HOST} ^www\.hatayrehbermedya\.com$ [NC]
+# RewriteRule ^ https://hatayrehbermedya.com%{REQUEST_URI} [L,R=301]
+#
+# RewriteCond %{HTTP_HOST} ^hatayrehbermedya\.com$ [NC]
+# RewriteCond %{HTTPS} off
+# RewriteRule ^ https://hatayrehbermedya.com%{REQUEST_URI} [L,R=301]
+
+# --- Özel Sayfa Yönlendirmeleri (önce gelir) ---
+
+# robots.txt → robots.php
+RewriteRule ^robots\.txt$ robots.php [L]
+
+# llms.txt → llms.php
+RewriteRule ^llms\.txt$ llms.php [L]
+
+# sitemap.xml → sitemap.php
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+# İlçe landing: /ilce/slug → ilce.php?slug=slug
+RewriteRule ^ilce/([a-z0-9-]+)/?$ ilce.php?slug=$1 [L,QSA]
+
+# Blog: /blog/slug → blog-detay.php?slug=slug
+RewriteRule ^blog/?$ blog.php [L,QSA]
+RewriteRule ^blog/([a-zA-Z0-9_-]+)(?:\.html)?/?$ blog-detay.php?slug=$1 [L,QSA]
+
+# Hizmetlerimiz: /hizmetlerimiz/slug → hizmetlerimiz.php?slug=slug
+RewriteRule ^hizmetlerimiz/([a-zA-Z0-9_-]+)/?$ hizmetlerimiz.php?slug=$1 [L,QSA]
+
+# Esnaf Profil: /esnaf/slug → esnaf.php?slug=slug
+RewriteRule ^esnaf/([a-zA-Z0-9_-]+)/?$ esnaf.php?slug=$1 [L,QSA]
+
+# Influencer Profil: /influencer/slug → influencer.php?slug=slug
+RewriteRule ^influencer/([a-zA-Z0-9_-]+)/?$ influencer.php?slug=$1 [L,QSA]
+
+# Influencer KVKK talebi: /influencer-kaldirma-talebi/slug → influencer-kaldirma-talebi.php?slug=slug
+RewriteRule ^influencer-kaldirma-talebi/([a-zA-Z0-9_-]+)/?$ influencer-kaldirma-talebi.php?slug=$1 [L,QSA]
+
+# Influencer QR Dijital Kartvizit: /i/slug → influencer-qr.php?slug=slug
+RewriteRule ^i/([a-zA-Z0-9_-]+)/?$ influencer-qr.php?slug=$1 [L,QSA]
+
+# Etkinlikler: /etkinlikler, /etkinlik/slug
+RewriteRule ^etkinlikler/?$ etkinlikler.php [L,QSA]
+RewriteRule ^etkinlik/([a-zA-Z0-9_-]+)/?$ etkinlik.php?slug=$1 [L,QSA]
+
+# Kampanyalar: /kampanyalar, /kampanya/slug
+RewriteRule ^kampanyalar/?$ kampanyalar.php [L,QSA]
+RewriteRule ^kampanya/([a-zA-Z0-9_-]+)/?$ kampanya.php?slug=$1 [L,QSA]
+
+# Nöbetçi eczane: /nobetci-eczane, /nobetci-eczane/payas
+RewriteRule ^nobetci-eczane/([a-z0-9-]+)/?$ nobetci-eczane.php?district_slug=$1 [L,QSA]
+RewriteRule ^nobetci-eczane/?$ nobetci-eczane.php [L,QSA]
+
+# Dijital Menü: /menu/slug → menu.php?slug=slug
+RewriteRule ^menu/([a-zA-Z0-9_-]+)/?$ menu.php?slug=$1 [L,QSA]
+
+# İşletme Paneli: /isletme → isletme/ klasörü (doğal yönlendirme)
+
+# --- Genel PHP Uzantı Yönetimi (sonra gelir) ---
+
+# .php uzantılı istekler gerektiğinde ayrıca yönlendirilebilir.
+# Bu kurulumda doğrudan erişime izin veriyoruz; uzantısız URL kuralları çalışır.
+
+# Uzantısız URL'leri .php dosyasına yönlendir
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.+?)/?$ $1.php [L]
+
+# QR Dijital Kartvizit: /slug → qr.php?slug=slug
+# (Gerçek dosya veya klasör yoksa devreye girer)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-Z0-9_-]+)/?$ qr.php?slug=$1 [L,QSA]

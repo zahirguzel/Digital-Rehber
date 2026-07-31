@@ -1,0 +1,2 @@
+Bu klasore gorseller admin panelinden yuklenir.
+Logo, kapak ve menu fotograflari buraya kaydedilir.
