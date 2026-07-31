@@ -182,7 +182,7 @@ require_once 'includes/header.php';
     <div class="container directory-portal-hero__inner">
         <div class="directory-portal-hero__head reveal-on-scroll">
             <div>
-                <span class="portal-eyebrow">Dizin Rehberi</span>
+                <span class="portal-eyebrow">Firma Rehberi</span>
                 <h1 class="directory-portal-hero__title"><?= $heroTitle ?></h1>
                 <p class="directory-portal-hero__lead">Kayıtlı işletmeleri ilçe, kategori veya isimle filtreleyin. Hemen iletişime geçin.</p>
             </div>
@@ -243,7 +243,12 @@ require_once 'includes/header.php';
         <div class="directory-portal-layout">
 
             <!-- Sidebar Filtreler -->
-            <aside class="directory-portal-sidebar reveal-on-scroll">
+            <!-- Mobil filtre toggle butonu -->
+            <button class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" aria-controls="directoryFilterSidebar">
+                <span><i class="fa-solid fa-sliders me-2"></i> Filtrele &amp; Sırala</span>
+                <i class="fa-solid fa-chevron-down toggle-icon"></i>
+            </button>
+            <aside class="directory-portal-sidebar reveal-on-scroll" id="directoryFilterSidebar">
                 <?php if (!empty($sidebarAds)): ?>
                     <div class="directory-portal-ad">
                         <span class="directory-portal-ad__label">Sponsorlu Bağlantı</span>
@@ -459,5 +464,42 @@ require_once 'includes/header.php';
         </div>
     </div>
 </section>
+
+<!-- --- PREMIUM VIP CTA BANNER (İŞLETMENİZİ EKLEYİN) --- -->
+<section class="portal-section py-4">
+    <div class="container">
+        <div class="home-vip-cta reveal-on-scroll">
+            <div class="home-vip-cta__content">
+                <div class="home-vip-cta__badge">
+                    <i class="fa-solid fa-rocket me-1"></i> Esnaflarımıza Özel Fırsat
+                </div>
+                <h2 class="home-vip-cta__title">Aramıza Katılın, İşletmenizi Binlerce Kişiye Ulaştırın!</h2>
+                <p class="home-vip-cta__desc">Kıbrıs'ın en büyük dijital rehberinde yerinizi alın, dijital dünyada fark yaratın ve yeni müşteriler kazanın.</p>
+            </div>
+            <div class="home-vip-cta__actions">
+                <a href="<?= seoResolveAbsoluteUrl('isletme/login.php', seoGetBaseUrl()) ?>" class="home-vip-cta__btn-primary" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-solid fa-store"></i> Hemen İşletmeni Ekle
+                </a>
+                <a href="<?= seoResolveAbsoluteUrl('iletisim', seoGetBaseUrl()) ?>" class="home-vip-cta__btn-secondary">
+                    <i class="fa-brands fa-whatsapp"></i> Bilgi Al
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('mobileFilterToggle');
+    const sidebar = document.getElementById('directoryFilterSidebar');
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', function() {
+            const isOpen = sidebar.classList.toggle('is-open');
+            toggleBtn.classList.toggle('is-open', isOpen);
+            toggleBtn.setAttribute('aria-expanded', isOpen);
+        });
+    }
+});
+</script>
 
 <?php require_once 'includes/footer.php'; ?>

@@ -151,7 +151,12 @@ require_once 'includes/header.php';
     <div class="container">
         <div class="directory-portal-layout">
 
-            <aside class="directory-portal-sidebar reveal-on-scroll">
+            <!-- Mobil filtre toggle butonu -->
+            <button class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" aria-controls="directoryFilterSidebar">
+                <span><i class="fa-solid fa-sliders me-2"></i> Filtrele &amp; Keşfet</span>
+                <i class="fa-solid fa-chevron-down toggle-icon"></i>
+            </button>
+            <aside class="directory-portal-sidebar reveal-on-scroll" id="directoryFilterSidebar">
                 <nav class="portal-filter-panel" aria-label="Influencer filtreleri">
                     <div class="portal-filter-panel__head">
                         <span class="portal-section__index">F</span>
@@ -320,5 +325,19 @@ require_once 'includes/header.php';
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('mobileFilterToggle');
+    const sidebar = document.getElementById('directoryFilterSidebar');
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', function() {
+            const isOpen = sidebar.classList.toggle('is-open');
+            toggleBtn.classList.toggle('is-open', isOpen);
+            toggleBtn.setAttribute('aria-expanded', isOpen);
+        });
+    }
+});
+</script>
 
 <?php require_once 'includes/footer.php'; ?>

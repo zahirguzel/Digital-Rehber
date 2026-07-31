@@ -96,6 +96,98 @@ $bizSlug = $_SESSION['biz_slug'] ?? '';
         
         .btn-primary { background: var(--bs-primary); border-color: var(--bs-primary); }
         .btn-primary:hover { background: #c84630; border-color: #c84630; }
+
+        /* Business Panel Stat Cards */
+        .biz-panel-stat-card {
+            background: #fff;
+            padding: 1.25rem 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            border: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+        }
+        .biz-panel-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+        }
+        .biz-panel-stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .biz-panel-stat-value {
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1.2;
+            margin-bottom: 2px;
+        }
+        .biz-panel-stat-label {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #64748B;
+        }
+
+        /* Responsive Table & Layout Improvements */
+        .table-responsive {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            border-radius: 16px;
+        }
+        .table th {
+            white-space: nowrap !important;
+            font-weight: 600 !important;
+            color: #475569 !important;
+            background-color: #F8FAFC !important;
+            padding: 1rem !important;
+            border-bottom: 1px solid #E2E8F0 !important;
+        }
+        .table td {
+            padding: 1rem !important;
+            vertical-align: middle !important;
+        }
+
+        @media (max-width: 767.98px) {
+            .biz-content {
+                padding: 1rem !important;
+            }
+            .biz-header {
+                padding: 0 1rem !important;
+            }
+            .biz-panel-stat-card {
+                padding: 1rem 1.25rem !important;
+                gap: 1rem !important;
+            }
+            .biz-panel-stat-icon {
+                width: 44px !important;
+                height: 44px !important;
+                font-size: 1.25rem !important;
+                border-radius: 12px !important;
+            }
+            .biz-panel-stat-value {
+                font-size: 1.35rem !important;
+            }
+            .biz-panel-stat-label {
+                font-size: 0.82rem !important;
+            }
+            .table th, .table td {
+                padding: 0.75rem !important;
+                font-size: 0.88rem !important;
+            }
+            .table td .btn {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.78rem !important;
+            }
+        }
     </style>
 </head>
 <body>

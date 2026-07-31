@@ -51,7 +51,7 @@ if (empty($heroSlides)) {
         'image_path' => '/digitalrehber/public/images/hero-slider.jpg',
         'button_text' => 'İşletme Ara',
         'button_url' => '/esnaflar',
-        'button2_text' => 'İşletmemi Ekle',
+        'button2_text' => 'İşletmeni Eklet',
         'button2_url' => '/isletme',
     ]];
 }
@@ -145,12 +145,12 @@ $resolveHomeText = static function ($value, $fallback, array $genericValues = []
 
     return $value;
 };
-$homeHeroSubtitle = $resolveHomeText($homeSettings['home_hero_subtitle'] ?? '', 'ğŸ“ ' . $regionName . ' BÖLGESİNİN DİJİTAL İşLETME & ESNAF REHBERİ', ['Esnaf & İşletmelere Dijital Çözüm']);
+$homeHeroSubtitle = $resolveHomeText($homeSettings['home_hero_subtitle'] ?? '', ' ' . $regionName . ' BÖLGESİNİN DİJİTAL İşLETME & ESNAF REHBERİ', ['Esnaf & İşletmelere Dijital Çözüm']);
 $homeHeroTitle = $resolveHomeText($homeSettings['home_hero_title'] ?? '', 'Aradığınız Tüm İşletme, Esnaf ve Hizmetler <span style="color:var(--primary);">Tek Tıkla</span> Karşınızda', ['QR Kod ve Dijital Kartvizitiniz <em>Görünsün mü?</em>', 'QR Kod ve Dijital Kartvizitiniz Görünsün mü?']);
 $homeHeroDescription = $resolveHomeText($homeSettings['home_hero_description'] ?? '', 'Avukat, oto servis, güzellik merkezi, diş hekimi, emlakçı veya aradığınız herhangi bir işletmeyi anında bulun; açık adres, telefon, WhatsApp ve yol tarifi bilgilerine saniyeler içinde ulaşın.', [
     $siteTitle . ' ile işletmenizi dijital vitrine taşıyın. Müşterileriniz QR kodu okutarak menünüze, telefonunuza, WhatsApp ve konumunuza saniyeler içinde ulaşsın.'
 ]);
-$homeHeroPrimaryText = $resolveHomeText($homeSettings['home_hero_primary_text'] ?? '', 'İşletmemi Eklet');
+$homeHeroPrimaryText = $resolveHomeText($homeSettings['home_hero_primary_text'] ?? '', 'İşletmeni Eklet', ['İşletmemi Ekle', 'İşletmemi Eklet']);
 $homeHeroPrimaryUrl = !empty($homeSettings['home_hero_primary_url']) ? seoResolveAbsoluteUrl($homeSettings['home_hero_primary_url'], $baseUrl) : (rtrim($baseUrl, '/') . '/iletisim?subject=' . urlencode('Yeni İşletme Kaydı'));
 $homeHeroSecondaryText = $resolveHomeText($homeSettings['home_hero_secondary_text'] ?? '', 'Hizmetleri İncele');
 $homeHeroSecondaryUrl = !empty($homeSettings['home_hero_secondary_url']) ? seoResolveAbsoluteUrl($homeSettings['home_hero_secondary_url'], $baseUrl) : (rtrim($baseUrl, '/') . '/hizmetlerimiz');
@@ -323,8 +323,14 @@ require_once 'includes/header.php';
                                 </a>
                                 <?php endif; ?>
                                 <?php if (!empty($slide['button2_text'])): ?>
-                                <a href="<?= htmlspecialchars(seoResolveAbsoluteUrl($slide['button2_url'] ?? 'isletme', $baseUrl)) ?>" class="btn btn-outline-light fw-semibold px-4 py-2" style="border-radius: 10px; font-size: 15px;">
-                                    <i class="fa-solid fa-plus me-2"></i><?= htmlspecialchars($slide['button2_text']) ?>
+                                <a href="<?= htmlspecialchars(seoResolveAbsoluteUrl($slide['button2_url'] ?? 'isletme', $baseUrl)) ?>" class="btn btn-danger fw-bold px-4 py-2 shadow" style="border-radius: 10px; font-size: 15px; background: #ff545a; border-color: #ff545a;">
+                                    <?php
+                                    $btn2Text = $slide['button2_text'];
+                                    if (in_array(trim($btn2Text), ['İşletmemi Ekle', 'İşletmemi Eklet'], true)) {
+                                        $btn2Text = 'İşletmeni Eklet';
+                                    }
+                                    ?>
+                                    <i class="fa-solid fa-plus me-2"></i><?= htmlspecialchars($btn2Text) ?>
                                 </a>
                                 <?php endif; ?>
                             </div>
@@ -471,25 +477,144 @@ require_once 'includes/header.php';
         <?php endforeach; ?>
     </div>
 </section>
-<?php else: ?>
-<section class="portal-section portal-section--light portal-section--compact">
+<?php endif; ?>
+
+<!-- --- PREMIUM VIP CTA BANNER (İŞLETMENİZİ EKLEYİN) --- -->
+<section class="portal-section py-2">
     <div class="container">
-        <div class="portal-banner reveal-on-scroll" style="border: 2px dashed #cbd5e1; border-radius: 16px; background: #f8fafc; padding: 40px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 200px;">
-            <a href="<?= seoGetBaseUrl() ?>/iletisim" style="text-decoration: none; color: inherit; display: block; width: 100%;">
-                <i class="fa-solid fa-rectangle-ad text-primary mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
-                <h3 class="fw-bold mb-2" style="color: #1d3557; font-size: 1.5rem;"><?= htmlspecialchars($homeBannerFallbackTitle) ?></h3>
-                <p class="text-muted mb-0" style="font-size: 1.1rem;"><?= htmlspecialchars($homeBannerFallbackDescription) ?></p>
+        <div class="home-vip-cta reveal-on-scroll">
+            <div class="home-vip-cta__content">
+                <div class="home-vip-cta__badge">
+                    <i class="fa-solid fa-rocket me-1"></i> Esnaflarımıza Özel Fırsat
+                </div>
+                <h2 class="home-vip-cta__title">Aramıza Katılın, İşletmenizi Binlerce Kişiye Ulaştırın!</h2>
+                <p class="home-vip-cta__desc">Kıbrıs'ın en büyük dijital rehberinde yerinizi alın, dijital dünyada fark yaratın ve yeni müşteriler kazanın.</p>
+            </div>
+            <div class="home-vip-cta__actions">
+                <a href="<?= seoResolveAbsoluteUrl('isletme/login.php', $baseUrl) ?>" class="home-vip-cta__btn-primary" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-solid fa-store"></i> Hemen İşletmeni Ekle
+                </a>
+                <a href="<?= seoResolveAbsoluteUrl('iletisim', $baseUrl) ?>" class="home-vip-cta__btn-secondary">
+                    <i class="fa-brands fa-whatsapp"></i> Bilgi Al
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 02 Capability Stack — Medya Hizmetleri -->
+<section class="portal-section portal-section--light" id="hizmetler">
+    <div class="container">
+        <header class="portal-section__head reveal-on-scroll" style="margin-bottom: 2rem;">
+            <div class="portal-section__index">02</div>
+            <div class="portal-section__titles">
+                <span class="portal-section__eyebrow">Esnaflarımıza Özel</span>
+                <h2><?= htmlspecialchars($homeServicesTitle) ?></h2>
+                <p class="portal-section__desc mb-0"><?= htmlspecialchars($homeServicesDesc) ?></p>
+            </div>
+        </header>
+
+        <div class="home-srv-carousel-wrapper position-relative">
+            <button class="srv-nav-btn srv-nav-prev" type="button" aria-label="Önceki hizmet">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="home-srv-grid reveal-stagger" id="homeSrvGrid">
+                <?php foreach ($services as $i => $srv):
+                    $ctaType = $srv['cta_type'] ?? 'iletisim';
+                    $ctaUrl  = $srv['cta_url'] ?? '';
+                    if ($ctaType === 'whatsapp' && !empty($ctaUrl)) {
+                        $srvHref = htmlspecialchars($ctaUrl);
+                        $srvTarget = ' target="_blank" rel="noopener noreferrer"';
+                    } else {
+                        $srvHref = seoResolveAbsoluteUrl('hizmetlerimiz/' . htmlspecialchars($srv['slug']), $baseUrl);
+                        $srvTarget = '';
+                    }
+                ?>
+                <a href="<?= $srvHref ?>"<?= $srvTarget ?> class="home-srv-card reveal-on-scroll">
+                    <div class="home-srv-card__icon"><i class="<?= htmlspecialchars($srv['icon']) ?>"></i></div>
+                    <div class="home-srv-card__body">
+                        <strong><?= htmlspecialchars($srv['title']) ?></strong>
+                        <small><?= htmlspecialchars(mb_strimwidth($srv['description'] ?? '', 0, 85, '…')) ?></small>
+                    </div>
+                    <span class="home-srv-card__arrow"><i class="fa-solid fa-arrow-right"></i></span>
+                </a>
+                <?php endforeach; ?>
+            </div>
+            <button class="srv-nav-btn srv-nav-next" type="button" aria-label="Sonraki hizmet">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <div class="text-center mt-4 pt-2 reveal-on-scroll d-flex align-items-center justify-content-center gap-3 flex-wrap">
+            <a href="<?= seoResolveAbsoluteUrl('hizmetlerimiz', $baseUrl) ?>" class="btn btn-primary fw-semibold px-4 py-2">
+                Tüm Hizmetler <i class="fa-solid fa-arrow-right ms-2"></i>
+            </a>
+            <a href="<?= seoResolveAbsoluteUrl('iletisim', $baseUrl) ?>" class="btn btn-outline-primary fw-semibold px-4 py-2">
+                Teklif Alın
             </a>
         </div>
     </div>
 </section>
-<?php endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var carousels = document.querySelectorAll('#homeSrvGrid, .event-grid--home, .portal-blog-grid, .influencer-grid--home');
+    carousels.forEach(function(grid) {
+        var wrapper = grid.parentElement;
+        if (!wrapper) return;
+        var prevBtn = wrapper.querySelector('.srv-nav-prev');
+        var nextBtn = wrapper.querySelector('.srv-nav-next');
+        
+        function getScrollStep() {
+            var card = grid.children[0];
+            return card ? card.offsetWidth + 16 : 280;
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                grid.scrollBy({ left: -getScrollStep(), behavior: 'smooth' });
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var maxScroll = grid.scrollWidth - grid.clientWidth;
+                if (grid.scrollLeft >= maxScroll - 10) {
+                    grid.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    grid.scrollBy({ left: getScrollStep(), behavior: 'smooth' });
+                }
+            });
+        }
+
+        var isHovered = false;
+        wrapper.addEventListener('mouseenter', function() { isHovered = true; });
+        wrapper.addEventListener('mouseleave', function() { isHovered = false; });
+        wrapper.addEventListener('touchstart', function() { isHovered = true; }, {passive: true});
+        wrapper.addEventListener('touchend', function() { 
+            setTimeout(function() { isHovered = false; }, 3000);
+        }, {passive: true});
+
+        setInterval(function() {
+            if (!isHovered && grid && grid.children.length > 1) {
+                var maxScroll = grid.scrollWidth - grid.clientWidth;
+                if (grid.scrollLeft >= maxScroll - 10) {
+                    grid.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    grid.scrollBy({ left: getScrollStep(), behavior: 'smooth' });
+                }
+            }
+        }, 3500);
+    });
+});
+</script>
 
 <!-- 03 How It Works -->
 <section class="portal-section portal-section--dark">
     <div class="container">
         <header class="portal-section__head portal-section__head--center reveal-on-scroll">
-            <div class="portal-section__index portal-section__index--light">02</div>
+            <div class="portal-section__index portal-section__index--light">03</div>
             <div class="portal-section__titles">
                 <span class="portal-section__eyebrow portal-section__eyebrow--light">Nasıl Çalışır?</span>
                 <h2 class="text-white">3 Adımda İşletmeye Ulaşın</h2>
@@ -520,40 +645,6 @@ require_once 'includes/header.php';
     </div>
 </section>
 
-<!-- 04 Capability Stack — Medya Hizmetleri -->
-<section class="portal-section portal-section--light" id="hizmetler">
-    <div class="container">
-        <div class="capability-stack">
-            <aside class="capability-stack__intro reveal-on-scroll">
-                <div class="portal-section__index">03</div>
-                <span class="portal-section__eyebrow">Esnaflarımıza Özel</span>
-                <h2><?= htmlspecialchars($homeServicesTitle) ?></h2>
-                <p><?= htmlspecialchars($homeServicesDesc) ?></p>
-                <div class="capability-stack__actions">
-                    <a href="<?= seoResolveAbsoluteUrl('hizmetlerimiz', $baseUrl) ?>" class="btn btn-primary fw-semibold">Tüm Hizmetler</a>
-                    <a href="<?= seoResolveAbsoluteUrl('iletisim', $baseUrl) ?>" class="btn btn-outline-primary fw-semibold">Teklif Alın</a>
-                </div>
-            </aside>
-
-            <div class="capability-stack__list reveal-stagger">
-                <?php foreach ($services as $i => $srv):
-                    $capNum = str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT);
-                ?>
-                <a href="<?= seoResolveAbsoluteUrl('hizmetlerimiz/' . htmlspecialchars($srv['slug']), $baseUrl) ?>" class="capability-row reveal-on-scroll">
-                    <span class="capability-row__num"><?= $capNum ?></span>
-                    <span class="capability-row__icon"><i class="<?= htmlspecialchars($srv['icon']) ?>"></i></span>
-                    <span class="capability-row__body">
-                        <strong><?= htmlspecialchars($srv['title']) ?></strong>
-                        <small><?= htmlspecialchars($srv['description'] ?? '') ?></small>
-                    </span>
-                    <span class="capability-row__arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
-                </a>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </div>
-</section>
-
 <?php if (!empty($featuredInfluencers)): ?>
 <section class="portal-section portal-section--muted">
     <div class="container">
@@ -566,25 +657,33 @@ require_once 'includes/header.php';
             </div>
             <a href="<?= seoResolveAbsoluteUrl('influencerlar', $baseUrl) ?>" class="portal-section__action btn btn-outline-primary">Tüm Influencerlar <i class="fa-solid fa-arrow-right ms-2"></i></a>
         </header>
-        <div class="influencer-grid influencer-grid--home reveal-stagger">
-            <?php foreach ($featuredInfluencers as $inf):
-                $avatar = getInfluencerImageUrl($inf['avatar_path']);
-                $letter = mb_strtoupper(mb_substr($inf['name'], 0, 1, 'UTF-8'), 'UTF-8');
-                $color = !empty($inf['theme_color']) ? htmlspecialchars($inf['theme_color']) : '#1F242B';
-            ?>
-            <article class="influencer-card <?= $inf['is_premium'] ? 'influencer-card--premium' : '' ?> reveal-on-scroll">
-                <a href="<?= seoResolveAbsoluteUrl('influencer/' . htmlspecialchars($inf['slug']), $baseUrl) ?>" class="influencer-card-link">
-                    <div class="influencer-card-avatar" style="--inf-color: <?= $color ?>">
-                        <?php if ($avatar): ?><img src="<?= htmlspecialchars($avatar) ?>" alt="<?= htmlspecialchars($inf['name']) ?>"><?php else: ?><span><?= $letter ?></span><?php endif; ?>
-                    </div>
-                    <div class="influencer-card-body">
-                        <h3><?= htmlspecialchars($inf['name']) ?></h3>
-                        <?php if ($inf['is_verified']): ?><div class="mb-1"><?= renderInfluencerVerifiedBadge() ?></div><?php endif; ?>
-                        <p class="influencer-card-niche"><?= htmlspecialchars(getInfluencerNicheLabel($inf['niche'])) ?></p>
-                    </div>
-                </a>
-            </article>
-            <?php endforeach; ?>
+        <div class="home-carousel-wrapper position-relative">
+            <button class="srv-nav-btn srv-nav-prev" type="button" aria-label="Önceki">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="influencer-grid influencer-grid--home reveal-stagger">
+                <?php foreach ($featuredInfluencers as $inf):
+                    $avatar = getInfluencerImageUrl($inf['avatar_path']);
+                    $letter = mb_strtoupper(mb_substr($inf['name'], 0, 1, 'UTF-8'), 'UTF-8');
+                    $color = !empty($inf['theme_color']) ? htmlspecialchars($inf['theme_color']) : '#1F242B';
+                ?>
+                <article class="influencer-card <?= $inf['is_premium'] ? 'influencer-card--premium' : '' ?> reveal-on-scroll">
+                    <a href="<?= seoResolveAbsoluteUrl('influencer/' . htmlspecialchars($inf['slug']), $baseUrl) ?>" class="influencer-card-link">
+                        <div class="influencer-card-avatar" style="--inf-color: <?= $color ?>">
+                            <?php if ($avatar): ?><img src="<?= htmlspecialchars($avatar) ?>" alt="<?= htmlspecialchars($inf['name']) ?>"><?php else: ?><span><?= $letter ?></span><?php endif; ?>
+                        </div>
+                        <div class="influencer-card-body">
+                            <h3><?= htmlspecialchars($inf['name']) ?></h3>
+                            <?php if ($inf['is_verified']): ?><div class="mb-1"><?= renderInfluencerVerifiedBadge() ?></div><?php endif; ?>
+                            <p class="influencer-card-niche"><?= htmlspecialchars(getInfluencerNicheLabel($inf['niche'])) ?></p>
+                        </div>
+                    </a>
+                </article>
+                <?php endforeach; ?>
+            </div>
+            <button class="srv-nav-btn srv-nav-next" type="button" aria-label="Sonraki">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
         </div>
     </div>
 </section>
@@ -602,32 +701,40 @@ require_once 'includes/header.php';
             </div>
             <a href="<?= seoResolveAbsoluteUrl('kampanyalar', $baseUrl) ?>" class="portal-section__action btn btn-outline-primary">Tüm Kampanyalar <i class="fa-solid fa-arrow-right ms-2"></i></a>
         </header>
-        <div class="event-grid event-grid--home reveal-stagger">
-            <?php foreach ($featuredCampaigns as $camp):
-                $cover = getCampaignImageUrl($camp['cover_image_path'], 'https://images.unsplash.com/photo-1607083206869-4c6b6b127a1e?w=800&q=80');
-                $badge = formatCampaignDateBadge($camp['start_date']);
-            ?>
-            <article class="event-card <?= !empty($camp['is_featured']) ? 'event-card--featured' : '' ?> reveal-on-scroll">
-                <a href="<?= seoResolveAbsoluteUrl('kampanya/' . htmlspecialchars($camp['slug']), $baseUrl) ?>" class="event-card-link">
-                    <div class="event-card-cover" style="background-image: url('<?= htmlspecialchars($cover) ?>');">
-                        <div class="event-card-date">
-                            <strong><?= htmlspecialchars($badge['day']) ?></strong>
-                            <span><?= htmlspecialchars($badge['month']) ?></span>
-                        </div>
-                        <?php if (!empty($camp['discount_label'])): ?>
-                            <div class="position-absolute bottom-0 end-0 m-2 badge bg-danger text-white px-2 py-1 shadow-sm" style="z-index:2;">
-                                <?= htmlspecialchars($camp['discount_label']) ?>
+        <div class="home-carousel-wrapper position-relative">
+            <button class="srv-nav-btn srv-nav-prev" type="button" aria-label="Önceki">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="event-grid event-grid--home reveal-stagger">
+                <?php foreach ($featuredCampaigns as $camp):
+                    $cover = getCampaignImageUrl($camp['cover_image_path'], 'https://images.unsplash.com/photo-1607083206869-4c6b6b127a1e?w=800&q=80');
+                    $badge = formatCampaignDateBadge($camp['start_date']);
+                ?>
+                <article class="event-card <?= !empty($camp['is_featured']) ? 'event-card--featured' : '' ?> reveal-on-scroll">
+                    <a href="<?= seoResolveAbsoluteUrl('kampanya/' . htmlspecialchars($camp['slug']), $baseUrl) ?>" class="event-card-link">
+                        <div class="event-card-cover" style="background-image: url('<?= htmlspecialchars($cover) ?>');">
+                            <div class="event-card-date">
+                                <strong><?= htmlspecialchars($badge['day']) ?></strong>
+                                <span><?= htmlspecialchars($badge['month']) ?></span>
                             </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="event-card-body">
-                        <span class="event-card-category"><?= htmlspecialchars(getCampaignTypeLabel($camp['campaign_type'] ?? '')) ?></span>
-                        <h3><?= htmlspecialchars($camp['title']) ?></h3>
-                        <p class="event-card-venue"><i class="fa-solid fa-shop"></i> <?= htmlspecialchars($camp['business_name'] ?? 'İşletme') ?> · <?= htmlspecialchars($camp['district'] ?: 'Tümü') ?></p>
-                    </div>
-                </a>
-            </article>
-            <?php endforeach; ?>
+                            <?php if (!empty($camp['discount_label'])): ?>
+                                <div class="position-absolute bottom-0 end-0 m-2 badge bg-danger text-white px-2 py-1 shadow-sm" style="z-index:2;">
+                                    <?= htmlspecialchars($camp['discount_label']) ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="event-card-body">
+                            <span class="event-card-category"><?= htmlspecialchars(getCampaignTypeLabel($camp['campaign_type'] ?? '')) ?></span>
+                            <h3><?= htmlspecialchars($camp['title']) ?></h3>
+                            <p class="event-card-venue"><i class="fa-solid fa-shop"></i> <?= htmlspecialchars($camp['business_name'] ?? 'İşletme') ?> · <?= htmlspecialchars($camp['district'] ?: 'Tümü') ?></p>
+                        </div>
+                    </a>
+                </article>
+                <?php endforeach; ?>
+            </div>
+            <button class="srv-nav-btn srv-nav-next" type="button" aria-label="Sonraki">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
         </div>
     </div>
 </section>
@@ -645,27 +752,35 @@ require_once 'includes/header.php';
             </div>
             <a href="<?= seoResolveAbsoluteUrl('etkinlikler', $baseUrl) ?>" class="portal-section__action btn btn-outline-primary">Tüm Etkinlikler <i class="fa-solid fa-arrow-right ms-2"></i></a>
         </header>
-        <div class="event-grid event-grid--home reveal-stagger">
-            <?php foreach ($featuredEvents as $ev):
-                $cover = getEventImageUrl($ev['cover_image_path'], 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80');
-                $badge = formatEventDateBadge($ev['start_date']);
-            ?>
-            <article class="event-card <?= $ev['is_featured'] ? 'event-card--featured' : '' ?> reveal-on-scroll">
-                <a href="<?= seoResolveAbsoluteUrl('etkinlik/' . htmlspecialchars($ev['slug']), $baseUrl) ?>" class="event-card-link">
-                    <div class="event-card-cover" style="background-image: url('<?= htmlspecialchars($cover) ?>');">
-                        <div class="event-card-date">
-                            <strong><?= htmlspecialchars($badge['day']) ?></strong>
-                            <span><?= htmlspecialchars($badge['month']) ?></span>
+        <div class="home-carousel-wrapper position-relative">
+            <button class="srv-nav-btn srv-nav-prev" type="button" aria-label="Önceki">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="event-grid event-grid--home reveal-stagger">
+                <?php foreach ($featuredEvents as $ev):
+                    $cover = getEventImageUrl($ev['cover_image_path'], 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80');
+                    $badge = formatEventDateBadge($ev['start_date']);
+                ?>
+                <article class="event-card <?= $ev['is_featured'] ? 'event-card--featured' : '' ?> reveal-on-scroll">
+                    <a href="<?= seoResolveAbsoluteUrl('etkinlik/' . htmlspecialchars($ev['slug']), $baseUrl) ?>" class="event-card-link">
+                        <div class="event-card-cover" style="background-image: url('<?= htmlspecialchars($cover) ?>');">
+                            <div class="event-card-date">
+                                <strong><?= htmlspecialchars($badge['day']) ?></strong>
+                                <span><?= htmlspecialchars($badge['month']) ?></span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="event-card-body">
-                        <span class="event-card-category"><?= htmlspecialchars(getEventCategoryLabel($ev['category'])) ?></span>
-                        <h3><?= htmlspecialchars($ev['title']) ?></h3>
-                        <p class="event-card-venue"><i class="fa-solid fa-location-dot"></i> <?= htmlspecialchars($ev['district']) ?></p>
-                    </div>
-                </a>
-            </article>
-            <?php endforeach; ?>
+                        <div class="event-card-body">
+                            <span class="event-card-category"><?= htmlspecialchars(getEventCategoryLabel($ev['category'])) ?></span>
+                            <h3><?= htmlspecialchars($ev['title']) ?></h3>
+                            <p class="event-card-venue"><i class="fa-solid fa-location-dot"></i> <?= htmlspecialchars($ev['district']) ?></p>
+                        </div>
+                    </a>
+                </article>
+                <?php endforeach; ?>
+            </div>
+            <button class="srv-nav-btn srv-nav-next" type="button" aria-label="Sonraki">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
         </div>
     </div>
 </section>
@@ -685,22 +800,30 @@ require_once 'includes/header.php';
             </div>
             <a href="<?= seoResolveAbsoluteUrl('blog', $baseUrl) ?>" class="portal-section__action btn btn-outline-primary">Tüm Yazılar <i class="fa-solid fa-arrow-right ms-2"></i></a>
         </header>
-        <div class="portal-blog-grid reveal-stagger">
-            <?php foreach ($latestBlogs as $post):
-                $imgUrl = blogResolveImageUrl($post['image_path'] ?? '', 'card');
-            ?>
-            <article class="portal-blog-card reveal-on-scroll">
-                <a href="<?= seoResolveAbsoluteUrl('blog/' . htmlspecialchars($post['slug']), $baseUrl) ?>" class="portal-blog-card__media">
-                    <img src="<?= htmlspecialchars($imgUrl) ?>" alt="<?= htmlspecialchars($post['title']) ?>" loading="lazy" decoding="async">
-                </a>
-                <div class="portal-blog-card__body">
-                    <time datetime="<?= date('Y-m-d', strtotime($post['created_at'])) ?>"><i class="fa-regular fa-calendar me-1"></i><?= date('d.m.Y', strtotime($post['created_at'])) ?></time>
-                    <h3><a href="<?= seoResolveAbsoluteUrl('blog/' . htmlspecialchars($post['slug']), $baseUrl) ?>"><?= htmlspecialchars($post['title']) ?></a></h3>
-                    <p><?= htmlspecialchars($post['summary']) ?></p>
-                    <a href="<?= seoResolveAbsoluteUrl('blog/' . htmlspecialchars($post['slug']), $baseUrl) ?>" class="portal-blog-card__link">Devamını Oku <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </article>
-            <?php endforeach; ?>
+        <div class="home-carousel-wrapper position-relative">
+            <button class="srv-nav-btn srv-nav-prev" type="button" aria-label="Önceki">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="portal-blog-grid reveal-stagger">
+                <?php foreach ($latestBlogs as $post):
+                    $imgUrl = blogResolveImageUrl($post['image_path'] ?? '', 'card');
+                ?>
+                <article class="portal-blog-card reveal-on-scroll">
+                    <a href="<?= seoResolveAbsoluteUrl('blog/' . htmlspecialchars($post['slug']), $baseUrl) ?>" class="portal-blog-card__media">
+                        <img src="<?= htmlspecialchars($imgUrl) ?>" alt="<?= htmlspecialchars($post['title']) ?>" loading="lazy" decoding="async">
+                    </a>
+                    <div class="portal-blog-card__body">
+                        <time datetime="<?= date('Y-m-d', strtotime($post['created_at'])) ?>"><i class="fa-regular fa-calendar me-1"></i><?= date('d.m.Y', strtotime($post['created_at'])) ?></time>
+                        <h3><a href="<?= seoResolveAbsoluteUrl('blog/' . htmlspecialchars($post['slug']), $baseUrl) ?>"><?= htmlspecialchars($post['title']) ?></a></h3>
+                        <p><?= htmlspecialchars($post['summary']) ?></p>
+                        <a href="<?= seoResolveAbsoluteUrl('blog/' . htmlspecialchars($post['slug']), $baseUrl) ?>" class="portal-blog-card__link">Devamını Oku <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+                <?php endforeach; ?>
+            </div>
+            <button class="srv-nav-btn srv-nav-next" type="button" aria-label="Sonraki">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
         </div>
     </div>
 </section>

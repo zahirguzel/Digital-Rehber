@@ -100,9 +100,19 @@ $serviceCount = count($services);
                             <p><?= SecurityHelper::escape($srv['description']) ?></p>
                         </div>
                         <div class="portal-service-card__footer">
-                            <a href="<?= SecurityHelper::escape($siteUrl('iletisim?subject=' . urlencode($srv['subject']))) ?>" class="btn btn-primary portal-service-card__btn">
-                                Hemen Bilgi Al <i class="fa-solid fa-arrow-right"></i>
-                            </a>
+                            <?php
+                            $ctaType = $srv['cta_type'] ?? 'iletisim';
+                            $ctaUrl  = $srv['cta_url'] ?? '';
+                            if ($ctaType === 'whatsapp' && !empty($ctaUrl)):
+                            ?>
+                                <a href="<?= SecurityHelper::escape($ctaUrl) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary portal-service-card__btn">
+                                    <i class="fa-brands fa-whatsapp me-1"></i> Hemen Bilgi Al
+                                </a>
+                            <?php else: ?>
+                                <a href="<?= SecurityHelper::escape($siteUrl('iletisim?subject=' . urlencode($srv['subject']))) ?>" class="btn btn-primary portal-service-card__btn">
+                                    Hemen Bilgi Al <i class="fa-solid fa-arrow-right"></i>
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </article>
                     <?php endforeach; ?>

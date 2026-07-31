@@ -23,11 +23,13 @@ $errorMsg = '';
 // ----------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && ($_POST['action'] === 'add' || $_POST['action'] === 'edit')) {
-        $title = trim($_POST['title']);
-        $slug = trim($_POST['slug']);
-        $icon = trim($_POST['icon']) ?: 'fa-solid fa-cube';
-        $subject = trim($_POST['subject']);
+        $title       = trim($_POST['title']);
+        $slug        = trim($_POST['slug']);
+        $icon        = trim($_POST['icon']) ?: 'fa-solid fa-cube';
+        $subject     = trim($_POST['subject']);
         $description = trim($_POST['description']);
+        $cta_type    = in_array(trim($_POST['cta_type'] ?? ''), ['iletisim', 'whatsapp']) ? trim($_POST['cta_type']) : 'iletisim';
+        $cta_url     = $cta_type === 'whatsapp' ? trim($_POST['cta_url'] ?? '') : null;
         
         if (empty($title) || empty($slug) || empty($description) || empty($subject)) {
             $errorMsg = "Başlık, Slug, İletişim Konusu ve Açıklama alanları zorunludur.";
@@ -40,11 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $errorMsg = "Bu URL (slug) başka bir hizmet tarafından kullanılıyor.";
                 } else {
                     if ($_POST['action'] === 'add') {
-                        $stmtIns = $db->query("INSERT INTO services (title, slug, icon, description, subject) VALUES (?, ?, ?, ?, ?)", [$title, $slug, $icon, $description, $subject]);
+                        $db->query("INSERT INTO services (title, slug, icon, description, subject, cta_url, cta_type) VALUES (?, ?, ?, ?, ?, ?, ?)", [$title, $slug, $icon, $description, $subject, $cta_url, $cta_type]);
                         $successMsg = "Hizmet başarıyla eklendi.";
                         $action = 'list';
                     } else {
-                        $stmtUp = $db->query("UPDATE services SET title = ?, slug = ?, icon = ?, description = ?, subject = ? WHERE id = ?", [$title, $slug, $icon, $description, $subject, $id]);
+                        $db->query("UPDATE services SET title = ?, slug = ?, icon = ?, description = ?, subject = ?, cta_url = ?, cta_type = ? WHERE id = ?", [$title, $slug, $icon, $description, $subject, $cta_url, $cta_type, $id]);
                         $successMsg = "Hizmet başarıyla güncellendi.";
                         $action = 'list';
                     }
@@ -145,8 +147,7 @@ if (empty($services)): ?>
                             </tr>
                         <?php
 else: ?>
-                            <?php
-foreach ($services as $srv): ?>
+                            <?php foreach ($services as $srv): ?>
                                 <tr>
                                     <td class="ps-4 py-3">
                                         <div class="bg-navy bg-opacity-10 text-navy rounded d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 20px;">
@@ -156,17 +157,20 @@ foreach ($services as $srv): ?>
                                     <td class="fw-bold text-navy"><?= htmlspecialchars($srv['title']) ?></td>
                                     <td class="font-monospace text-muted small">#<?= htmlspecialchars($srv['slug']) ?></td>
                                     <td>
-                                        <span class="badge bg-secondary px-3 py-2 rounded-1"><?= htmlspecialchars($srv['subject']) ?></span>
+                                        <?php if (($srv['cta_type'] ?? 'iletisim') === 'whatsapp' && !empty($srv['cta_url'])): ?>
+                                            <span class="badge bg-success px-3 py-2 rounded-1"><i class="fa-brands fa-whatsapp me-1"></i> WhatsApp</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary px-3 py-2 rounded-1"><?= htmlspecialchars($srv['subject']) ?></span>
+                                        <?php endif; ?>
                                     </td>
                                     <td class="text-end pe-4">
                                         <div class="btn-group gap-2">
-                                            <a href="services.php?action=edit&id=<?= $srv['id'] ?>" class="btn btn-outline-secondary btn-sm" title="Düzenle"><i class="fa-solid fa-pen"></i></a>
+                                            <a href="services.php?action=edit&id=<?= $srv['id'] ?>" class="btn btn-outline-secondary btn-sm" title="Düzeyle"><i class="fa-solid fa-pen"></i></a>
                                             <a href="services.php?action=delete&id=<?= $srv['id'] ?>" class="btn btn-outline-danger btn-sm confirm-btn" data-confirm="Bu hizmeti silmek istediğinizden emin misiniz? Bu işlem geri alınamaz." data-confirm-title="Hizmeti Sil" title="Sil"><i class="fa-solid fa-trash"></i></a>
                                         </div>
                                     </td>
                                 </tr>
-                            <?php
-endforeach; ?>
+                            <?php endforeach; ?>
                         <?php
 endif; ?>
                     </tbody>
@@ -223,6 +227,23 @@ elseif ($action === 'new' || $action === 'edit'): ?>
                         <label class="form-label fw-semibold">Açıklama <span class="text-danger">*</span></label>
                         <textarea name="description" class="form-control" rows="5" required placeholder="Hizmet detaylarını ve sağladığı faydaları açıklayınız..."><?= htmlspecialchars($service['description'] ?? '') ?></textarea>
                     </div>
+
+                    <!-- CTA Type -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">"Hemen Bilgi Al" Butonu Tipi</label>
+                        <select name="cta_type" id="srv_cta_type" class="form-select">
+                            <option value="iletisim" <?= ($service['cta_type'] ?? 'iletisim') === 'iletisim' ? 'selected' : '' ?>>Sitedeki İletişim Formu</option>
+                            <option value="whatsapp" <?= ($service['cta_type'] ?? '') === 'whatsapp' ? 'selected' : '' ?>>WhatsApp'a Yönlendir</option>
+                        </select>
+                        <span class="text-muted small" style="font-size: 11px;">Buton tıklanınca nereye gitsin?</span>
+                    </div>
+
+                    <!-- CTA URL (WhatsApp) -->
+                    <div class="col-md-6" id="cta_url_wrap" style="<?= ($service['cta_type'] ?? 'iletisim') !== 'whatsapp' ? 'display:none' : '' ?>">
+                        <label class="form-label fw-semibold">WhatsApp URL</label>
+                        <input type="url" name="cta_url" id="srv_cta_url" class="form-control" value="<?= htmlspecialchars($service['cta_url'] ?? '') ?>" placeholder="https://wa.me/905XXXXXXXXX?text=...">
+                        <span class="text-muted small" style="font-size: 11px;">Ziyaretçi WhatsApp'a yönlendirilir. ?text= parametresiyle ön mesaj ekleyebilirsiniz.</span>
+                    </div>
                 </div>
 
                 <!-- Action buttons -->
@@ -234,14 +255,15 @@ elseif ($action === 'new' || $action === 'edit'): ?>
         </div>
     </div>
 
-    <!-- JS helper to auto-generate slugs -->
+    <!-- JS helper to auto-generate slugs and toggle CTA URL -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const titleInput = document.getElementById('srv_title');
-            const slugInput = document.getElementById('srv_slug');
-            
-            <?php
-if ($action === 'new'): ?>
+            const slugInput  = document.getElementById('srv_slug');
+            const ctaType    = document.getElementById('srv_cta_type');
+            const ctaUrlWrap = document.getElementById('cta_url_wrap');
+
+            <?php if ($action === 'new'): ?>
             titleInput.addEventListener('input', function() {
                 let text = titleInput.value;
                 slugInput.value = text.toLowerCase()
@@ -255,8 +277,13 @@ if ($action === 'new'): ?>
                                     .replace(/-+/g, '-')
                                     .replace(/^-|-$/g, '');
             });
-            <?php
-endif; ?>
+            <?php endif; ?>
+
+            if (ctaType && ctaUrlWrap) {
+                ctaType.addEventListener('change', function() {
+                    ctaUrlWrap.style.display = this.value === 'whatsapp' ? '' : 'none';
+                });
+            }
         });
     </script>
 <?php

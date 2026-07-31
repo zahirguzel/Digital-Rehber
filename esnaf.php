@@ -325,7 +325,7 @@ require_once 'includes/header.php';
                 
                 <?php if (!empty($business['phone'])): ?>
                     <a href="tel:<?= preg_replace('/[^0-9+]/', '', $business['phone']) ?>" class="btn btn-primary biz-portal-profile__btn">
-                        <i class="fa-solid fa-phone"></i> Şimdi Ara
+                        <i class="fa-solid fa-phone"></i> �?imdi Ara
                     </a>
                 <?php endif; ?>
                 <?php if (!empty($business['whatsapp'])): ?>
@@ -718,6 +718,29 @@ require_once 'includes/header.php';
                 </div>
                 <?php endif; ?>
             </aside>
+        </div>
+    </div>
+</section>
+
+<!-- İşletmeni Eklet CTA Banner -->
+<section class="portal-section py-2">
+    <div class="container">
+        <div class="home-vip-cta reveal-on-scroll">
+            <div class="home-vip-cta__content">
+                <div class="home-vip-cta__badge">
+                    <i class="fa-solid fa-rocket me-1"></i> Esnaflarımıza Özel Fırsat
+                </div>
+                <h2 class="home-vip-cta__title">Aramıza Katılın, İşletmenizi Binlerce Kişiye Ulaştırın!</h2>
+                <p class="home-vip-cta__desc">Kıbrıs'ın en büyük dijital rehberinde yerinizi alın, dijital dünyada fark yaratın ve yeni müşteriler kazanın.</p>
+            </div>
+            <div class="home-vip-cta__actions">
+                <a href="<?= seoResolveAbsoluteUrl('isletme/login.php', $seoBaseUrl) ?>" class="home-vip-cta__btn-primary" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-solid fa-store"></i> Hemen İşletmeni Ekle
+                </a>
+                <a href="<?= seoResolveAbsoluteUrl('iletisim', $seoBaseUrl) ?>" class="home-vip-cta__btn-secondary">
+                    <i class="fa-brands fa-whatsapp"></i> Bilgi Al
+                </a>
+            </div>
         </div>
     </div>
 </section>

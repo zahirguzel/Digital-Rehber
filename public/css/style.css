@@ -3002,6 +3002,23 @@ a:hover {
     transform: translateY(0);
 }
 
+/* Sayfa ilk açıldığında temel üst elemanların (arama kutusu, filtreler, sonuç listeleri ve ilk 6 kart)
+   hem web (masaüstü) hem mobilde hiçbir gecikme olmadan anında görünmesini sağla */
+.directory-portal-hero__head.reveal-on-scroll,
+.search-dock.reveal-on-scroll,
+.directory-portal-sidebar.reveal-on-scroll,
+.directory-portal-results.reveal-on-scroll,
+.portal-directory-list .portal-directory-item:nth-child(-n+6),
+.portal-event-grid .portal-event-card:nth-child(-n+6),
+.camp-portal-card:nth-child(-n+6),
+.portal-influencer-card:nth-child(-n+6),
+.portal-service-card,
+.home-srv-card,
+.home-vip-cta {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
 .reveal-stagger > .reveal-on-scroll:nth-child(1) { transition-delay: 0ms; }
 .reveal-stagger > .reveal-on-scroll:nth-child(2) { transition-delay: 70ms; }
 .reveal-stagger > .reveal-on-scroll:nth-child(3) { transition-delay: 140ms; }
@@ -4698,64 +4715,27 @@ a:hover {
         min-height: 44px;
         gap: 4px;
     }
-
-    .portal-nav .navbar-brand {
-        margin-right: 0;
-        max-width: none;
-        padding: 0;
-    }
-
     .portal-nav .navbar-brand-logo-wrap {
-        height: 40px;
+        height: 52px;
         width: auto;
-        max-width: 88px;
+        max-width: 160px;
         overflow: hidden;
     }
 
     .portal-nav .navbar-brand-logo {
-        height: 56px;
-        max-width: 88px;
-        margin-top: -8px;
-        margin-bottom: -8px;
+        height: 64px;
+        max-width: 160px;
+        margin-top: -6px;
+        margin-bottom: -6px;
     }
 
     .portal-nav-mobile-quick {
-        display: flex;
-        flex: 1 1 auto;
-        flex-wrap: nowrap;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 0;
-        margin-left: 2px;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        min-width: 0;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-    }
-
-    .portal-nav-mobile-quick::-webkit-scrollbar {
-        display: none;
-    }
-
-    .portal-nav-mobile-quick li {
-        flex: 0 0 auto;
-    }
-
-    .portal-nav-mobile-quick .custom-nav-link {
-        display: inline-block;
-        padding: 6px 7px !important;
-        font-size: 11px;
-        font-weight: 600;
-        line-height: 1.2;
-        white-space: nowrap;
+        display: none !important;
     }
 
     .portal-nav .navbar-toggler {
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -4771,6 +4751,28 @@ a:hover {
         justify-content: stretch;
     }
 
+    .portal-nav-actions .dropdown {
+        width: 100%;
+    }
+
+    .portal-nav-actions .dropdown .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .portal-nav-actions .dropdown-menu {
+        position: static !important;
+        transform: none !important;
+        width: 100% !important;
+        margin-top: 8px !important;
+        box-shadow: none !important;
+        border: 1px solid var(--border-color) !important;
+        background: #f8fafc !important;
+        float: none !important;
+        left: 0 !important;
+        right: auto !important;
+    }
+
     .portal-nav-actions .btn-add-business {
         flex: 1;
         justify-content: center;
@@ -4779,19 +4781,15 @@ a:hover {
 
 @media (max-width: 359.98px) {
     .portal-nav .navbar-brand-logo-wrap {
-        max-width: 72px;
+        max-width: 125px;
+        height: 44px;
     }
 
     .portal-nav .navbar-brand-logo {
-        max-width: 72px;
-        height: 48px;
-        margin-top: -4px;
-        margin-bottom: -4px;
-    }
-
-    .portal-nav-mobile-quick .custom-nav-link {
-        font-size: 10px;
-        padding: 6px 5px !important;
+        max-width: 125px;
+        height: 54px;
+        margin-top: -5px;
+        margin-bottom: -5px;
     }
 }
 
@@ -5565,17 +5563,17 @@ a:hover {
 }
 
 .portal-section__head {
-    display: grid;
-    grid-template-columns: auto 1fr;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
     gap: 16px 20px;
-    align-items: end;
     margin-bottom: 40px;
 }
 
 .portal-section__head--center {
-    grid-template-columns: 1fr;
+    justify-content: center;
     text-align: center;
-    justify-items: center;
 }
 
 .portal-section__head--center .portal-section__index {
@@ -5583,38 +5581,28 @@ a:hover {
 }
 
 .portal-section__action {
-    grid-column: 1 / -1;
-    justify-self: start;
+    flex: 0 0 auto;
 }
 
 @media (min-width: 768px) {
     .portal-section__head {
-        grid-template-columns: auto 1fr auto;
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: flex-end;
+        justify-content: space-between;
     }
 
     .portal-section__head--center {
-        grid-template-columns: 1fr;
+        justify-content: center;
     }
 
     .portal-section__action {
-        grid-column: auto;
-        justify-self: end;
+        margin-left: auto;
     }
 }
 
 .portal-section__index {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 52px;
-    height: 52px;
-    border: 2px solid var(--primary);
-    border-radius: 8px;
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--primary);
-    line-height: 1;
+    display: none !important;
 }
 
 .portal-section__index--light {
@@ -5624,23 +5612,24 @@ a:hover {
 }
 
 .portal-section__eyebrow {
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    display: inline-block;
+    font-size: clamp(0.95rem, 2vw, 1.15rem);
+    font-weight: 800;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--primary);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .portal-section__eyebrow--light {
-    color: rgba(255, 255, 255, 0.65);
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .portal-section__titles h2 {
     margin: 0;
-    font-size: clamp(1.75rem, 3vw, 2.35rem);
-    line-height: 1.1;
+    font-size: clamp(2.1rem, 4vw, 2.85rem);
+    font-weight: 800;
+    line-height: 1.15;
 }
 
 .portal-section__desc {
@@ -6107,6 +6096,295 @@ a:hover {
     transform: translateX(4px);
 }
 
+/* --- Home Services Carousel (Square cards with arrows & autoplay) --- */
+.home-srv-carousel-wrapper {
+    position: relative;
+    padding: 0 48px;
+}
+
+.srv-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary);
+    font-size: 15px;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.25s ease;
+}
+
+.srv-nav-btn:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    transform: translateY(-50%) scale(1.08);
+}
+
+.srv-nav-prev {
+    left: 0;
+}
+
+.srv-nav-next {
+    right: 0;
+}
+
+.home-srv-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 20px !important;
+    padding: 10px 6px 20px 6px !important;
+    scrollbar-width: none;
+}
+
+.home-srv-grid::-webkit-scrollbar {
+    display: none;
+}
+
+/* --- Ana Sayfa Premium VIP CTA Banner (İşletmenizi Ekleyin) --- */
+.home-vip-cta {
+    position: relative;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #1e3a8a 100%);
+    border-radius: 24px;
+    padding: 48px 56px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    margin: 32px 0;
+}
+
+.home-vip-cta::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(214, 40, 40, 0.28) 0%, rgba(214, 40, 40, 0) 70%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.home-vip-cta__content {
+    position: relative;
+    z-index: 2;
+    max-width: 620px;
+}
+
+.home-vip-cta__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(214, 40, 40, 0.16);
+    border: 1px solid rgba(214, 40, 40, 0.45);
+    border-radius: 999px;
+    color: #ff3b3b !important;
+    font-size: 0.88rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    box-shadow: 0 0 16px rgba(214, 40, 40, 0.25);
+}
+
+.home-vip-cta__title {
+    color: #fff !important;
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 12px;
+}
+
+.home-vip-cta__desc {
+    color: rgba(255, 255, 255, 0.82);
+    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.home-vip-cta__actions {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+.home-vip-cta__btn-primary {
+    background: var(--primary);
+    color: #fff !important;
+    font-weight: 700;
+    padding: 16px 32px;
+    border-radius: 14px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 10px 25px rgba(214, 40, 40, 0.35);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.home-vip-cta__btn-primary:hover {
+    background: #b91c1c;
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(214, 40, 40, 0.45);
+}
+
+.home-vip-cta__btn-secondary {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff !important;
+    font-weight: 700;
+    padding: 16px 28px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.home-vip-cta__btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+@media (max-width: 991.98px) {
+    .home-vip-cta {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 32px 22px;
+        gap: 24px;
+        border-radius: 20px;
+        margin: 20px 0;
+    }
+
+    .home-vip-cta__actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .home-vip-cta__btn-primary,
+    .home-vip-cta__btn-secondary {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        padding: 15px 20px;
+    }
+}
+
+.home-srv-card {
+    flex: 0 0 250px !important;
+    width: 250px !important;
+    aspect-ratio: 1 / 1 !important;
+    scroll-snap-align: start !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    padding: 24px !important;
+    background: #fff !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05) !important;
+    text-decoration: none !important;
+    color: inherit !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
+}
+
+.home-srv-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 14px 32px rgba(214, 40, 40, 0.12) !important;
+    border-color: rgba(214, 40, 40, 0.35) !important;
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+.home-srv-card__icon {
+    width: 54px !important;
+    height: 54px !important;
+    border-radius: 14px !important;
+    background: rgba(214, 40, 40, 0.1) !important;
+    color: var(--primary) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.5rem !important;
+    margin-bottom: 8px !important;
+}
+
+.home-srv-card__body {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+}
+
+.home-srv-card__body strong {
+    font-family: var(--font-display) !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+    white-space: normal !important;
+    line-height: 1.25 !important;
+}
+
+.home-srv-card__body small {
+    font-size: 0.85rem !important;
+    color: var(--text-muted) !important;
+    line-height: 1.45 !important;
+    display: block !important;
+    white-space: normal !important;
+    overflow: visible !important;
+}
+
+.home-srv-card__arrow {
+    align-self: flex-end !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: #f8fafc !important;
+    color: var(--primary) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease !important;
+}
+
+.home-srv-card:hover .home-srv-card__arrow {
+    background: var(--primary) !important;
+    color: #fff !important;
+    transform: translateX(4px) !important;
+}
+
+@media (max-width: 575px) {
+    /* Mobil kaydırmalı karusel (@media max-width: 767.98px içerisinde flex/scroll-snap ile yönetilir) */
+}
+
 /* --- Portal Blog Grid --- */
 .portal-blog-grid {
     display: grid;
@@ -6488,6 +6766,32 @@ a:hover {
     grid-template-columns: 1fr;
     gap: 28px;
     align-items: start;
+    width: 100%;
+    max-width: 100%;
+}
+
+.directory-portal-layout > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+@media (max-width: 991.98px) {
+    .directory-portal-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        gap: 20px !important;
+    }
+
+    .directory-portal-layout > *,
+    .directory-portal-sidebar,
+    .directory-portal-results {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
 }
 
 @media (min-width: 992px) {
@@ -6912,23 +7216,144 @@ a:hover {
 
 @media (max-width: 767.98px) {
     .directory-portal-hero {
-        padding-top: 28px;
+        padding-top: 14px !important;
+    }
+
+    .directory-portal-hero__inner {
+        padding-bottom: 12px !important;
     }
 
     .directory-portal-hero__head {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .directory-portal-hero__head > div:first-child {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .directory-portal-hero__title {
+        font-size: 1.25rem !important;
+        margin: 2px 0 0 !important;
+        line-height: 1.15 !important;
+    }
+
+    /* Mobilde uzun açıklamayı gizle - böylece ekranda gereksiz dikey alan kaplamaz */
+    .directory-portal-hero__lead {
+        display: none !important;
     }
 
     .directory-portal-hero__stat {
-        flex-direction: row;
-        gap: 10px;
-        width: 100%;
-        justify-content: center;
+        flex-direction: column !important;
+        gap: 2px !important;
+        width: auto !important;
+        padding: 6px 12px !important;
+        min-width: 65px;
     }
 
     .directory-portal-hero__stat strong {
-        font-size: 1.5rem;
+        font-size: 1.15rem !important;
+    }
+
+    .directory-portal-hero__stat span {
+        font-size: 10px !important;
+    }
+
+    /* Mobilde arama formundaki alanları yan yana 2 kolonda ve çok kompakt göster */
+    .search-dock--directory .search-dock__head {
+        padding: 6px 14px !important;
+    }
+
+    .search-dock--directory .search-dock__label {
+        font-size: 11px !important;
+    }
+
+    .search-dock--directory .search-dock__form {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0 !important;
+    }
+
+    .search-dock--directory .search-dock__field {
+        border-bottom: 1px solid var(--border-color) !important;
+        min-height: 36px !important;
+        padding: 4px 10px !important;
+    }
+
+    .search-dock--directory .search-dock__field:nth-of-type(1) {
+        border-right: 1px solid var(--border-color) !important;
+    }
+
+    .search-dock--directory .search-dock__field.search-dock__field--grow {
+        grid-column: 1 / -1 !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+
+    .search-dock--directory .search-dock__submit {
+        grid-column: 1 / -1 !important;
+        padding: 8px 14px !important;
+        font-size: 0.82rem !important;
+        min-height: 38px !important;
+    }
+
+    .directory-portal-main {
+        padding-top: 14px !important;
+    }
+
+    /* Hizmetlerimiz Sayfası Mobil Kahraman Alanı (Hero) Düzeltmesi - Yanlış hizalamayı ve kaymayı önle */
+    .directory-portal-hero--services .directory-portal-hero__head {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 14px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .directory-portal-hero--services .directory-portal-hero__head > div:first-child {
+        width: 100% !important;
+    }
+
+    .directory-portal-hero--services .directory-portal-hero__title {
+        font-size: 1.6rem !important;
+        margin-bottom: 10px !important;
+        line-height: 1.2 !important;
+    }
+
+    .directory-portal-hero--services .directory-portal-hero__lead {
+        display: block !important;
+        font-size: 0.95rem !important;
+        line-height: 1.55 !important;
+        color: var(--text-muted) !important;
+        margin-bottom: 14px !important;
+    }
+
+    .directory-portal-hero--services .directory-portal-hero__actions {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 10px !important;
+        margin-top: 4px !important;
+    }
+
+    .directory-portal-hero--services .directory-portal-hero__actions .btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    .directory-portal-hero--services .directory-portal-hero__stat {
+        display: none !important;
+    }
+
+    /* Mobilde sayfa ilk açıldığında işletme kartlarının ve listesinin anında görünmesini sağla */
+    .directory-portal-results.reveal-on-scroll,
+    .portal-directory-list .portal-directory-item:nth-child(1),
+    .portal-directory-list .portal-directory-item:nth-child(2),
+    .portal-directory-list .portal-directory-item:nth-child(3) {
+        opacity: 1 !important;
+        transform: none !important;
     }
 }
 
@@ -6984,14 +7409,16 @@ a:hover {
 
 .biz-portal-hero__inner {
     position: relative;
-    z-index: 2;
+    z-index: 10;
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
     min-height: inherit;
-    padding: 28px 0 32px;
+    padding: 28px 0 92px !important;
 }
 
 .biz-portal-breadcrumb {
+    position: relative;
+    z-index: 10;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -12271,4 +12698,530 @@ html, body {
     object-fit: cover;
     display: block;
 }
+
+/* ============================================================
+   KAPSAMLI MOBİL DÜZELTMELER (Mobile-First Overrides)
+   ============================================================ */
+
+/* ---------- Navbar ---------- */
+@media (max-width: 991.98px) {
+    /* Hamburger menü açıkken arka plan */
+    .navbar-collapse.show,
+    .navbar-collapse.collapsing {
+        background: #fff;
+        border-radius: 0 0 14px 14px;
+        box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+        padding: 12px 20px 20px;
+        margin: 0 -16px;
+    }
+
+    .navbar-collapse .nav-link,
+    .navbar-collapse .custom-nav-link {
+        padding: 12px 4px !important;
+        font-size: 1rem !important;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .navbar-collapse .nav-link:last-child,
+    .navbar-collapse .custom-nav-link:last-child {
+        border-bottom: none;
+    }
+
+    /* Gizlenecek masaüstü inline nav linkleri */
+    .navbar .d-lg-none-custom {
+        display: none !important;
+    }
+
+    /* Dropdown menü tam genişlik */
+    .navbar-collapse .dropdown-menu {
+        border: none;
+        box-shadow: none;
+        background: rgba(214,40,40,0.04);
+        border-radius: 8px;
+        margin-top: 4px;
+    }
+}
+
+/* ---------- Hero (Ana Sayfa) ---------- */
+@media (max-width: 767.98px) {
+    .hero-portal {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    .hero-portal__title {
+        font-size: clamp(1.7rem, 7vw, 2.4rem) !important;
+        line-height: 1.15 !important;
+    }
+
+    .hero-portal__desc {
+        font-size: 0.95rem;
+    }
+
+    .hero-portal__actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .hero-portal__actions .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+        font-size: 1rem;
+    }
+
+    /* Arama kutusu */
+    .search-dock {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .search-dock__bar {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .search-dock__input {
+        font-size: 0.95rem;
+    }
+
+    /* İstatistik ticker */
+    .stats-ticker {
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .stats-ticker::-webkit-scrollbar { display: none; }
+
+    .stats-ticker__item {
+        min-width: 110px;
+    }
+}
+
+/* ---------- Hizmetler Grid (Ana Sayfa - Mobil Yatay Kaydırma) ---------- */
+@media (max-width: 767.98px) {
+    .home-srv-grid {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scroll-snap-type: x mandatory !important;
+        scroll-behavior: smooth !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 14px !important;
+        padding: 8px 4px 20px 4px !important;
+        margin: 0 -4px !important;
+        scrollbar-width: none;
+    }
+
+    .home-srv-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .home-srv-card {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 230px !important;
+        height: auto !important;
+        scroll-snap-align: center !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        gap: 16px !important;
+        padding: 24px !important;
+        border-radius: 18px !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07) !important;
+        background: #fff !important;
+        transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    }
+
+    .home-srv-card:active {
+        transform: scale(0.98) !important;
+    }
+
+    .home-srv-card__icon {
+        width: 52px !important;
+        height: 52px !important;
+        font-size: 1.4rem !important;
+        flex-shrink: 0 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .home-srv-card__body {
+        flex: 1 1 auto !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .home-srv-card__body strong {
+        font-size: 1.05rem !important;
+        display: block !important;
+        white-space: normal !important;
+        margin-bottom: 8px !important;
+        color: var(--secondary) !important;
+        line-height: 1.3 !important;
+    }
+
+    .home-srv-card__body small {
+        display: block !important;
+        font-size: 0.86rem !important;
+        color: var(--text-muted) !important;
+        line-height: 1.45 !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        -webkit-line-clamp: unset !important;
+    }
+
+    .home-srv-card__arrow {
+        align-self: flex-end !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        background: #f8fafc !important;
+        flex-shrink: 0 !important;
+        color: var(--primary) !important;
+    }
+}
+
+/* ---------- Directory Portal Sidebar (Esnaflar / Hizmetler) ---------- */
+@media (max-width: 991.98px) {
+    /* Sidebar gizle/göster toggle butonu */
+    .mobile-filter-toggle {
+        display: flex !important;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 18px;
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-main);
+        cursor: pointer;
+        box-shadow: var(--shadow-soft);
+        margin-bottom: 0;
+    }
+
+    .mobile-filter-toggle i.toggle-icon {
+        transition: transform 0.25s ease;
+        color: var(--primary);
+    }
+
+    .mobile-filter-toggle.is-open i.toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    /* Esnaflar (İşletmeler) sayfasında mobilde ilk filtreleme kısmını (search-dock) küçült ve kompakt yap */
+    .search-dock--directory .search-dock__field {
+        padding: 4px 12px !important;
+        min-height: 38px !important;
+    }
+
+    .search-dock--directory .search-dock__field .form-select,
+    .search-dock--directory .search-dock__field .form-control {
+        padding: 6px 0 !important;
+        font-size: 0.86rem !important;
+        height: auto !important;
+    }
+
+    .search-dock--directory .search-dock__field i {
+        font-size: 13px !important;
+    }
+
+    .search-dock--directory .search-dock__submit {
+        padding: 10px 16px !important;
+        font-size: 0.85rem !important;
+        min-height: 40px !important;
+    }
+
+    /* Tüm rehber sayfalarında (İşletmeler, Etkinlikler, Kampanyalar, Influencerlar) ikinci filtreleme kısmını (sidebar ve butonunu) mobilde tamamen kaldır */
+    .directory-portal-main #mobileFilterToggle,
+    .directory-portal-main #directoryFilterSidebar,
+    .directory-portal-main .directory-portal-sidebar,
+    .directory-portal-main .mobile-filter-toggle {
+        display: none !important;
+    }
+
+    /* Hizmetler sayfası sidebar nav — mobilde her zaman görünen yatay hap (pill) menü */
+    .srv-portal-nav {
+        display: block !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin-bottom: 16px;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .srv-portal-nav .portal-filter-panel__head {
+        display: none !important;
+    }
+
+    .srv-portal-nav__list {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        scrollbar-width: none;
+        gap: 8px;
+        padding-bottom: 4px;
+        max-height: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .srv-portal-nav__list::-webkit-scrollbar { display: none; }
+
+    .srv-portal-nav__list li {
+        flex-shrink: 0;
+        margin-bottom: 0 !important;
+    }
+
+    .srv-portal-nav__list a {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 16px !important;
+        border-radius: 999px !important;
+        border: 1px solid var(--border-color) !important;
+        background: #fff;
+        white-space: nowrap;
+        font-size: 13.5px;
+        font-weight: 500;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    .srv-portal-nav__list li.is-active a {
+        background: var(--primary) !important;
+        border-color: var(--primary) !important;
+        color: #fff !important;
+        font-weight: 600;
+    }
+
+    .srv-portal-nav__list li.is-active a i {
+        color: #fff !important;
+    }
+
+    .srv-portal-nav__num {
+        display: none;
+    }
+
+    /* Trust card gizle mobilde */
+    .portal-trust-card {
+        display: none !important;
+    }
+}
+
+/* ---------- Services Card Grid (Hizmetlerimiz) ---------- */
+@media (max-width: 767.98px) {
+    .portal-services-grid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .portal-service-card {
+        padding: 20px 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+
+    .portal-service-card__body,
+    .portal-service-card__body p,
+    .portal-service-card__body h3 {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .portal-service-card__footer {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .portal-service-card__btn {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        white-space: normal !important;
+        text-align: center !important;
+        line-height: 1.3 !important;
+    }
+}
+
+/* ---------- Genel Sayfa Typography & Spacing ---------- */
+@media (max-width: 767.98px) {
+    /* Business Detail Hero Breadcrumb — Mobilde Arkada Kalmayı Engelle */
+    .biz-portal-hero__inner {
+        align-items: flex-start !important;
+        padding: 24px 0 88px !important;
+        z-index: 10 !important;
+    }
+
+    .biz-portal-breadcrumb {
+        position: relative !important;
+        z-index: 10 !important;
+        font-size: 12px !important;
+        line-height: 1.45 !important;
+    }
+
+    .directory-portal-hero__title {
+        font-size: clamp(1.5rem, 6vw, 2.2rem) !important;
+    }
+
+    .portal-section {
+        padding-top: 36px !important;
+        padding-bottom: 36px !important;
+    }
+
+    .portal-section__head {
+        gap: 14px;
+    }
+
+    .portal-section__action {
+        width: auto;
+        font-size: 0.9rem;
+    }
+
+    /* Ana Sayfa Mobil Yatay Kaydırmalı Karuseller (Etkinlik, Kampanyalar, Blog, Influencer) */
+    .event-grid--home,
+    .portal-blog-grid,
+    .influencer-grid--home {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scroll-snap-type: x mandatory !important;
+        scroll-behavior: smooth !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 16px !important;
+        padding: 8px 4px 20px 4px !important;
+        margin: 0 -4px !important;
+        scrollbar-width: none;
+    }
+
+    .event-grid--home::-webkit-scrollbar,
+    .portal-blog-grid::-webkit-scrollbar,
+    .influencer-grid--home::-webkit-scrollbar {
+        display: none;
+    }
+
+    .event-grid--home .event-card,
+    .portal-blog-grid .portal-blog-card,
+    .influencer-grid--home .influencer-card {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        scroll-snap-align: center !important;
+        margin-bottom: 0 !important;
+    }
+
+    .home-srv-carousel-wrapper,
+    .home-carousel-wrapper {
+        padding: 0 8px !important;
+    }
+
+    .srv-nav-btn {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 13px !important;
+    }
+
+    .srv-nav-prev {
+        left: -8px !important;
+    }
+
+    .srv-nav-next {
+        right: -8px !important;
+    }
+
+    /* Featured işletme kartları */
+    .portal-featured-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* CTA panelleri dikey dizilim */
+    .srv-portal-cta__grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Portal section head dikey dizilim */
+    .directory-portal-hero__actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .directory-portal-hero__actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* Influencer grid tek sütun */
+    /* --- Ana Sayfa Mobil Yatay Kaydırmalı Karuseller (Etkinlik, Kampanyalar, Blog, Influencer) --- */
+    .event-grid--home,
+    .portal-blog-grid,
+    .influencer-grid--home {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scroll-snap-type: x mandatory !important;
+        scroll-behavior: smooth !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 16px !important;
+        padding: 8px 4px 20px 4px !important;
+        margin: 0 -4px !important;
+        scrollbar-width: none;
+    }
+
+    .event-grid--home::-webkit-scrollbar,
+    .portal-blog-grid::-webkit-scrollbar,
+    .influencer-grid--home::-webkit-scrollbar {
+        display: none;
+    }
+
+    .event-grid--home .event-card,
+    .portal-blog-grid .portal-blog-card,
+    .influencer-grid--home .influencer-card {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        scroll-snap-align: center !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* İlçeler grid */
+    .bolgeler-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* ---------- Mobile Filter Toggle Button (JS ile kontrol) ---------- */
+.mobile-filter-toggle {
+    display: none; /* Masaüstünde gizli */
+}
+
 

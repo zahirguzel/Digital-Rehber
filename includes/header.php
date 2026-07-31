@@ -248,35 +248,25 @@ $siteUrl = function ($path = '') use ($seoBaseUrlTrimmed) {
             <?php endif; ?>
         </a>
 
-        <!-- Mobil: logo yanında ana linkler -->
-        <ul class="portal-nav-mobile-quick d-lg-none" aria-label="Hızlı menü">
-            <li>
-                <a class="custom-nav-link <?= basename($_SERVER['SCRIPT_NAME']) == 'esnaflar.php' ? 'active' : '' ?>" href="<?= SecurityHelper::escape($siteUrl('esnaflar')) ?>">İşletmeler</a>
-            </li>
-            <li>
-                <a class="custom-nav-link <?= in_array(basename($_SERVER['SCRIPT_NAME']), ['influencerlar.php', 'influencer.php', 'influencer-basvuru.php', 'influencer-kaldirma-talebi.php'], true) ? 'active' : '' ?>" href="<?= SecurityHelper::escape($siteUrl('influencerlar')) ?>">Influencerlar</a>
-            </li>
-            <li>
-                <a class="custom-nav-link <?= strpos($_SERVER['SCRIPT_NAME'], 'blog.php') !== false || strpos($_SERVER['SCRIPT_NAME'], 'blog-detay.php') !== false ? 'active' : '' ?>" href="<?= SecurityHelper::escape($siteUrl('blog')) ?>">Blog</a>
-            </li>
-            <li>
-                <a class="custom-nav-link <?= basename($_SERVER['SCRIPT_NAME']) == 'iletisim.php' ? 'active' : '' ?>" href="<?= SecurityHelper::escape($siteUrl('iletisim')) ?>">İletişim</a>
-            </li>
-        </ul>
- 
-        <!-- Mobile Toggle -->
-        <button class="navbar-toggler border-0 shadow-none p-0 d-lg-none flex-shrink-0 ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Menüyü aç">
-            <i class="fa-solid fa-bars fs-4 text-dark"></i>
-        </button>
+        <!-- Mobil: logo yanında İşletmeni Ekle butonu ve 3 çizgi menü butonu -->
+        <div class="d-flex d-lg-none align-items-center gap-2 ms-auto">
+            <a href="<?= SecurityHelper::escape($siteUrl('iletisim?subject=' . urlencode('Yeni İşletme Kaydı'))) ?>" class="btn btn-primary btn-sm fw-semibold d-inline-flex align-items-center gap-1" style="border-radius: 6px; font-size: 11.5px; line-height: 1.2; padding: 6px 10px !important; white-space: nowrap;">
+                <i class="fa-solid fa-plus" style="font-size: 10px;"></i>
+                <span>İşletmeni Ekle</span>
+            </a>
+            <button class="navbar-toggler border-0 shadow-none p-2 flex-shrink-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Menüyü aç">
+                <i class="fa-solid fa-bars fs-4 text-dark"></i>
+            </button>
+        </div>
         </div>
  
         <!-- Menu Links -->
         <div class="collapse navbar-collapse portal-nav-collapse" id="mainNav">
             <ul class="navbar-nav portal-nav-links mx-auto mb-2 mb-lg-0 gap-1 gap-lg-2 mt-3 mt-lg-0">
-                <li class="nav-item d-none d-lg-block">
+                <li class="nav-item">
                     <a class="nav-link custom-nav-link <?= basename($_SERVER['SCRIPT_NAME']) == 'esnaflar.php' ? 'active' : '' ?>" href="<?= SecurityHelper::escape($siteUrl('esnaflar')) ?>">İşletmeler</a>
                 </li>
-                <li class="nav-item d-none d-lg-block">
+                <li class="nav-item">
                     <a class="nav-link custom-nav-link <?= in_array(basename($_SERVER['SCRIPT_NAME']), ['influencerlar.php', 'influencer.php', 'influencer-basvuru.php', 'influencer-kaldirma-talebi.php'], true) ? 'active' : '' ?>" href="<?= SecurityHelper::escape($siteUrl('influencerlar')) ?>">Influencerlar</a>
                 </li>
                 <li class="nav-item">
@@ -303,10 +293,10 @@ $siteUrl = function ($path = '') use ($seoBaseUrlTrimmed) {
                 <li class="nav-item">
                     <a class="nav-link custom-nav-link <?= basename($_SERVER['SCRIPT_NAME']) == 'hakkimizda.php' ? 'active' : '' ?>" href="<?= SecurityHelper::escape($siteUrl('hakkimizda')) ?>">Hakkımızda</a>
                 </li>
-                <li class="nav-item d-none d-lg-block">
+                <li class="nav-item">
                     <a class="nav-link custom-nav-link <?= strpos($_SERVER['SCRIPT_NAME'], 'blog.php') !== false || strpos($_SERVER['SCRIPT_NAME'], 'blog-detay.php') !== false ? 'active' : '' ?>" href="<?= SecurityHelper::escape($siteUrl('blog')) ?>">Blog</a>
                 </li>
-                <li class="nav-item d-none d-lg-block">
+                <li class="nav-item">
                     <a class="nav-link custom-nav-link <?= basename($_SERVER['SCRIPT_NAME']) == 'iletisim.php' ? 'active' : '' ?>" href="<?= SecurityHelper::escape($siteUrl('iletisim')) ?>">İletişim</a>
                 </li>
             </ul>
@@ -314,9 +304,9 @@ $siteUrl = function ($path = '') use ($seoBaseUrlTrimmed) {
             <!-- Right Action Buttons -->
             <div class="nav-actions portal-nav-actions d-flex align-items-center gap-2 mt-3 mt-lg-0" style="align-self: center; margin-top: -8px !important;">
                 <?php if (isset($_SESSION['user_logged_in']) && $_SESSION['user_logged_in']): ?>
-                    <div class="dropdown">
-                        <a href="#" class="btn btn-light border dropdown-toggle px-2 px-xl-3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-regular fa-user"></i> <span class="d-none d-xxl-inline ms-1"><?= SecurityHelper::escape($_SESSION['user_name'] ?? 'Profilim') ?></span>
+                    <div class="dropdown w-100">
+                        <a href="#" class="btn btn-light border dropdown-toggle px-3 py-2 w-100 d-flex align-items-center justify-content-center gap-1" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-regular fa-user"></i> <span><?= SecurityHelper::escape($_SESSION['user_name'] ?? 'Profilim') ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end border shadow-sm">
                             <li><a class="dropdown-item py-2" href="<?= SecurityHelper::escape($siteUrl('profil.php')) ?>"><i class="fa-solid fa-id-card me-2 text-muted"></i> Profilim</a></li>
@@ -325,9 +315,9 @@ $siteUrl = function ($path = '') use ($seoBaseUrlTrimmed) {
                         </ul>
                     </div>
                 <?php else: ?>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-primary fw-semibold dropdown-toggle px-3" type="button" id="loginDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-regular fa-user"></i> <span class="d-none d-xxl-inline ms-1">Giriş Yap</span>
+                    <div class="dropdown w-100">
+                        <button class="btn btn-outline-primary fw-semibold dropdown-toggle px-3 py-2 w-100 d-flex align-items-center justify-content-center gap-1" type="button" id="loginDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-regular fa-user"></i> <span>Giriş Yap</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg" aria-labelledby="loginDropdown" style="border-radius: 12px; padding: 10px; min-width: 200px;">
                             <li>
@@ -357,7 +347,7 @@ $siteUrl = function ($path = '') use ($seoBaseUrlTrimmed) {
                     </div>
                 <?php endif; ?>
                 
-                <a href="<?= SecurityHelper::escape($siteUrl('iletisim.php')) ?>" class="btn btn-primary btn-add-business portal-nav-cta-primary px-3">
+                <a href="<?= SecurityHelper::escape($siteUrl('iletisim.php')) ?>" class="btn btn-primary btn-add-business portal-nav-cta-primary px-3 d-none d-lg-inline-flex">
                     <i class="fa-solid fa-plus"></i>
                     <span class="d-none d-xl-inline ms-1">İşletme Ekle</span>
                     <i class="fa-solid fa-arrow-right d-none d-xxl-inline ms-1"></i>

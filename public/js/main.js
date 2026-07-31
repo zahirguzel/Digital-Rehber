@@ -51,12 +51,18 @@ function initRevealOnScroll() {
             }
         });
     }, {
-        threshold: 0.12,
-        rootMargin: '0px 0px -32px 0px'
+        threshold: 0,
+        rootMargin: '100px 0px 300px 0px'
     });
 
     for (var k = 0; k < elements.length; k++) {
-        observer.observe(elements[k]);
+        var el = elements[k];
+        var rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight + 250) {
+            el.classList.add('is-visible');
+        } else {
+            observer.observe(el);
+        }
     }
 }
 
