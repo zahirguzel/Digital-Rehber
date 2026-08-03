@@ -80,7 +80,7 @@ if ($admin['two_factor_enabled']) {
 }
 
 // Fetch site name for QR issuer label
-$_issuer = 'HatayWeb';
+$_issuer = 'DigitalRehber';
 try {
     $_row = $db->query("SELECT site_title FROM settings LIMIT 1")->fetch();
     if ($_row && !empty($_row['site_title'])) $_issuer = $_row['site_title'];

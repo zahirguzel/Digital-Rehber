@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../autoload.php';
 require_once __DIR__ . '/seo-meta.php';
 /**
- * Hatay influencer modülü — ortak sabitler ve yardımcılar
+ * Rehber influencer modülü — ortak sabitler ve yardımcılar
  */
 
 if (!function_exists('influencerNiches')) {

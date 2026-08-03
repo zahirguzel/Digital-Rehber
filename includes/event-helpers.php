@@ -1,6 +1,6 @@
 <?php
 /**
- * Hatay etkinlikler modülü — ortak sabitler ve yardımcılar
+ * Rehber etkinlikler modülü — ortak sabitler ve yardımcılar
  */
 require_once __DIR__ . '/seo-meta.php';
 

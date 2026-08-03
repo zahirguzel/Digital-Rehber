@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && in_array
                 }
             }
             if ($district === '') {
-                $district = 'Hatay';
+                $district = 'Genel';
             }
 
             $stmtCheck = $db->query('SELECT COUNT(*) FROM campaigns WHERE slug = ? AND id != ?', [$slug, $id]);

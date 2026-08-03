@@ -230,7 +230,7 @@ if (!function_exists('telegramSendTestNotification')) {
             return ['sent' => 0, 'total' => 0];
         }
 
-        $siteTitle = 'Hatay Rehber Medya';
+        $siteTitle = 'Rehber Medya';
         try {
             $siteTitle = $pdo->query('SELECT site_title FROM settings WHERE id = 1')->fetchColumn() ?: $siteTitle;
         } catch (Exception $e) {

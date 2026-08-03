@@ -338,7 +338,7 @@ elseif ($action === 'add' || $action === 'edit'): ?>
                     <!-- Meta Keywords -->
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">SEO Anahtar Kelimeleri</label>
-                        <input type="text" name="meta_keywords" class="form-control" placeholder="anahtar, kelimeler, hatay, gezi" value="<?= htmlspecialchars($blogData['meta_keywords'] ?? '') ?>">
+                        <input type="text" name="meta_keywords" class="form-control" placeholder="anahtar, kelimeler, gezi, seyahat" value="<?= htmlspecialchars($blogData['meta_keywords'] ?? '') ?>">
                     </div>
                 </div>
                 

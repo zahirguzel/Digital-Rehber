@@ -20,7 +20,7 @@ içerik YOKTUR. Kurulum sonrası tüm içeriği admin panelinden siz eklersiniz.
   public/               → CSS, JS, görseller
   migrations/           → Geliştirici güncellemeleri (temiz kurulumda GEREKMEZ)
 
-  NOT — database-hatay-full.sql:
+  NOT — database-ornek-full.sql:
   Orijinal geliştiricinin dolu demo/canlı yedeği. Bu pakette referans içindir;
   yeni kurulum için KULLANMAYIN. Sadece database.sql import edin.
 
@@ -103,7 +103,7 @@ Adım 4 — config/db.php güncelleyin
   Hosting bilgilerinizi girin.
 
 Adım 5 — .htaccess domain ayarı
-  Dosyada hatayrehbermedya.com için yazılmış yönlendirme satırları olabilir.
+  Dosyada kendi domaininiz için yazılmış yönlendirme satırları olabilir.
   Kendi domaininize göre düzenleyin veya o satırları silin/yorum yapın:
 
   Örnek (kendi domaininiz):
@@ -132,16 +132,29 @@ Admin paneli: /admin/login.php
 6. KURULUM SONRASI YAPILACAKLAR (SIRAYLA)
 --------------------------------------------------------------------------------
 
-  1. Admin → Ayarlar
-     Site adı, açıklama, logo, iletişim, sosyal medya, renk
+  1. E-Posta (SMTP) Ayarları (Şifre sıfırlama, iletişim, kayıt onayı için)
+     → Ana dizindeki ".env.example" dosyasının adını ".env" olarak değiştirin.
+     → İçerisindeki MAIL_HOST, MAIL_USER, MAIL_PASS bilgilerini kendi 
+       hosting'inizin veya Gmail'in SMTP ayarlarına göre doldurun.
+     → Örn: MAIL_HOST=smtp.hostinger.com, MAIL_PORT=465 gibi.
 
-  2. Admin → İlçeler (varsa) veya İlçe Sayfaları
-     Kendi bölgelerinizi ekleyin (Lefkoşa, Girne, Gazimağusa vb.)
+  2. Admin → Ayarlar
+     → Sitenizin Genel Adını, Logolarını, Sosyal Medya Linklerini girin.
 
-  3. Admin → İşletmeler
-     İlk işletme kayıtlarınızı girin
+  3. Admin → SEO & Arama Motoru
+     → Sitenizin Meta Açıklaması (Description) ve Anahtar Kelimelerini 
+       (Keywords) belirleyin. (Örn: "Kıbrıs'ın en kapsamlı yerel rehberi")
+     → Varsa Google Analytics (G-XXXX) kodunuzu buraya yapıştırın.
 
-  4. Admin → Blog (isteğe bağlı)
+  4. Admin → Bölgeler (İller) ve İlçeler
+     → Hedef kitlenize uygun şehirleri (Örn: Lefkoşa, Girne) ekleyin.
+     → Sonra bu şehirlere ait ilçeleri oluşturun. İşletmeler bu ilçelere 
+       bağlanacaktır.
+
+  5. Admin → İşletmeler
+     → Kendi bölgelerinize ait ilk işletme kayıtlarınızı eklemeye başlayın.
+
+  6. Admin → Blog (İsteğe bağlı)
      Kendi rehber yazılarınızı ekleyin
 
   5. Admin → Influencer / Etkinlik / Kampanya (isteğe bağlı)
@@ -202,7 +215,7 @@ Admin paneli: /admin/login.php
 
   config/db.php           Veritabanı bağlantısı
   database.sql            Temiz kurulum (BU DOSYAYI KULLANIN)
-  database-hatay-full.sql Dolu yedek (KULLANMAYIN — referans)
+  database-ornek-full.sql Dolu yedek (KULLANMAYIN — referans)
   includes/               Ortak PHP dosyaları
   admin/                  Yönetim paneli
   isletme/                İşletme menü paneli

@@ -14,13 +14,13 @@ AddDefaultCharset UTF-8
     </FilesMatch>
 </IfModule>
 
-# Canlı site için açın:
-# RewriteCond %{HTTP_HOST} ^www\.hatayrehbermedya\.com$ [NC]
-# RewriteRule ^ https://hatayrehbermedya.com%{REQUEST_URI} [L,R=301]
+# Canlı site için açın (Kendi domaininize göre düzenleyin):
+# RewriteCond %{HTTP_HOST} ^www\.sizindomain\.com$ [NC]
+# RewriteRule ^ https://sizindomain.com%{REQUEST_URI} [L,R=301]
 #
-# RewriteCond %{HTTP_HOST} ^hatayrehbermedya\.com$ [NC]
+# RewriteCond %{HTTP_HOST} ^sizindomain\.com$ [NC]
 # RewriteCond %{HTTPS} off
-# RewriteRule ^ https://hatayrehbermedya.com%{REQUEST_URI} [L,R=301]
+# RewriteRule ^ https://sizindomain.com%{REQUEST_URI} [L,R=301]
 
 # --- Özel Sayfa Yönlendirmeleri (önce gelir) ---
 

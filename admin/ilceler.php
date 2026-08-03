@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $db = Database::getInstance();
+$pdo = $db->getPDO();
 
 require_once '../includes/seo-meta.php';
 require_once '../includes/district-helpers.php';
@@ -103,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 $page = null;
-$faqRows = getDistrictDefaultFaqs('Hatay', null);
+$faqRows = getDistrictDefaultFaqs('Sizin Bölgeniz', null);
 if ($action === 'edit' && $id > 0) {
     $row = getDistrictPageById($pdo, $id);
     if (!$row) {
@@ -155,9 +156,9 @@ endif; ?>
 if ($action === 'list'):
     try {
         $settingsQuery = $db->query("SELECT default_city FROM settings WHERE id = 1")->fetch();
-        $siteDefaultCity = $settingsQuery['default_city'] ?? 'Hatay';
+        $siteDefaultCity = $settingsQuery['default_city'] ?? 'Ana Bölgeniz';
     } catch (Exception $e) {
-        $siteDefaultCity = 'Hatay';
+        $siteDefaultCity = 'Ana Bölgeniz';
     }
 ?>
     <div class="card border-0 shadow-sm mb-4">

@@ -10,7 +10,7 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
 }
 
 // Fetch site name from settings
-$siteName = 'HatayWeb';
+$siteName = 'Digital Rehber';
 try {
     $row = $pdo->query("SELECT site_title FROM settings LIMIT 1")->fetch();
     if ($row && !empty($row['site_title'])) $siteName = $row['site_title'];

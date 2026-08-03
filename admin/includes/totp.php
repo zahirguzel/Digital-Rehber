@@ -80,7 +80,7 @@ function verifyCode($secret, $code) {
 /**
  * Build the otpauth:// URI for Google Authenticator.
  */
-function getOtpauthUrl($username, $secret, $issuer = 'HatayWeb') {
+function getOtpauthUrl($username, $secret, $issuer = 'DigitalRehber') {
     return 'otpauth://totp/'
         . rawurlencode($issuer . ':' . $username)
         . '?secret=' . $secret
@@ -91,7 +91,7 @@ function getOtpauthUrl($username, $secret, $issuer = 'HatayWeb') {
 /**
  * Return a QR code image URL via api.qrserver.com (no API key needed).
  */
-function getQrUrl($username, $secret, $issuer = 'HatayWeb') {
+function getQrUrl($username, $secret, $issuer = 'DigitalRehber') {
     $otpauth = getOtpauthUrl($username, $secret, $issuer);
     return 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' . rawurlencode($otpauth);
 }

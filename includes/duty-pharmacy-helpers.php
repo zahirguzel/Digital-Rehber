@@ -151,7 +151,7 @@ if (!function_exists('dutyPharmacyGetSettings')) {
 
 if (!function_exists('dutyPharmacyFetchFromApi')) {
     function dutyPharmacyFetchFromApi($apiKey, $date) {
-        $_apiCity = function_exists('seoGetRegionName') ? mb_strtolower(seoGetRegionName(), 'UTF-8') : 'hatay';
+        $_apiCity = function_exists('seoGetRegionName') ? mb_strtolower(seoGetRegionName(), 'UTF-8') : 'kibris';
         $url = dutyPharmacyApiBaseUrl() . '/pharmacies/on-duty?city=' . urlencode($_apiCity) . '&date=' . urlencode($date);
 
         if (!function_exists('curl_init')) {
@@ -444,7 +444,7 @@ if (!function_exists('dutyPharmacyMapsUrl')) {
         $query = dutyPharmacyMapsSearchQuery($pharmacy);
 
         $_region = function_exists('seoGetRegionName') ? seoGetRegionName() : 'Şehir';
-        if ($query === $_region . ', Türkiye' || $query === 'Hatay, Türkiye') {
+        if ($query === $_region . ', Türkiye' || $query === 'Kıbrıs') {
             $fallback = trim((string) ($pharmacy['name'] ?? '') . ' ' . (string) ($pharmacy['address'] ?? ''));
             $query = $fallback !== '' ? $fallback : $_region . ' eczane';
         }

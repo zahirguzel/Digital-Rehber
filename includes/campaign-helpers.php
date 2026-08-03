@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../autoload.php';
 /**
- * Hatay kampanyalar modülü — ortak sabitler ve yardımcılar
+ * Rehber kampanyalar modülü — ortak sabitler ve yardımcılar
  */
 
 if (!function_exists('campaignTypes')) {

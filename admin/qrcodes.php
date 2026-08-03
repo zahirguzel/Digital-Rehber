@@ -109,7 +109,7 @@ include 'includes/header.php';
                     <div>
                         <h5 class="fw-bold text-navy mb-2">QR Menü ve Dijital Kartvizit Sistemi Nasıl Çalışır?</h5>
                         <p class="text-muted mb-0 small" style="line-height: 1.6;">
-                            HatayWeb portalındaki her esnafın ve yayında olan her influencer profilinin kendine özel bir mobil dijital kartvizit sayfası vardır. Sosyal medya, menü ve iletişim bilgilerini tanımladığınızda sistem otomatik olarak
+                            Dijital Rehber portalındaki her esnafın ve yayında olan her influencer profilinin kendine özel bir mobil dijital kartvizit sayfası vardır. Sosyal medya, menü ve iletişim bilgilerini tanımladığınızda sistem otomatik olarak
                             <strong>esnaf için /slug</strong>, <strong>influencer için /i/slug</strong> formatında QR kod üretir. Kodu indirip teslim edebilirsiniz.
                         </p>
                     </div>
@@ -542,7 +542,7 @@ endforeach; endif; ?>
 
     async function downloadCustomQR() {
         if (!generatedCustomSrc) return;
-        await downloadQRCode(generatedCustomSrc, 'hatayweb-ozel');
+        await downloadQRCode(generatedCustomSrc, 'rehber-ozel');
     }
 </script>
 

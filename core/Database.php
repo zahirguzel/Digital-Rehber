@@ -18,7 +18,7 @@ class Database {
      */
     private function __construct() {
         $host = Environment::get('DB_HOST', 'localhost');
-        $dbname = Environment::get('DB_NAME', 'hatayweb');
+        $dbname = Environment::get('DB_NAME', 'digitalrehber_db');
         $username = Environment::get('DB_USER', 'root');
         $password = Environment::get('DB_PASS', '');
 

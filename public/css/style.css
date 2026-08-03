@@ -826,7 +826,7 @@ a:hover {
 
     .hero-phone-screen--video {
         background:
-            url('/public/images/hatayrehbermedyalogo.png') center 42% / 58% no-repeat,
+            url('/public/images/watermark.png') center 42% / 58% no-repeat,
             linear-gradient(180deg, #1F242B 0%, #2d3748 100%);
     }
 }
