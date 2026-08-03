@@ -103,10 +103,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && in_array
                     $sql = 'INSERT INTO influencers (name, slug, district, niche, bio, collaboration_types, instagram, tiktok, youtube, follower_instagram, follower_tiktok, follower_youtube, followers_verified_at, followers_verified_by, avatar_path, cover_path, featured_links, contact_email, theme_color, is_premium, is_verified, is_published, consent_given, consent_date, meta_description, meta_keywords) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
                     $stmt = $db->query($sql, [$name, $slug, $district, $niche, $bio, $collaboration_types, $instagram, $tiktok, $youtube, $follower_instagram, $follower_tiktok, $follower_youtube, $followers_verified_at, $followers_verified_by, $avatar_path, $cover_path, $featured_links, $contact_email, $theme_color, $is_premium, $is_verified, $is_published, $consent_given, $consent_date_val, $meta_description, $meta_keywords]);
                     $id = (int) $db->getPDO()->lastInsertId();
+                    if (function_exists('logAction')) logAction('create', 'influencers', $name, $id);
                     $successMsg = 'Influencer profili eklendi.';
                 } else {
                     $sql = 'UPDATE influencers SET name=?, slug=?, district=?, niche=?, bio=?, collaboration_types=?, instagram=?, tiktok=?, youtube=?, follower_instagram=?, follower_tiktok=?, follower_youtube=?, followers_verified_at=?, followers_verified_by=?, avatar_path=?, cover_path=?, featured_links=?, contact_email=?, theme_color=?, is_premium=?, is_verified=?, is_published=?, consent_given=?, consent_date=?, meta_description=?, meta_keywords=? WHERE id=?';
                     $stmt = $db->query($sql, [$name, $slug, $district, $niche, $bio, $collaboration_types, $instagram, $tiktok, $youtube, $follower_instagram, $follower_tiktok, $follower_youtube, $followers_verified_at, $followers_verified_by, $avatar_path, $cover_path, $featured_links, $contact_email, $theme_color, $is_premium, $is_verified, $is_published, $consent_given, $consent_date_val, $meta_description, $meta_keywords, $id]);
+                    if (function_exists('logAction')) logAction('update', 'influencers', $name, $id);
                     $successMsg = 'Profil güncellendi.';
                 }
 
@@ -129,7 +131,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && in_array
 
 if ($action === 'delete' && $id > 0) {
     try {
+        $stmtName = $db->getPDO()->prepare("SELECT name FROM influencers WHERE id = ?");
+        $stmtName->execute([$id]);
+        $delName = $stmtName->fetchColumn() ?: 'Influencer ID: ' . $id;
+
         $db->getPDO()->prepare('DELETE FROM influencers WHERE id = ?')->execute([$id]);
+        if (function_exists('logAction')) logAction('delete', 'influencers', $delName, $id);
         $successMsg = 'Profil silindi.';
     } catch (Exception $e) {
         $errorMsg = 'Silinemedi: ' . $e->getMessage();

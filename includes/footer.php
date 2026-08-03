@@ -147,10 +147,12 @@ if (!isset($siteUrl)) {
                         <a href="tel:<?= preg_replace('/[^0-9]/', '', $siteSettings['contact_phone']) ?>"><?= SecurityHelper::escape($siteSettings['contact_phone']) ?></a>
                     </li>
                     <?php endif; ?>
+                    <?php if (!empty($siteSettings['contact_email'])): ?>
                     <li>
                         <i class="fa-solid fa-envelope mt-1"></i>
-                        <a href="mailto:<?= SecurityHelper::escape($siteSettings['contact_email']) ?>"><?= SecurityHelper::escape($siteSettings['contact_email']) ?></a>
+                        <a href="mailto:<?= SecurityHelper::escape(trim($siteSettings['contact_email'])) ?>"><?= SecurityHelper::escape($siteSettings['contact_email']) ?></a>
                     </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>

@@ -32,6 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 'INSERT INTO district_pages (district_name, slug, is_published, sort_order) VALUES (?, ?, ?, 0)',
                 [$name, $slug, $isPublished]
             );
+            $newId = $db->getPDO()->lastInsertId();
+            if (function_exists('logAction')) logAction('create', 'district_pages', $name, $newId);
             $successMsg = 'Yeni ilçe/bölge başarıyla eklendi.';
         } catch (Exception $e) {
             $errorMsg = 'Ekleme hatası: ' . $e->getMessage();
@@ -42,7 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $delId = (int) $_GET['id'];
     try {
+        $stmtName = $db->query("SELECT district_name FROM district_pages WHERE id = ?", [$delId]);
+        $delName = $stmtName->fetchColumn() ?: 'İlçe ID: ' . $delId;
+        
         $db->query('DELETE FROM district_pages WHERE id = ?', [$delId]);
+        if (function_exists('logAction')) logAction('delete', 'district_pages', $delName, $delId);
         $successMsg = 'İlçe başarıyla silindi.';
     } catch (Exception $e) {
         $errorMsg = 'Silme hatası: ' . $e->getMessage();
@@ -86,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $isPublished,
                 $id,
             ]);
+            if (function_exists('logAction')) logAction('update', 'district_pages', 'ID: ' . $id, $id);
             $successMsg = 'İlçe rehber sayfası güncellendi.';
             $action = 'list';
         } catch (Exception $e) {

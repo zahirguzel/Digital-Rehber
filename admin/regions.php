@@ -26,7 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $stmt = $pdo->prepare("INSERT INTO cities (name) VALUES (?)");
                 $stmt->execute([$cityName]);
                 $successMsg = 'Yeni bölge eklendi.';
-                $_GET['city_id'] = $pdo->lastInsertId();
+                $newCityId = $pdo->lastInsertId();
+                $_GET['city_id'] = $newCityId;
+                if (function_exists('logAction')) logAction('create', 'cities', $cityName, $newCityId);
             } else {
                 $errorMsg = 'Bu bölge zaten mevcut.';
             }
@@ -54,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $stmt = $pdo->prepare("INSERT INTO districts (city_id, name) VALUES (?, ?)");
                 $stmt->execute([$cityId, $districtName]);
                 $successMsg = 'Yeni ilçe başarıyla eklendi.';
+                if (function_exists('logAction')) logAction('create', 'districts', $districtName, $pdo->lastInsertId());
             } else {
                 $errorMsg = 'Bu ilçe bu bölgede zaten mevcut.';
             }
@@ -68,8 +71,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 if (isset($_GET['delete_city'])) {
     $cityId = (int)$_GET['delete_city'];
     try {
+        $stmtName = $pdo->prepare("SELECT name FROM cities WHERE id = ?");
+        $stmtName->execute([$cityId]);
+        $delCityName = $stmtName->fetchColumn() ?: 'Bölge ID: ' . $cityId;
+
         $pdo->prepare("DELETE FROM cities WHERE id = ?")->execute([$cityId]);
         $successMsg = 'Bölge ve bağlı tüm ilçeler silindi.';
+        if (function_exists('logAction')) logAction('delete', 'cities', $delCityName, $cityId);
     } catch (Exception $e) {
         $errorMsg = 'Silme işlemi başarısız: ' . $e->getMessage();
     }
@@ -80,8 +88,13 @@ if (isset($_GET['delete_district'])) {
     $districtId = (int)$_GET['delete_district'];
     $cityId = (int)$_GET['city_id'];
     try {
+        $stmtName = $pdo->prepare("SELECT name FROM districts WHERE id = ?");
+        $stmtName->execute([$districtId]);
+        $delDistName = $stmtName->fetchColumn() ?: 'İlçe ID: ' . $districtId;
+
         $pdo->prepare("DELETE FROM districts WHERE id = ?")->execute([$districtId]);
         $successMsg = 'İlçe başarıyla silindi.';
+        if (function_exists('logAction')) logAction('delete', 'districts', $delDistName, $districtId);
     } catch (Exception $e) {
         $errorMsg = 'Silme işlemi başarısız: ' . $e->getMessage();
     }

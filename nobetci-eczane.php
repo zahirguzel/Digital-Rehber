@@ -78,7 +78,7 @@ require_once 'includes/header.php';
             <div class="search-dock__head">
                 <span class="search-dock__label"><i class="fa-solid fa-pills"></i> Nöbetçi Eczane Filtrele</span>
             </div>
-            <form action="/nobetci-eczane" method="GET" class="search-dock__form">
+            <form action="<?= seoGetBaseUrl() ?>/nobetci-eczane" method="GET" class="search-dock__form">
                 <div class="search-dock__field">
                     <label for="duty-search-district" class="visually-hidden">İlçe seçin</label>
                     <i class="fa-solid fa-location-dot" aria-hidden="true"></i>

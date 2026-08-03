@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_seo'])) {
     
     try {
         $stmt = $db->query("UPDATE settings SET site_description = ?, site_keywords = ?, google_analytics = ? WHERE id = 1", [$site_description, $site_keywords, $google_analytics]);
+        if (function_exists('logAction')) logAction('update', 'settings', 'SEO Ayarları', 1);
         $successMsg = "SEO ve Analitik ayarları başarıyla güncellendi.";
     } catch (Exception $e) {
         $errorMsg = "Ayarlar kaydedilirken hata oluştu: " . $e->getMessage();
@@ -36,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_robots'])) {
     $robotsFile = '../robots.txt';
     try {
         if (file_put_contents($robotsFile, $robots_content) !== false) {
+            if (function_exists('logAction')) logAction('update', 'robots.txt', 'Robots.txt Dosyası', 1);
             $successMsg = "Robots.txt dosyası başarıyla güncellendi.";
         } else {
             $errorMsg = "Robots.txt yazılırken bir hata oluştu. Lütfen dosya izinlerini kontrol edin.";

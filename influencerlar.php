@@ -98,7 +98,7 @@ require_once 'includes/header.php';
             <div class="search-dock__head">
                 <span class="search-dock__label"><i class="fa-solid fa-magnifying-glass"></i> Influencer Ara & Filtrele</span>
             </div>
-            <form action="/influencerlar" method="GET" class="search-dock__form search-dock__form--influencer">
+            <form action="<?= seoGetBaseUrl() ?>/influencerlar" method="GET" class="search-dock__form search-dock__form--influencer">
                 <div class="search-dock__field">
                     <label for="inf-search-district" class="visually-hidden">İlçe seçin</label>
                     <i class="fa-solid fa-location-dot" aria-hidden="true"></i>

@@ -20,9 +20,10 @@ $sql = 'SELECT ' . campaignListSelectSql() . campaignListJoinSql() . ' WHERE c.i
 $params = [];
 
 if ($view === 'past') {
-    $sql .= ' AND COALESCE(c.end_date, c.start_date) < :today';
+    $sql .= ' AND c.end_date IS NOT NULL AND c.end_date < :today';
 } else {
-    $sql .= ' AND COALESCE(c.end_date, c.start_date) >= :today';
+    // Süresiz kampanyalar (end_date IS NULL) veya bitiş tarihi bugün ve sonrası olanlar aktif sayılır.
+    $sql .= ' AND (c.end_date IS NULL OR c.end_date >= :today)';
 }
 $params[':today'] = $today;
 

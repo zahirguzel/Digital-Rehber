@@ -117,8 +117,8 @@ try {
 
 $sidebarAds = [];
 try {
-    $stmtAds = $pdo->query("SELECT * FROM advertisements WHERE active = 1 AND position = 'sidebar' ORDER BY id DESC");
-    $sidebarAds = $stmtAds->fetchAll();
+    $stmtAds = $pdo->query("SELECT * FROM advertisements WHERE active = 1 AND position = 'esnaf_alt' ORDER BY RAND() LIMIT 2");
+    $sidebarAds = $stmtAds->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {}
 
 if (!function_exists('bizResolveImageUrl')) {
@@ -325,12 +325,17 @@ require_once 'includes/header.php';
                 
                 <?php if (!empty($business['phone'])): ?>
                     <a href="tel:<?= preg_replace('/[^0-9+]/', '', $business['phone']) ?>" class="btn btn-primary biz-portal-profile__btn">
-                        <i class="fa-solid fa-phone"></i> �?imdi Ara
+                        <i class="fa-solid fa-phone"></i> Şimdi Ara
                     </a>
                 <?php endif; ?>
                 <?php if (!empty($business['whatsapp'])): ?>
                     <a href="https://wa.me/<?= SecurityHelper::escape(preg_replace('/[^0-9]/', '', $business['whatsapp'])) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp biz-portal-profile__btn">
                         <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                    </a>
+                <?php endif; ?>
+                <?php if (!empty($business['email'])): ?>
+                    <a href="mailto:<?= SecurityHelper::escape($business['email']) ?>" class="btn btn-outline-primary biz-portal-profile__btn">
+                        <i class="fa-solid fa-envelope"></i> E-posta Gönder
                     </a>
                 <?php endif; ?>
             </div>
@@ -669,6 +674,16 @@ require_once 'includes/header.php';
                         </li>
                         <?php endif; ?>
 
+                        <?php if (!empty($business['email'])): ?>
+                        <li>
+                            <span class="biz-portal-contact__icon"><i class="fa-solid fa-envelope"></i></span>
+                            <span class="biz-portal-contact__body">
+                                <small>E-posta</small>
+                                <a href="mailto:<?= SecurityHelper::escape($business['email']) ?>"><?= SecurityHelper::escape($business['email']) ?></a>
+                            </span>
+                        </li>
+                        <?php endif; ?>
+
                         <?php if (!empty($business['website'])):
                             $websiteDisplay = $business['website'];
                             if (strpos($websiteDisplay, 'http') !== 0) {
@@ -700,9 +715,9 @@ require_once 'includes/header.php';
                 <div class="directory-portal-ad">
                     <span class="directory-portal-ad__label">Sponsorlu Bağlantı</span>
                     <?php foreach ($sidebarAds as $ad):
-                        $adImg = (strpos($ad['image_path'], 'http') === 0) ? $ad['image_path'] : 'public/images/' . ltrim($ad['image_path'], '/');
+                        $adImg = (strpos($ad['image_path'], 'http') === 0) ? $ad['image_path'] : seoGetBaseUrl() . '/public/images/' . ltrim($ad['image_path'], '/');
                     ?>
-                        <a href="<?= SecurityHelper::escape($ad['target_url'] ?: '#') ?>" target="_blank" rel="noopener noreferrer" class="directory-portal-ad__link">
+                        <a href="<?= SecurityHelper::escape($ad['target_url'] ?: '#') ?>" target="_blank" rel="noopener noreferrer" class="directory-portal-ad__link mt-3">
                             <img src="<?= SecurityHelper::escape($adImg) ?>" alt="<?= SecurityHelper::escape($ad['title'] ?: ($siteTitle . ' Reklam')) ?>" loading="lazy" decoding="async">
                         </a>
                     <?php endforeach; ?>
@@ -733,11 +748,15 @@ require_once 'includes/header.php';
                 <h2 class="home-vip-cta__title">Aramıza Katılın, İşletmenizi Binlerce Kişiye Ulaştırın!</h2>
                 <p class="home-vip-cta__desc">Kıbrıs'ın en büyük dijital rehberinde yerinizi alın, dijital dünyada fark yaratın ve yeni müşteriler kazanın.</p>
             </div>
+            <?php
+            $vipWaPhone = preg_replace('/[^0-9]/', '', $siteSettings['contact_whatsapp'] ?? ($siteSettings['contact_phone'] ?? ''));
+            $vipWaUrl = !empty($vipWaPhone) ? ('https://wa.me/' . $vipWaPhone . '?text=' . urlencode('İşletmemi ekletmek istiyorum bilgi alabilir miyim?')) : seoResolveAbsoluteUrl('iletisim.php', $seoBaseUrl);
+            ?>
             <div class="home-vip-cta__actions">
-                <a href="<?= seoResolveAbsoluteUrl('isletme/login.php', $seoBaseUrl) ?>" class="home-vip-cta__btn-primary" target="_blank" rel="noopener noreferrer">
+                <a href="<?= seoResolveAbsoluteUrl('iletisim.php', $seoBaseUrl) ?>" class="home-vip-cta__btn-primary">
                     <i class="fa-solid fa-store"></i> Hemen İşletmeni Ekle
                 </a>
-                <a href="<?= seoResolveAbsoluteUrl('iletisim', $seoBaseUrl) ?>" class="home-vip-cta__btn-secondary">
+                <a href="<?= $vipWaUrl ?>" class="home-vip-cta__btn-secondary" target="_blank" rel="noopener noreferrer">
                     <i class="fa-brands fa-whatsapp"></i> Bilgi Al
                 </a>
             </div>

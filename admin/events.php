@@ -88,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && in_array
                     $sql = 'INSERT INTO events (title, slug, district, venue_name, address, start_date, end_date, start_time, end_time, category, description, cover_image_path, ticket_url, ticket_price, organizer, contact_phone, contact_email, google_maps_url, is_featured, is_published, meta_description, meta_keywords) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
                     $stmt = $db->query($sql, [$title, $slug, $district, $venue_name, $address, $start_date, $end_date_val, $start_time_val, $end_time_val, $category, $description, $cover_image_path, $ticket_url, $ticket_price, $organizer, $contact_phone, $contact_email, $google_maps_url, $is_featured, $is_published, $meta_description, $meta_keywords]);
                     $id = (int) $db->getPDO()->lastInsertId();
+                    if (function_exists('logAction')) logAction('create', 'events', $title, $id);
                     $successMsg = 'Etkinlik eklendi.';
                     $submissionId = isset($_POST['submission_id']) ? (int) $_POST['submission_id'] : 0;
                     if ($submissionId > 0) {
@@ -97,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && in_array
                 } else {
                     $sql = 'UPDATE events SET title=?, slug=?, district=?, venue_name=?, address=?, start_date=?, end_date=?, start_time=?, end_time=?, category=?, description=?, cover_image_path=?, ticket_url=?, ticket_price=?, organizer=?, contact_phone=?, contact_email=?, google_maps_url=?, is_featured=?, is_published=?, meta_description=?, meta_keywords=? WHERE id=?';
                     $stmt = $db->query($sql, [$title, $slug, $district, $venue_name, $address, $start_date, $end_date_val, $start_time_val, $end_time_val, $category, $description, $cover_image_path, $ticket_url, $ticket_price, $organizer, $contact_phone, $contact_email, $google_maps_url, $is_featured, $is_published, $meta_description, $meta_keywords, $id]);
+                    if (function_exists('logAction')) logAction('update', 'events', $title, $id);
                     $successMsg = 'Etkinlik güncellendi.';
                 }
 
@@ -119,7 +121,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && in_array
 
 if ($action === 'delete' && $id > 0) {
     try {
+        $stmtName = $db->getPDO()->prepare("SELECT title FROM events WHERE id = ?");
+        $stmtName->execute([$id]);
+        $delTitle = $stmtName->fetchColumn() ?: 'Etkinlik ID: ' . $id;
+
         $db->getPDO()->prepare('DELETE FROM events WHERE id = ?')->execute([$id]);
+        if (function_exists('logAction')) logAction('delete', 'events', $delTitle, $id);
         $successMsg = 'Etkinlik silindi.';
     } catch (Exception $e) {
         $errorMsg = 'Silinemedi: ' . $e->getMessage();

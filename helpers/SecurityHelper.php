@@ -271,4 +271,38 @@ class SecurityHelper {
 
         return ($path !== '' ? $path : $default) . $query;
     }
+
+    /**
+     * Merkezi Şifre Güvenlik Standardı Kontrolü
+     * Kural: En az 8 karakter, en az 1 büyük harf, en az 1 küçük harf ve en az 1 rakam içermelidir.
+     * @param string $password
+     * @return bool
+     */
+    public static function validatePasswordStrength($password) {
+        if (!is_string($password) || mb_strlen($password, 'UTF-8') < 8) {
+            return false;
+        }
+        // En az 1 büyük harf (Türkçe karakterler dahil)
+        if (!preg_match('/[A-ZÇĞİÖŞÜ]/u', $password)) {
+            return false;
+        }
+        // En az 1 küçük harf (Türkçe karakterler dahil)
+        if (!preg_match('/[a-zçğıöşü]/u', $password)) {
+            return false;
+        }
+        // En az 1 rakam
+        if (!preg_match('/[0-9]/', $password)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Şifre standardı karşılanmadığında gösterilecek standart Türkçe hata mesajı
+     * @return string
+     */
+    public static function getPasswordStrengthMessage() {
+        return 'Şifreniz en az 8 karakter uzunluğunda olmalı; en az bir büyük harf, bir küçük harf ve bir rakam içermelidir.';
+    }
 }
+

@@ -111,7 +111,7 @@ require_once 'includes/header.php';
                     if (!empty($biz['logo_path']) && $biz['logo_path'] !== 'default_logo.png') {
                         $bizLogo = (strpos($biz['logo_path'], 'http') === 0)
                             ? $biz['logo_path']
-                            : '/public/images/' . $biz['logo_path'];
+                            : seoGetBaseUrl() . '/public/images/' . ltrim($biz['logo_path'], '/');
                     }
                     $bizLetter = mb_strtoupper(mb_substr($biz['name'], 0, 1, 'UTF-8'), 'UTF-8');
                     $bizColor = !empty($biz['theme_color']) ? SecurityHelper::escape($biz['theme_color']) : '#1F242B';

@@ -43,7 +43,7 @@ if ($_sidebarPdo) {
     // Campaigns pending approval count
     $campaignsPendingCount = 0;
     try {
-        $campaignsPendingCount = (int)$_sidebarPdo->query("SELECT COUNT(*) FROM campaigns WHERE is_published = 0")->fetchColumn();
+        $campaignsPendingCount = (int)$_sidebarPdo->query("SELECT COUNT(*) FROM campaigns WHERE is_published = 0 AND (status = 'pending' OR status IS NULL)")->fetchColumn();
     } catch (Exception $e) {}
 }
 
@@ -119,6 +119,7 @@ $menu = [
         'id' => 'sistem',
         'items' => [
             ['title' => 'Site Ayarları', 'icon' => 'fa-solid fa-sliders', 'url' => 'settings.php'],
+            ['title' => 'Kullanıcılar & Üyeler', 'icon' => 'fa-solid fa-users', 'url' => 'users.php'],
             ['title' => 'Adminler', 'icon' => 'fa-solid fa-users-gear', 'url' => 'admins.php'],
             ['title' => 'İşlem Kayıtları', 'icon' => 'fa-solid fa-clock-rotate-left', 'url' => 'logs.php'],
             ['title' => '2FA Ayarı', 'icon' => 'fa-solid fa-shield-halved', 'url' => '2fa-setup.php'],

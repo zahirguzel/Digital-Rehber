@@ -467,14 +467,26 @@ require_once 'includes/header.php';
 <section class="portal-section portal-section--light portal-section--compact">
     <div class="container">
         <?php foreach ($homeBanners as $banner):
-            $bannerImg = (strpos($banner['image_path'], 'http') === 0) ? $banner['image_path'] : '/public/images/' . $banner['image_path'];
+            $bannerImg = (strpos($banner['image_path'], 'http') === 0) ? $banner['image_path'] : seoGetBaseUrl() . '/public/images/' . $banner['image_path'];
         ?>
-            <div class="portal-banner reveal-on-scroll">
+            <div class="portal-banner reveal-on-scroll mb-4">
                 <a href="<?= htmlspecialchars($banner['target_url'] ?: '#') ?>" target="_blank" rel="noopener noreferrer">
-                    <img src="<?= htmlspecialchars($bannerImg) ?>" alt="<?= htmlspecialchars($banner['title'] ?: ($siteTitle . ' Reklam')) ?>" width="1200" height="220" loading="lazy" decoding="async">
+                    <img src="<?= htmlspecialchars($bannerImg) ?>" alt="<?= htmlspecialchars($banner['title'] ?: ($siteTitle . ' Reklam')) ?>" width="1200" height="300" loading="lazy" decoding="async" style="max-height: 300px; object-fit: cover; width: 100%; border-radius: 12px;">
                 </a>
             </div>
         <?php endforeach; ?>
+    </div>
+</section>
+<?php else: ?>
+<section class="portal-section portal-section--light portal-section--compact">
+    <div class="container">
+        <div class="portal-banner reveal-on-scroll">
+            <a href="<?= seoResolveAbsoluteUrl('iletisim.php', $baseUrl) ?>" class="d-flex flex-column align-items-center justify-content-center text-center p-4 shadow-sm" style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; color: #64748b; text-decoration: none; min-height: 250px; transition: all 0.3s; width: 100%;">
+                <i class="fa-solid fa-rectangle-ad fs-1 mb-3 text-danger" style="opacity: 0.85;"></i>
+                <strong class="text-dark d-block mb-2 fs-5">Buraya Reklam Verebilirsiniz</strong>
+                <span class="text-muted">İşletmenizi ana sayfada on binlerce kişiye ulaştırmak ve detaylı bilgi almak için bizimle iletişime geçin.</span>
+            </a>
+        </div>
     </div>
 </section>
 <?php endif; ?>
@@ -490,11 +502,15 @@ require_once 'includes/header.php';
                 <h2 class="home-vip-cta__title">Aramıza Katılın, İşletmenizi Binlerce Kişiye Ulaştırın!</h2>
                 <p class="home-vip-cta__desc">Kıbrıs'ın en büyük dijital rehberinde yerinizi alın, dijital dünyada fark yaratın ve yeni müşteriler kazanın.</p>
             </div>
+            <?php
+            $vipWaPhone = preg_replace('/[^0-9]/', '', $siteSettings['contact_whatsapp'] ?? ($siteSettings['contact_phone'] ?? ''));
+            $vipWaUrl = !empty($vipWaPhone) ? ('https://wa.me/' . $vipWaPhone . '?text=' . urlencode('İşletmemi ekletmek istiyorum bilgi alabilir miyim?')) : seoResolveAbsoluteUrl('iletisim.php', $baseUrl);
+            ?>
             <div class="home-vip-cta__actions">
-                <a href="<?= seoResolveAbsoluteUrl('isletme/login.php', $baseUrl) ?>" class="home-vip-cta__btn-primary" target="_blank" rel="noopener noreferrer">
+                <a href="<?= seoResolveAbsoluteUrl('iletisim.php', $baseUrl) ?>" class="home-vip-cta__btn-primary">
                     <i class="fa-solid fa-store"></i> Hemen İşletmeni Ekle
                 </a>
-                <a href="<?= seoResolveAbsoluteUrl('iletisim', $baseUrl) ?>" class="home-vip-cta__btn-secondary">
+                <a href="<?= $vipWaUrl ?>" class="home-vip-cta__btn-secondary" target="_blank" rel="noopener noreferrer">
                     <i class="fa-brands fa-whatsapp"></i> Bilgi Al
                 </a>
             </div>

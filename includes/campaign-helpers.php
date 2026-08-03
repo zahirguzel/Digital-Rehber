@@ -41,21 +41,40 @@ if (!function_exists('getCampaignImageUrl')) {
         if (empty($path)) {
             return $fallback;
         }
+        // Harici URL ise doğrudan döndür
         if (strpos($path, 'http') === 0) {
             return $path;
         }
-        $base = '';
+
+        // 1. Önce seoGetBaseUrl() ile tam base URL dene (en güvenilir)
         if (function_exists('seoGetBaseUrl')) {
             $base = rtrim(seoGetBaseUrl(), '/');
-        } elseif (defined('BASE_URL')) {
-            $base = rtrim(BASE_URL, '/');
-        } else {
-            $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-            $pos = strpos($scriptName, '/admin/');
+            return $base . '/public/images/' . ltrim($path, '/');
+        }
+
+        // 2. Fallback: DOCUMENT_ROOT ile proje kök yolunu hesapla
+        // public/images/ klasörünün gerçek FS yolunu bul
+        $imagesDir = __DIR__ . '/../public/images/';
+        $docRoot   = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/\\');
+
+        // Gerçek path varsa relative URL hesapla
+        $realImages = realpath($imagesDir);
+        if ($realImages && $docRoot !== '') {
+            $realDocRoot = realpath($docRoot);
+            if ($realDocRoot && strpos($realImages, $realDocRoot) === 0) {
+                $webPath = str_replace('\\', '/', substr($realImages, strlen($realDocRoot)));
+                return rtrim($webPath, '/') . '/' . ltrim($path, '/');
+            }
+        }
+
+        // 3. Son çare: SCRIPT_NAME tabanlı fallback
+        $base = '';
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        foreach (['/admin/', '/isletme/'] as $segment) {
+            $pos = strpos($scriptName, $segment);
             if ($pos !== false) {
                 $base = rtrim(substr($scriptName, 0, $pos), '/');
-            } elseif (($pos = strpos($scriptName, '/isletme/')) !== false) {
-                $base = rtrim(substr($scriptName, 0, $pos), '/');
+                break;
             }
         }
         return $base . '/public/images/' . ltrim($path, '/');

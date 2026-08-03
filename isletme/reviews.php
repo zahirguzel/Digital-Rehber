@@ -255,21 +255,51 @@ require_once __DIR__ . '/includes/header.php';
 
             <?php if ($totalPages > 1): ?>
                 <div class="card-footer bg-white border-top py-3">
-                    <nav aria-label="Isletme yorumlari sayfalama">
-                        <ul class="pagination pagination-sm justify-content-center mb-0 flex-wrap gap-1">
-                            <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-                                <a class="page-link" href="<?= htmlspecialchars($buildReviewsUrl(['page' => $page - 1])) ?>">Onceki</a>
-                            </li>
-                            <?php for ($pageNo = 1; $pageNo <= $totalPages; $pageNo++): ?>
-                                <li class="page-item <?= $pageNo === $page ? 'active' : '' ?>">
-                                    <a class="page-link" href="<?= htmlspecialchars($buildReviewsUrl(['page' => $pageNo])) ?>"><?= $pageNo ?></a>
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+                        <small class="text-muted">
+                            Toplam <strong><?= (int)$totalReviews ?></strong> yorumdan
+                            <strong><?= min(($page - 1) * $perPage + 1, $totalReviews) ?>–<?= min($page * $perPage, $totalReviews) ?></strong> arası gösteriliyor
+                        </small>
+                        <nav aria-label="Işletme yorumları sayfalama">
+                            <ul class="pagination pagination-sm mb-0 flex-wrap gap-1">
+                                <!-- Önceki -->
+                                <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                                    <a class="page-link rounded" href="<?= htmlspecialchars($buildReviewsUrl(['page' => $page - 1])) ?>" aria-label="Önceki">
+                                        <i class="fa-solid fa-chevron-left" style="font-size:11px;"></i>
+                                    </a>
                                 </li>
-                            <?php endfor; ?>
-                            <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
-                                <a class="page-link" href="<?= htmlspecialchars($buildReviewsUrl(['page' => $page + 1])) ?>">Sonraki</a>
-                            </li>
-                        </ul>
-                    </nav>
+
+                                <?php
+                                // Akıllı pencereli sayfalama: ilk, son, aktif ±2 + araya "..."
+                                $window = 2;
+                                $pagesToShow = [];
+                                for ($pn = 1; $pn <= $totalPages; $pn++) {
+                                    if ($pn === 1 || $pn === $totalPages
+                                        || ($pn >= $page - $window && $pn <= $page + $window)) {
+                                        $pagesToShow[] = $pn;
+                                    }
+                                }
+                                $prev = null;
+                                foreach ($pagesToShow as $pn):
+                                    if ($prev !== null && $pn - $prev > 1): ?>
+                                        <li class="page-item disabled"><span class="page-link border-0 bg-transparent px-1">…</span></li>
+                                    <?php endif; ?>
+                                    <li class="page-item <?= $pn === $page ? 'active' : '' ?>">
+                                        <a class="page-link rounded" href="<?= htmlspecialchars($buildReviewsUrl(['page' => $pn])) ?>"><?= $pn ?></a>
+                                    </li>
+                                <?php
+                                    $prev = $pn;
+                                endforeach; ?>
+
+                                <!-- Sonraki -->
+                                <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
+                                    <a class="page-link rounded" href="<?= htmlspecialchars($buildReviewsUrl(['page' => $page + 1])) ?>" aria-label="Sonraki">
+                                        <i class="fa-solid fa-chevron-right" style="font-size:11px;"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             <?php endif; ?>
         <?php endif; ?>
@@ -284,7 +314,7 @@ require_once __DIR__ . '/includes/header.php';
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--primary), #2563eb);
+    background: linear-gradient(135deg, var(--primary), #B71C1C);
     color: #fff;
     font-weight: 700;
     flex-shrink: 0;

@@ -30,9 +30,10 @@ class User extends BaseModel {
         $user = $this->whereFirst('email', $email);
         
         if ($user && SecurityHelper::verifyPassword($password, $user['password'])) {
-            if ($user['is_active'] == 1) {
-                return $user;
+            if (isset($user['is_active']) && intval($user['is_active']) === 0) {
+                return 'banned';
             }
+            return $user;
         }
         
         return false;

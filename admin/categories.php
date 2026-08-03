@@ -39,10 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     if ($_POST['action'] === 'add') {
                         $stmtIns = $db->query("INSERT INTO categories (name, slug, icon) VALUES (?, ?, ?)", [$name, $slug, $icon]);
+                        $newId = $db->getPDO()->lastInsertId();
+                        if (function_exists('logAction')) logAction('create', 'categories', $name, $newId);
                         $successMsg = "Kategori başarıyla eklendi.";
                         $action = 'list';
                     } else {
                         $stmtUp = $db->query("UPDATE categories SET name = ?, slug = ?, icon = ? WHERE id = ?", [$name, $slug, $icon, $id]);
+                        if (function_exists('logAction')) logAction('update', 'categories', $name, $id);
                         $successMsg = "Kategori başarıyla güncellendi.";
                         $action = 'list';
                     }
@@ -57,7 +60,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Delete Category
 if ($action === 'delete' && $id > 0) {
     try {
+        $stmtCat = $db->query("SELECT name FROM categories WHERE id = ?", [$id]);
+        $catName = $stmtCat->fetchColumn() ?: 'Kategori ID: ' . $id;
+
         $stmtDel = $db->query("DELETE FROM categories WHERE id = ?", [$id]);
+        if (function_exists('logAction')) logAction('delete', 'categories', $catName, $id);
         $successMsg = "Kategori başarıyla silindi.";
     } catch (Exception $e) {
         $errorMsg = "Kategori silinemedi (Bu kategoriye bağlı işletmeler olabilir): " . $e->getMessage();

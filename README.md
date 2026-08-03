@@ -429,6 +429,80 @@ Bu platform herhangi bir şehir veya ülke için özelleştirilebilir:
 
 ---
 
+## 🚀 Canlı Ortam (Production) Kurulumu & E-posta Onay Sistemi
+
+Platformu yerel sunucudan (localhost / XAMPP) canlı sunucuya taşıdığınızda, **Şifremi Unuttum** (hem normal kullanıcılar `sifremi-unuttum.php` hem de işletme sahipleri `isletme/sifremi-unuttum.php`) ekranlarındaki e-posta doğrulama (OTP) kodlarının gerçek e-posta olarak gönderilmesi ve test amaçlı "Geliştirici Modu"nun kapatılması için aşağıdaki adımları izleyin:
+
+### 1. Geliştirici Modunu (`dev_otp`) Kapatmak
+
+Yerel geliştirme ortamlarında kolay test edilebilmesi için 6 haneli OTP kodu ekranda sarı bir uyarı kutusu içerisinde gösterilmektedir (`dev_otp`).
+
+- **Otomatik Devre Dışı Kalma:**  
+  Canlı sunucuya geçtiğinizde, sistem alan adınızı (`$_SERVER['SERVER_NAME']`) algılar; alan adınız `localhost` veya `127.0.0.1` dışındaki gerçek bir domain olduğunda **Geliştirici Modu otomatik olarak devre dışı kalır** ve ekrandaki sarı uyarı kutusu gizlenir (`dev_otp` değeri `null` döner).
+- **Manuel Olarak Tamamen Kapatmak (Opsiyonel):**  
+  Yerel ortamda veya test sunucusunda da ekranda şifre göstermeyi tamamen kapatmak isterseniz, [`services/PasswordResetService.php`](file:///c:/xampp/htdocs/digitalrehber/services/PasswordResetService.php#L83) dosyasını açıp satır 85 civarındaki kontrolü değiştirebilirsiniz:
+  ```php
+  // Mevcut kod (sadece localhost'ta açılır):
+  $isLocalhost = in_array($_SERVER['SERVER_NAME'] ?? 'localhost', ['localhost', '127.0.0.1', '::1']);
+
+  // Her zaman kapalı olmasını isterseniz:
+  $isLocalhost = false;
+  ```
+
+### 2. Canlı Sunucuda Gerçek E-posta Onayı (PHPMailer / SMTP) Kurulumu
+
+Sistemde Composer ile yüklü **PHPMailer** kütüphanesi hazır durumdadır. OTP kodlarının canlı sunucuda kullanıcıların ve işletmelerin e-posta adreslerine kurumsal şablonla gönderilmesi için [`services/PasswordResetService.php`](file:///c:/xampp/htdocs/digitalrehber/services/PasswordResetService.php#L82) dosyasındaki `requestOtp($email)` metodu içerisinde bulunan **`// 8. E-posta Gönderim Simülasyonu / Kancası`** bölümüne aşağıdaki kod bloğunu ekleyin:
+
+```php
+// 8. PHPMailer ile Gerçek SMTP E-posta Gönderimi (Canlı Sunucu İçin)
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+$mail = new PHPMailer(true);
+try {
+    // SMTP Sunucu Ayarları
+    $mail->isSMTP();
+    $mail->Host       = 'smtp.domainadi.com';        // SMTP Sunucu Adresiniz (örn: mail.siteniz.com)
+    $mail->SMTPAuth   = true;
+    $mail->Username   = 'noreply@domainadi.com';     // SMTP E-posta hesabınız
+    $mail->Password   = 'SMTP_SIFRENIZ';             // SMTP E-posta şifreniz
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // SSL için ENCRYPTION_SMTPS (465), TLS için ENCRYPTION_STARTTLS (587)
+    $mail->Port       = 465;                         // SSL Portu: 465 | TLS Portu: 587
+    $mail->CharSet    = 'UTF-8';
+
+    // Gönderen & Alıcı Bilgileri
+    $mail->setFrom('noreply@domainadi.com', 'Dijital Rehber');
+    $mail->addAddress($email);
+
+    // HTML E-posta İçeriği (Kurumsal Kırmızı Temalı Şablon)
+    $mail->isHTML(true);
+    $mail->Subject = 'Şifre Sıfırlama Doğrulama Kodu';
+    $mail->Body    = "
+        <div style='font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;'>
+            <h2 style='color: #D62828; text-align: center; margin-bottom: 15px;'>Şifre Sıfırlama Kodunuz</h2>
+            <p style='color: #1a1a1a; font-size: 14px;'>Merhaba,</p>
+            <p style='color: #4a5568; font-size: 14px; line-height: 1.5;'>
+                Hesabınızın şifresini yenilemek için aşağıdaki 6 haneli doğrulama kodunu kullanabilirsiniz. Kodunuzun geçerlilik süresi <strong>5 dakikadır</strong>.
+            </p>
+            <div style='background: #fce8e8; color: #D62828; font-size: 32px; font-weight: bold; text-align: center; padding: 18px; border-radius: 10px; letter-spacing: 8px; margin: 25px 0;'>
+                {$otpCode}
+            </div>
+            <p style='font-size: 12px; color: #718096; text-align: center; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px;'>
+                Bu talebi siz gerçekleştirmediysanız, lütfen bu e-postayı dikkate almayın ve hesabınızın güvenliğini sağlayın.
+            </p>
+        </div>
+    ";
+
+    $mail->send();
+} catch (Exception $e) {
+    error_log('OTP E-posta Gönderim Hatası: ' . $mail->ErrorInfo);
+}
+```
+
+> **İpucu:** Bu entegrasyonu yaptığınızda hem normal kullanıcılar (`sifremi-unuttum.php`) hem de işletme sahipleri (`isletme/sifremi-unuttum.php`) için e-posta onaylı şifre yenileme akışı canlı ortamda sorunsuz olarak çalışacaktır.
+
+---
+
 ## 📄 Lisans
 
 Bu proje beyaz etiket bir yerel rehber sistemidir. Kullanım hakları yazılımı size gönderen kişiye aittir.

@@ -24,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errorMsg = 'Lütfen tüm alanları doldurun.';
     } elseif ($pwNew !== $pwConfirm) {
         $errorMsg = 'Şifreler eşleşmiyor.';
-    } elseif (strlen($pwNew) < 6) {
-        $errorMsg = 'Şifreniz en az 6 karakter olmalıdır.';
+    } elseif (!SecurityHelper::validatePasswordStrength($pwNew)) {
+        $errorMsg = SecurityHelper::getPasswordStrengthMessage();
     } else {
         try {
             $hashed = SecurityHelper::hashPassword($pwNew);
@@ -94,11 +94,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Yeni Şifreniz</label>
-                                <input type="password" name="pw_new" class="form-control" required placeholder="En az 6 karakter">
+                                <input type="password" name="pw_new" class="form-control" required placeholder="En az 8 karakter (A-Z, a-z, 0-9)">
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-semibold">Yeni Şifreniz (Tekrar)</label>
-                                <input type="password" name="pw_confirm" class="form-control" required placeholder="En az 6 karakter">
+                                <input type="password" name="pw_confirm" class="form-control" required placeholder="Yeni şifrenizi tekrar yazın">
+                                <div class="form-text small text-muted mt-2">
+                                    <i class="fa-solid fa-circle-info text-primary me-1"></i>
+                                    Şifreniz en az 8 karakter uzunluğunda olmalı; en az bir büyük harf, bir küçük harf ve bir rakam içermelidir.
+                                </div>
                             </div>
                             
                             <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">

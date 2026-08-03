@@ -43,10 +43,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     if ($_POST['action'] === 'add') {
                         $db->query("INSERT INTO services (title, slug, icon, description, subject, cta_url, cta_type) VALUES (?, ?, ?, ?, ?, ?, ?)", [$title, $slug, $icon, $description, $subject, $cta_url, $cta_type]);
+                        $newId = $db->getPDO()->lastInsertId();
+                        if (function_exists('logAction')) logAction('create', 'services', $title, $newId);
                         $successMsg = "Hizmet başarıyla eklendi.";
                         $action = 'list';
                     } else {
                         $db->query("UPDATE services SET title = ?, slug = ?, icon = ?, description = ?, subject = ?, cta_url = ?, cta_type = ? WHERE id = ?", [$title, $slug, $icon, $description, $subject, $cta_url, $cta_type, $id]);
+                        if (function_exists('logAction')) logAction('update', 'services', $title, $id);
                         $successMsg = "Hizmet başarıyla güncellendi.";
                         $action = 'list';
                     }
@@ -61,7 +64,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Delete Service
 if ($action === 'delete' && $id > 0) {
     try {
+        $stmtSrv = $db->query("SELECT title FROM services WHERE id = ?", [$id]);
+        $srvTitle = $stmtSrv->fetchColumn() ?: 'Hizmet ID: ' . $id;
+
         $stmtDel = $db->query("DELETE FROM services WHERE id = ?", [$id]);
+        if (function_exists('logAction')) logAction('delete', 'services', $srvTitle, $id);
         $successMsg = "Hizmet başarıyla silindi.";
     } catch (Exception $e) {
         $errorMsg = "Hizmet silinemedi: " . $e->getMessage();

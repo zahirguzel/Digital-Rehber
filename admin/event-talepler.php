@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (in_array($status, ['pending', 'approved', 'rejected'], true)) {
             $notes = trim($_POST['admin_notes'] ?? '');
             $db->getPDO()->prepare('UPDATE event_submissions SET status = ?, admin_notes = ? WHERE id = ?')->execute([$status, $notes, (int) $_POST['submission_id']]);
+            if (function_exists('logAction')) logAction('status_change', 'event_submissions', 'Durum: ' . $status, (int)$_POST['submission_id']);
             $successMsg = 'Başvuru durumu güncellendi.';
         }
     }

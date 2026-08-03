@@ -66,12 +66,20 @@ class Session {
      * Initialize new session
      */
     private static function initialize() {
+        // Olası csrf_token'ı koru
+        $csrfToken = $_SESSION['csrf_token'] ?? null;
+
         session_regenerate_id(true);
         $_SESSION['initiated'] = true;
         $_SESSION['ip'] = self::getClientIP();
         $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $_SESSION['last_regeneration'] = time();
         $_SESSION['last_activity'] = time();
+
+        // CSRF token'ı geri yaz
+        if ($csrfToken !== null && !isset($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = $csrfToken;
+        }
     }
 
     /**
@@ -116,8 +124,16 @@ class Session {
 
         $elapsed = time() - $_SESSION['last_regeneration'];
         if ($elapsed > self::$regenerate_interval) {
-            session_regenerate_id(true);
+            // Kritik token'ları yenileme öncesi koru
+            $csrfToken = $_SESSION['csrf_token'] ?? null;
+
+            session_regenerate_id(false); // false: eski oturum dosyasını hemen silme
             $_SESSION['last_regeneration'] = time();
+
+            // CSRF token'ı koru — regenerate sonrası kaybolmaması için geri yaz
+            if ($csrfToken !== null) {
+                $_SESSION['csrf_token'] = $csrfToken;
+            }
         }
     }
 

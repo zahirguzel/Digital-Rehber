@@ -253,7 +253,8 @@ require_once 'includes/header.php';
                     <div class="directory-portal-ad">
                         <span class="directory-portal-ad__label">Sponsorlu Bağlantı</span>
                         <?php foreach ($sidebarAds as $ad):
-                            $adImg = (strpos($ad['image_path'], 'http') === 0) ? $ad['image_path'] : '/public/images/' . $ad['image_path'];
+                            if (empty($ad['image_path'])) continue;
+                            $adImg = (strpos($ad['image_path'], 'http') === 0) ? $ad['image_path'] : seoGetBaseUrl() . '/public/images/' . ltrim($ad['image_path'], '/');
                         ?>
                             <a href="<?= SecurityHelper::escape($ad['target_url'] ?: '#') ?>" target="_blank" rel="noopener noreferrer" class="directory-portal-ad__link">
                                 <img src="<?= SecurityHelper::escape($adImg) ?>" alt="<?= SecurityHelper::escape($ad['title'] ?: 'Şehir Rehberi Reklam') ?>" loading="lazy" decoding="async">
@@ -476,11 +477,15 @@ require_once 'includes/header.php';
                 <h2 class="home-vip-cta__title">Aramıza Katılın, İşletmenizi Binlerce Kişiye Ulaştırın!</h2>
                 <p class="home-vip-cta__desc">Kıbrıs'ın en büyük dijital rehberinde yerinizi alın, dijital dünyada fark yaratın ve yeni müşteriler kazanın.</p>
             </div>
+            <?php
+            $vipWaPhone = preg_replace('/[^0-9]/', '', $siteSettings['contact_whatsapp'] ?? ($siteSettings['contact_phone'] ?? ''));
+            $vipWaUrl = !empty($vipWaPhone) ? ('https://wa.me/' . $vipWaPhone . '?text=' . urlencode('İşletmemi ekletmek istiyorum bilgi alabilir miyim?')) : seoResolveAbsoluteUrl('iletisim.php', seoGetBaseUrl());
+            ?>
             <div class="home-vip-cta__actions">
-                <a href="<?= seoResolveAbsoluteUrl('isletme/login.php', seoGetBaseUrl()) ?>" class="home-vip-cta__btn-primary" target="_blank" rel="noopener noreferrer">
+                <a href="<?= seoResolveAbsoluteUrl('iletisim.php', seoGetBaseUrl()) ?>" class="home-vip-cta__btn-primary">
                     <i class="fa-solid fa-store"></i> Hemen İşletmeni Ekle
                 </a>
-                <a href="<?= seoResolveAbsoluteUrl('iletisim', seoGetBaseUrl()) ?>" class="home-vip-cta__btn-secondary">
+                <a href="<?= $vipWaUrl ?>" class="home-vip-cta__btn-secondary" target="_blank" rel="noopener noreferrer">
                     <i class="fa-brands fa-whatsapp"></i> Bilgi Al
                 </a>
             </div>

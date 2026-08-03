@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../autoload.php';
+require_once __DIR__ . '/seo-meta.php';
 /**
  * Hatay influencer modülü — ortak sabitler ve yardımcılar
  */
@@ -35,6 +36,16 @@ if (!function_exists('influencerDistricts')) {
             if (!empty($districts)) {
                 return $districts;
             }
+        }
+        if (class_exists('Database')) {
+            try {
+                $pdo = Database::getInstance()->getPDO();
+                $stmt = $pdo->query("SELECT DISTINCT title FROM district_pages WHERE is_active = 1 ORDER BY title ASC");
+                $districts = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+                if (!empty($districts)) {
+                    return $districts;
+                }
+            } catch (Exception $e) {}
         }
         return ['Merkez'];
     }

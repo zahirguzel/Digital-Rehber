@@ -20,9 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             if ($action === 'delete') {
                 $db->execute("DELETE FROM reviews WHERE id = ?", [$id]);
+                if (function_exists('logAction')) logAction('delete', 'reviews', 'Yorum ID: ' . $id, $id);
                 $successMsg = "Yorum başarıyla silindi.";
             } elseif ($action === 'approve') {
                 $db->execute("UPDATE reviews SET status = 'approved' WHERE id = ?", [$id]);
+                if (function_exists('logAction')) logAction('approve', 'reviews', 'Yorum ID: ' . $id, $id);
                 $successMsg = "Yorum başarıyla onaylandı.";
                 
                 // Update average rating for the business
@@ -33,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             } elseif ($action === 'reject') {
                 $db->execute("UPDATE reviews SET status = 'rejected' WHERE id = ?", [$id]);
+                if (function_exists('logAction')) logAction('reject', 'reviews', 'Yorum ID: ' . $id, $id);
                 $successMsg = "Yorum reddedildi.";
                 
                 // Update average rating for the business

@@ -13,7 +13,12 @@ $errorMsg = '';
 if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
     try {
+        $stmtName = $db->getPDO()->prepare("SELECT title FROM pages WHERE id = ?");
+        $stmtName->execute([$id]);
+        $delTitle = $stmtName->fetchColumn() ?: 'Sayfa ID: ' . $id;
+        
         $db->getPDO()->prepare("DELETE FROM pages WHERE id = ?")->execute([$id]);
+        if (function_exists('logAction')) logAction('delete', 'pages', $delTitle, $id);
         $successMsg = 'Sayfa başarıyla silindi.';
     } catch (Exception $e) {
         $errorMsg = 'Hata: ' . $e->getMessage();
@@ -39,11 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Update
                 $stmt = $db->getPDO()->prepare("UPDATE pages SET title=?, slug=?, content=?, meta_description=?, is_published=? WHERE id=?");
                 $stmt->execute([$title, $slug, $content, $meta_description, $is_published, $id]);
+                if (function_exists('logAction')) logAction('update', 'pages', $title, $id);
                 $successMsg = 'Sayfa başarıyla güncellendi.';
             } else {
                 // Insert
                 $stmt = $db->getPDO()->prepare("INSERT INTO pages (title, slug, content, meta_description, is_published) VALUES (?, ?, ?, ?, ?)");
                 $stmt->execute([$title, $slug, $content, $meta_description, $is_published]);
+                $newId = $db->getPDO()->lastInsertId();
+                if (function_exists('logAction')) logAction('create', 'pages', $title, $newId);
                 $successMsg = 'Yeni sayfa eklendi.';
             }
         } catch (Exception $e) {

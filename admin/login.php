@@ -40,8 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Check if 2FA is enabled for this account
                 if (!empty($admin['two_factor_enabled']) && !empty($admin['two_factor_secret'])) {
                     // Hold partial auth state — do not set admin_logged_in yet
-                    $_SESSION['pending_2fa_id'] = $admin['id'];
-                    $_SESSION['2fa_attempts']   = 0;
+                    $_SESSION['pending_2fa_id']   = $admin['id'];
+                    $_SESSION['pending_2fa_role']  = $admin['role'];
+                    $_SESSION['2fa_attempts']      = 0;
                     header('Location: 2fa-verify.php');
                     exit;
                 }
@@ -50,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['admin_logged_in'] = true;
                 $_SESSION['admin_id']        = $admin['id'];
                 $_SESSION['admin_username']  = $admin['username'];
+                $_SESSION['admin_role']      = $admin['role'];
 
                 // Update last_login timestamp
                 try {

@@ -36,7 +36,21 @@ if (!empty($filterModule)) {
     $params[] = $filterModule;
 }
 
-$sql .= " ORDER BY created_at DESC LIMIT 500";
+$page = max(1, (int)($_GET['page'] ?? 1));
+$limit = 30;
+$offset = ($page - 1) * $limit;
+
+// Toplam sayıyı bul
+$countSql = str_replace("SELECT *", "SELECT COUNT(*)", $sql);
+$totalLogs = 0;
+try {
+    $stmtCount = $db->query($countSql, $params);
+    $totalLogs = (int)$stmtCount->fetchColumn();
+} catch (Exception $e) {}
+
+$totalPages = ceil($totalLogs / $limit);
+
+$sql .= " ORDER BY created_at DESC LIMIT $limit OFFSET $offset";
 
 $logs = [];
 try {
@@ -106,7 +120,7 @@ include 'includes/header.php';
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h5 class="fw-bold text-navy mb-1"><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>İşlem Kayıtları</h5>
-        <p class="text-muted small mb-0">Tüm admin işlemlerinin otomatik kaydı. Son 500 kayıt gösteriliyor.</p>
+        <p class="text-muted small mb-0">Tüm admin işlemlerinin otomatik kaydı. Toplam <?= $totalLogs ?> kayıt bulunuyor.</p>
     </div>
     <?php
 if (!empty($logs)): ?>
@@ -184,7 +198,7 @@ endforeach; ?>
 <div class="card border-0 shadow-sm">
     <div class="card-header py-3 d-flex align-items-center justify-content-between">
         <span class="fw-bold text-navy"><i class="fa-solid fa-list me-2 text-primary"></i>Kayıtlar</span>
-        <span class="badge bg-secondary"><?= count($logs) ?> kayıt</span>
+        <span class="badge bg-secondary"><?= $totalLogs ?> kayıt</span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -267,6 +281,53 @@ endif; ?>
             </table>
         </div>
     </div>
+    <?php if ($totalPages > 1): ?>
+    <div class="card-footer bg-white py-3 border-top-0">
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                <?php
+                $qsParams = $_GET;
+                unset($qsParams['page']);
+                
+                if ($page > 1) {
+                    $qsParams['page'] = $page - 1;
+                    echo '<li class="page-item"><a class="page-link" href="?' . http_build_query($qsParams) . '">Önceki</a></li>';
+                }
+                
+                $startPage = max(1, $page - 2);
+                $endPage = min($totalPages, $page + 2);
+                
+                if ($startPage > 1) {
+                    $qsParams['page'] = 1;
+                    echo '<li class="page-item"><a class="page-link" href="?' . http_build_query($qsParams) . '">1</a></li>';
+                    if ($startPage > 2) {
+                        echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                    }
+                }
+                
+                for ($i = $startPage; $i <= $endPage; $i++) {
+                    $qsParams['page'] = $i;
+                    $active = ($i === $page) ? 'active' : '';
+                    echo '<li class="page-item ' . $active . '"><a class="page-link" href="?' . http_build_query($qsParams) . '">' . $i . '</a></li>';
+                }
+                
+                if ($endPage < $totalPages) {
+                    if ($endPage < $totalPages - 1) {
+                        echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                    }
+                    $qsParams['page'] = $totalPages;
+                    echo '<li class="page-item"><a class="page-link" href="?' . http_build_query($qsParams) . '">' . $totalPages . '</a></li>';
+                }
+                
+                if ($page < $totalPages) {
+                    $qsParams['page'] = $page + 1;
+                    echo '<li class="page-item"><a class="page-link" href="?' . http_build_query($qsParams) . '">Sonraki</a></li>';
+                }
+                ?>
+            </ul>
+        </nav>
+    </div>
+    <?php endif; ?>
 </div>
 
 </div></div></div>

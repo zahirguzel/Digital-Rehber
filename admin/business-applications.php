@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if ($action === 'reject') {
             $stmt = $db->prepare("UPDATE business_applications SET status = 'rejected' WHERE id = ?");
             $stmt->execute([$appId]);
+            if (function_exists('logAction')) logAction('reject', 'business_applications', 'Başvuru ID: ' . $appId, $appId);
             $_SESSION['ba_success'] = "Başvuru reddedildi.";
         } elseif ($action === 'approve') {
             $stmt = $db->prepare("SELECT * FROM business_applications WHERE id = ? AND status = 'pending'");
@@ -66,8 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $db->beginTransaction();
                 
                 // Insert into businesses
-                $insBiz = $db->prepare("INSERT INTO businesses (category_id, city, district, name, slug, description, phone, is_premium) VALUES (1, ?, ?, ?, ?, ?, ?, 0)");
-                $insBiz->execute([$app['city'], $app['district'], $app['business_name'], $slug, $app['description'], $app['phone']]);
+                $insBiz = $db->prepare("INSERT INTO businesses (category_id, city, district, name, slug, description, phone, email, is_premium) VALUES (1, ?, ?, ?, ?, ?, ?, ?, 0)");
+                $insBiz->execute([$app['city'], $app['district'], $app['business_name'], $slug, $app['description'], $app['phone'], $app['email']]);
                 $businessId = $db->lastInsertId();
                 
                 // Generate Password
@@ -83,6 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $updApp = $db->prepare("UPDATE business_applications SET status = 'approved' WHERE id = ?");
                 $updApp->execute([$appId]);
                 
+                if (function_exists('logAction')) logAction('approve', 'business_applications', 'Başvuru ID: ' . $appId . ' -> İşletme: ' . $app['business_name'], $appId);
+                
                 $db->commit();
                 
                 $_SESSION['ba_success'] = "İşletme başarıyla onaylandı ve hesap oluşturuldu!";
@@ -94,6 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         } elseif ($action === 'delete') {
             $stmt = $db->prepare("DELETE FROM business_applications WHERE id = ?");
             $stmt->execute([$appId]);
+            if (function_exists('logAction')) logAction('delete', 'business_applications', 'Başvuru ID: ' . $appId, $appId);
             $_SESSION['ba_success'] = "Başvuru kalıcı olarak silindi.";
         }
     } catch (Exception $e) {

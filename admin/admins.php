@@ -49,8 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_save'])) {
         $errorMsg = 'Kullanıcı adı boş bırakılamaz.';
     } elseif ($postId === 0 && empty($password)) {
         $errorMsg = 'Yeni admin için şifre zorunludur.';
-    } elseif (!empty($password) && strlen($password) < 6) {
-        $errorMsg = 'Şifre en az 6 karakter olmalıdır.';
+    } elseif (!empty($password) && strlen($password) < 8) {
+        $errorMsg = 'Şifre en az 8 karakter olmalıdır.';
     } else {
         try {
             if ($postId > 0) {
@@ -148,7 +148,7 @@ endif; ?>
                     </label>
                     <input type="password" name="password" class="form-control"
                            <?= ($editAdmin ? '' : 'required') ?>
-                           placeholder="<?= $editAdmin ? 'Değiştirmek için girin' : 'Min. 6 karakter' ?>">
+                           placeholder="<?= $editAdmin ? 'Değiştirmek için girin' : 'Min. 8 karakter (A-Z, a-z, 0-9)' ?>">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label fw-semibold small text-muted">Rol <span class="text-danger">*</span></label>

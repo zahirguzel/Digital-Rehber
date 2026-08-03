@@ -134,6 +134,15 @@ $siteUrl = function ($path = '') use ($seoBaseUrlTrimmed) {
             --primary: <?= $_siteColor ?> !important;
             --primary-hover: <?= $hoverColor ?> !important;
         }
+        .text-primary {
+            color: var(--primary) !important;
+        }
+        .bg-primary {
+            background-color: var(--primary) !important;
+        }
+        .border-primary {
+            border-color: var(--primary) !important;
+        }
     </style>
     
     <!-- Favicon -->
@@ -189,8 +198,13 @@ $siteUrl = function ($path = '') use ($seoBaseUrlTrimmed) {
         <div class="row align-items-center">
             <div class="col-md-8">
                 <div class="d-flex gap-4">
-                    <a href="mailto:<?= SecurityHelper::escape($siteSettings['contact_email']) ?>" class="top-bar-link"><i class="fa-regular fa-envelope me-2"></i><?= SecurityHelper::escape($siteSettings['contact_email']) ?></a>
+                    <?php if (!empty($siteSettings['contact_email'])): ?>
+                    <span class="d-inline-flex align-items-center">
+                        <i class="fa-regular fa-envelope me-2"></i>
+                        <a href="mailto:<?= SecurityHelper::escape(trim($siteSettings['contact_email'])) ?>" class="top-bar-link"><?= SecurityHelper::escape($siteSettings['contact_email']) ?></a>
+                    </span>
                     <span class="top-bar-divider"></span>
+                    <?php endif; ?>
                     <span class="top-bar-text"><i class="fa-solid fa-location-dot me-2"></i><?= SecurityHelper::escape($siteSettings['contact_address']) ?></span>
                     <?php if (!empty($siteSettings['contact_phone'])): ?>
                     <span class="top-bar-divider"></span>

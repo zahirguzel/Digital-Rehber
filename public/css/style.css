@@ -29,6 +29,17 @@
     --radius-lg: 4px;
 }
 
+/* Primary Color Bootstrap Overrides */
+.text-primary {
+    color: var(--primary) !important;
+}
+.bg-primary {
+    background-color: var(--primary) !important;
+}
+.border-primary {
+    border-color: var(--primary) !important;
+}
+
 /* Base Styles */
 body {
     font-family: var(--font-body);

@@ -27,11 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (in_array($status, ['pending', 'approved', 'rejected'], true)) {
             $notes = trim($_POST['admin_notes'] ?? '');
             $db->getPDO()->prepare('UPDATE influencer_applications SET status = ?, admin_notes = ? WHERE id = ?')->execute([$status, $notes, (int) $_POST['app_id']]);
+            if (function_exists('logAction')) logAction('status_change', 'influencer_applications', 'Durum: ' . $status, (int)$_POST['app_id']);
             $successMsg = 'Başvuru durumu güncellendi.';
         }
     }
     if (isset($_POST['removal_processed']) && (int) $_POST['removal_id'] > 0) {
         $db->getPDO()->prepare("UPDATE influencer_removal_requests SET status = 'processed' WHERE id = ?")->execute([(int) $_POST['removal_id']]);
+        if (function_exists('logAction')) logAction('update', 'influencer_removal_requests', 'Kaldırma talebi işlendi', (int)$_POST['removal_id']);
         $rid = (int) $_POST['removal_id'];
         if (!empty($_POST['unpublish_profile'])) {
             $req = $db->query('SELECT influencer_id FROM influencer_removal_requests WHERE id = ?', [$rid]);

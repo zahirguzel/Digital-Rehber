@@ -18,8 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_pw'])) {
     if ($pwCurrent && $pwNew && $pwConfirm) {
         if ($pwNew !== $pwConfirm) {
             $errorMsg = 'Yeni şifreler eşleşmiyor.';
-        } elseif (strlen($pwNew) < 6) {
-            $errorMsg = 'Yeni şifre en az 6 karakter olmalıdır.';
+        } elseif (!SecurityHelper::validatePasswordStrength($pwNew)) {
+            $errorMsg = SecurityHelper::getPasswordStrengthMessage();
         } else {
             // Verify current
             $stmt = $db->prepare("SELECT password FROM business_users WHERE id = ?");
@@ -71,12 +71,12 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Yeni Şifre</label>
-                        <input type="password" name="pw_new" class="form-control" required minlength="6">
-                        <div class="form-text">En az 6 karakter olmalıdır.</div>
+                        <input type="password" name="pw_new" class="form-control" required minlength="8">
+                        <div class="form-text">En az 8 karakter olmalı; en az 1 büyük harf, 1 küçük harf ve 1 rakam içermelidir.</div>
                     </div>
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Yeni Şifre (Tekrar)</label>
-                        <input type="password" name="pw_confirm" class="form-control" required minlength="6">
+                        <input type="password" name="pw_confirm" class="form-control" required minlength="8">
                     </div>
                     
                     <button type="submit" class="btn btn-primary w-100 fw-bold"><i class="fa-solid fa-save me-2"></i> Şifreyi Güncelle</button>
@@ -90,7 +90,7 @@ require_once __DIR__ . '/includes/header.php';
                 <h6 class="fw-bold text-navy mb-3"><i class="fa-solid fa-circle-info text-info me-2"></i> Şifre Güvenliği</h6>
                 <p class="small text-muted mb-2">Hesabınızın güvenliği için şifrenizi belirlerken aşağıdaki kurallara dikkat edin:</p>
                 <ul class="small text-muted mb-0">
-                    <li class="mb-1">En az 6 karakter uzunluğunda olmalıdır.</li>
+                    <li class="mb-1">En az 8 karakter uzunluğunda olmalı, en az 1 büyük harf, 1 küçük harf ve 1 rakam içermelidir.</li>
                     <li class="mb-1">Basit ve tahmin edilebilir kelimeler (123456, admin vb.) kullanmaktan kaçının.</li>
                     <li class="mb-1">Belirli aralıklarla şifrenizi güncelleyin.</li>
                 </ul>

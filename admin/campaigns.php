@@ -118,17 +118,49 @@ if ($action === 'delete' && $id > 0) {
 
 if ($action === 'toggle_publish' && $id > 0) {
     try {
-        $stmt = $db->query('SELECT title, is_published FROM campaigns WHERE id = ?', [$id]);
+        $stmt = $db->query('SELECT title, business_id, is_published FROM campaigns WHERE id = ?', [$id]);
         $campRow = $stmt->fetch();
         if ($campRow) {
             $newStatus = $campRow['is_published'] ? 0 : 1;
-            $db->query('UPDATE campaigns SET is_published = ? WHERE id = ?', [$newStatus, $id]);
+            $db->query('UPDATE campaigns SET is_published = ?, status = ? WHERE id = ?', [$newStatus, $newStatus ? 'approved' : 'pending', $id]);
             $statusText = $newStatus ? 'Yayınlandı (Onaylandı)' : 'Taslak (Yayından kaldırıldı)';
             logAction('status_change', 'campaigns', $campRow['title'] . ' -> ' . $statusText, $id);
+            
+            if ($campRow['business_id']) {
+                $msg = $newStatus ? "Kampanyanız ('{$campRow['title']}') onaylandı ve yayına alındı." : "Kampanyanız ('{$campRow['title']}') yayından kaldırıldı.";
+                $db->getPDO()->prepare("INSERT INTO business_notifications (business_id, type, title, message, is_read) VALUES (?, ?, ?, ?, 0)")->execute([
+                    $campRow['business_id'],
+                    $newStatus ? 'success' : 'warning',
+                    $newStatus ? 'Kampanya Onaylandı' : 'Kampanya Yayından Kaldırıldı',
+                    $msg
+                ]);
+            }
             $successMsg = 'Kampanya durumu güncellendi: ' . $statusText;
         }
     } catch (Exception $e) {
         $errorMsg = 'Durum güncellenemedi: ' . $e->getMessage();
+    }
+    $action = 'list';
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'reject_campaign') {
+    $rejectId = (int)$_POST['reject_id'];
+    $reason = trim($_POST['reject_reason'] ?? '');
+    try {
+        $stmt = $db->query('SELECT title, business_id FROM campaigns WHERE id = ?', [$rejectId]);
+        $campRow = $stmt->fetch();
+        if ($campRow) {
+            $db->query("UPDATE campaigns SET is_published = 0, status = 'rejected', reject_reason = ? WHERE id = ?", [$reason, $rejectId]);
+            logAction('status_change', 'campaigns', $campRow['title'] . ' -> Reddedildi (Neden: ' . ($reason ?: 'Belirtilmedi') . ')', $rejectId);
+            
+            if ($campRow['business_id']) {
+                $msg = "Kampanyanız ('{$campRow['title']}') reddedildi. Neden: " . ($reason ?: 'Belirtilmedi');
+                $db->getPDO()->prepare("INSERT INTO business_notifications (business_id, type, title, message, is_read) VALUES (?, 'error', 'Kampanya Reddedildi', ?, 0)")->execute([$campRow['business_id'], $msg]);
+            }
+            $successMsg = 'Kampanya reddedildi.';
+        }
+    } catch (Exception $e) {
+        $errorMsg = 'Red işlemi başarısız: ' . $e->getMessage();
     }
     $action = 'list';
 }
@@ -210,22 +242,26 @@ endif; ?></small><?php
 endif; ?></td>
                     <td>
                         <?php
-if ($camp['is_published']): ?><span class="badge bg-success">Yayında</span><?php
-else: ?><span class="badge bg-secondary">Taslak</span><?php
-endif; ?>
+                        if ($camp['is_published']): ?><span class="badge bg-success">Yayında</span><?php
+                        elseif (($camp['status'] ?? '') === 'rejected'): ?><span class="badge bg-danger">Reddedildi</span><?php
+                        else: ?><span class="badge bg-secondary">Taslak</span><?php
+                        endif; ?>
                         <?php
 if ($camp['is_featured']): ?><span class="badge bg-warning text-dark">Öne Çıkan</span><?php
 endif; ?>
                         <?php
-if (isCampaignPast($camp)): ?><span class="badge bg-light text-muted border">Sona Erdi</span><?php
-elseif (isCampaignActive($camp)): ?><span class="badge bg-primary">Aktif</span><?php
-endif; ?>
+                        if (isCampaignPast($camp)): ?><span class="badge bg-light text-muted border">Sona Erdi</span><?php
+                        elseif ($camp['is_published'] && isCampaignActive($camp)): ?><span class="badge bg-primary">Aktif</span><?php
+                        endif; ?>
                     </td>
                     <td class="text-end pe-4">
                         <?php if ($camp['is_published']): ?>
                             <a href="campaigns.php?action=toggle_publish&id=<?= $camp['id'] ?>" class="btn btn-outline-warning btn-sm" title="Yayından Kaldır"><i class="fa-solid fa-pause"></i></a>
                         <?php else: ?>
                             <a href="campaigns.php?action=toggle_publish&id=<?= $camp['id'] ?>" class="btn btn-success btn-sm" title="Onayla / Yayınla"><i class="fa-solid fa-check"></i> Onayla</a>
+                            <?php if (($camp['status'] ?? 'pending') !== 'rejected'): ?>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="openRejectModal(<?= $camp['id'] ?>)" title="Reddet"><i class="fa-solid fa-xmark"></i> Reddet</button>
+                            <?php endif; ?>
                         <?php endif; ?>
                         <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewCampModal<?= $camp['id'] ?>" title="Görüntüle / Detayları İncele"><i class="fa-solid fa-eye"></i></button>
                         <a href="campaigns.php?action=edit&id=<?= $camp['id'] ?>" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-pen"></i></a>
@@ -257,6 +293,8 @@ endif; ?>
                                                 <strong class="small text-muted d-block">Yayın Durumu</strong>
                                                 <?php if ($camp['is_published']): ?>
                                                     <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> Yayında</span>
+                                                <?php elseif ($camp['status'] === 'rejected'): ?>
+                                                    <span class="badge bg-danger"><i class="fa-solid fa-xmark me-1"></i> Reddedildi</span>
                                                 <?php else: ?>
                                                     <span class="badge bg-warning text-dark"><i class="fa-solid fa-clock me-1"></i> Onay Bekliyor</span>
                                                 <?php endif; ?>
@@ -316,9 +354,12 @@ endif; ?>
                                         <div>
                                             <button type="button" class="btn btn-secondary btn-sm me-2" data-bs-dismiss="modal">Kapat</button>
                                             <?php if (!$camp['is_published']): ?>
-                                                <a href="campaigns.php?action=toggle_publish&id=<?= $camp['id'] ?>" class="btn btn-success btn-sm fw-semibold shadow-sm">
+                                                <a href="campaigns.php?action=toggle_publish&id=<?= $camp['id'] ?>" class="btn btn-success btn-sm fw-semibold shadow-sm mb-1">
                                                     <i class="fa-solid fa-check me-1"></i> Onayla ve Ana Sayfada Yayınla
                                                 </a>
+                                                <button type="button" class="btn btn-danger btn-sm shadow-sm mb-1" data-bs-dismiss="modal" onclick="openRejectModal(<?= $camp['id'] ?>)">
+                                                    <i class="fa-solid fa-xmark me-1"></i> Reddet
+                                                </button>
                                             <?php else: ?>
                                                 <a href="campaigns.php?action=toggle_publish&id=<?= $camp['id'] ?>" class="btn btn-outline-warning btn-sm">
                                                     <i class="fa-solid fa-pause me-1"></i> Yayından Kaldır
@@ -347,9 +388,12 @@ else:
         <h5 class="mb-0 fw-bold"><?= $isEdit ? 'Kampanyayı Düzenle' : 'Yeni Kampanya' ?></h5>
     </div>
     <div class="card-body">
-        <form method="POST" enctype="multipart/form-data">
-    <?= CSRFMiddleware::field() ?>
-            <input type="hidden" name="action" value="<?= $isEdit ? 'edit' : 'add' ?>">
+        <form method="POST" action="campaigns.php" enctype="multipart/form-data">
+            <?= CSRFMiddleware::field() ?>
+            <input type="hidden" name="action" value="<?= $action === 'new' ? 'add' : 'edit' ?>">
+            <?php if ($action === 'edit'): ?>
+                <input type="hidden" name="id" value="<?= (int) $id ?>">
+            <?php endif; ?>
             <div class="row g-3">
                 <div class="col-md-8"><label class="form-label">Başlık *</label><input type="text" name="title" class="form-control" required value="<?= htmlspecialchars($camp['title'] ?? '') ?>"></div>
                 <div class="col-md-4"><label class="form-label">Slug *</label><input type="text" name="slug" class="form-control" required value="<?= htmlspecialchars($camp['slug'] ?? '') ?>"></div>
@@ -375,12 +419,30 @@ endforeach; ?></select></div>
                 <div class="col-md-4"><label class="form-label">Kampanya fiyatı</label><input type="text" name="sale_price" class="form-control" placeholder="399 TL" value="<?= htmlspecialchars($camp['sale_price'] ?? '') ?>"></div>
                 <div class="col-md-4"><label class="form-label">Başlangıç tarihi *</label><input type="date" name="start_date" class="form-control" required value="<?= htmlspecialchars($camp['start_date'] ?? '') ?>"></div>
                 <div class="col-md-4"><label class="form-label">Bitiş tarihi</label><input type="date" name="end_date" class="form-control" value="<?= htmlspecialchars($camp['end_date'] ?? '') ?>"></div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Kapak Görseli <small class="text-muted">(Dosya yükle veya URL girin)</small></label>
+                    <?php if (!empty($camp['cover_image_path'] ?? '')): ?>
+                        <div class="mb-2 d-flex align-items-center gap-3">
+                            <img src="<?= htmlspecialchars(getCampaignImageUrl($camp['cover_image_path'] ?? '', '')) ?>" alt="Mevcut kapak" class="img-thumbnail shadow-sm" style="max-height:100px; max-width:200px; object-fit:cover;">
+                            <span class="small text-muted">Mevcut görsel. Değiştirmek için aşağıdan yeni dosya seçin veya URL girin.</span>
+                        </div>
+                    <?php endif; ?>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted">Dosya Yükle</label>
+                            <input type="file" name="cover_file" class="form-control" accept="image/*">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted">veya Görsel URL</label>
+                            <input type="url" name="cover_url" class="form-control" placeholder="https://..." value="<?= (strpos($camp['cover_image_path'] ?? '', 'http') === 0) ? htmlspecialchars($camp['cover_image_path']) : '' ?>">
+                        </div>
+                    </div>
+                </div>
                 <div class="col-12"><label class="form-label">Kısa özet (kartlarda görünür)</label><input type="text" name="summary" class="form-control" maxlength="500" value="<?= htmlspecialchars($camp['summary'] ?? '') ?>"></div>
                 <div class="col-12"><label class="form-label">Detaylı açıklama <small class="text-muted">(Kalın, başlık, liste ekleyebilirsiniz)</small></label>
                     <div id="quill-editor-camp" style="min-height:160px; background:#fff; border:1px solid #dee2e6; border-radius:0 0 .375rem .375rem;"></div>
                     <textarea name="description" id="description-hidden-camp" class="d-none"><?= htmlspecialchars($camp['description'] ?? '') ?></textarea>
                 </div>
-                <div class="col-md-6"><label class="form-label">Kapak (dosya)</label><input type="file" name="cover_file" class="form-control"><input type="url" name="cover_url" class="form-control mt-1" placeholder="veya görsel URL" value="<?= (strpos($camp['cover_image_path'] ?? '', 'http') === 0) ? htmlspecialchars($camp['cover_image_path']) : '' ?>"></div>
                 <div class="col-md-6"><label class="form-label">Harici kampanya linki (opsiyonel)</label><input type="url" name="cta_url" class="form-control" placeholder="https://..." value="<?= htmlspecialchars($camp['cta_url'] ?? '') ?>"></div>
                 <div class="col-md-6"><label class="form-label">Meta açıklama</label><input type="text" name="meta_description" class="form-control" maxlength="255" value="<?= htmlspecialchars($camp['meta_description'] ?? '') ?>"></div>
                 <div class="col-md-6"><label class="form-label">Meta anahtar kelimeler</label><input type="text" name="meta_keywords" class="form-control" value="<?= htmlspecialchars($camp['meta_keywords'] ?? '') ?>"></div>
@@ -398,6 +460,42 @@ endforeach; ?></select></div>
 </div>
 <?php
 endif; ?>
+
+<!-- Reject Campaign Modal -->
+<div class="modal fade" id="rejectCampaignModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="campaigns.php" method="POST">
+                <?= CSRFMiddleware::field() ?>
+                <input type="hidden" name="action" value="reject_campaign">
+                <input type="hidden" name="reject_id" id="reject_campaign_id" value="">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fa-solid fa-triangle-exclamation me-2"></i> Kampanyayı Reddet</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="small text-muted mb-3">Bu kampanyayı reddetmek üzeresiniz. İşletmeye bildirim gönderilecek. Lütfen ret nedenini belirtin (İsteğe bağlı).</p>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Ret Nedeni</label>
+                        <textarea name="reject_reason" class="form-control" rows="3" placeholder="Örn: Görsel uygunsuz, içerik kurallara uymuyor vb."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-danger fw-semibold">Reddet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openRejectModal(id) {
+    document.getElementById('reject_campaign_id').value = id;
+    var rejectModal = new bootstrap.Modal(document.getElementById('rejectCampaignModal'));
+    rejectModal.show();
+}
+</script>
 
 <?php
 include 'includes/footer.php'; ?>

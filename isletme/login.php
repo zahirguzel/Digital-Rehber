@@ -284,6 +284,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                     <input type="password" name="password" class="form-control" placeholder="••••••••" required>
                 </div>
+                <div class="text-end mt-1">
+                    <a href="sifremi-unuttum.php" class="small text-decoration-none fw-semibold" style="font-size: 13px; color: #D62828;">Şifremi Unuttum?</a>
+                </div>
             </div>
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary">

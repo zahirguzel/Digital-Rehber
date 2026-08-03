@@ -30,13 +30,6 @@ try {
     $analytics = $businessModel->getAnalyticsSummary($bizId);
 } catch (Exception $e) {}
 
-// Son yorumlar
-$recentReviews = [];
-try {
-    $s = $db->prepare("SELECT r.*, u.name as user_name FROM reviews r LEFT JOIN users u ON r.user_id = u.id WHERE r.business_id = ? ORDER BY r.created_at DESC LIMIT 5");
-    $s->execute([$bizId]);
-    $recentReviews = $s->fetchAll(PDO::FETCH_ASSOC);
-} catch (Exception $e) {}
 
 $bizColor  = !empty($bizInfo['theme_color']) ? htmlspecialchars($bizInfo['theme_color']) : '#D62828';
 $bizLetter = $bizInfo ? mb_strtoupper(mb_substr($bizInfo['name'], 0, 1, 'UTF-8'), 'UTF-8') : '?';
@@ -51,28 +44,7 @@ try {
 } catch (Exception $e) {}
 ?>
 
-<?php if (!empty($rejectedChangesDash)): ?>
-    <div class="alert alert-danger shadow-sm border-0 mb-4">
-        <div class="d-flex align-items-start gap-3">
-            <i class="fa-solid fa-circle-xmark fs-4 mt-1 text-danger"></i>
-            <div class="w-100">
-                <h6 class="fw-bold mb-1">Bazı Değişiklik Talepleriniz Reddedildi</h6>
-                <p class="mb-2 small">Profilinizde veya galerinizde yaptığınız bazı değişiklikler yönetici tarafından reddedildi:</p>
-                <div class="list-group list-group-flush border rounded small">
-                    <?php foreach ($rejectedChangesDash as $rej): ?>
-                    <div class="list-group-item bg-light d-flex justify-content-between align-items-center py-2">
-                        <div>
-                            <strong class="text-danger"><?= htmlspecialchars($rej['field_label'] ?: $rej['field_name']) ?></strong>
-                            <div class="text-dark mt-1"><strong>Red Sebebi:</strong> <?= htmlspecialchars($rej['reject_reason'] ?: 'Belirtilmedi') ?></div>
-                            <small class="text-muted"><i class="fa-regular fa-clock me-1"></i> Tarih: <?= date('d.m.Y H:i', strtotime($rej['reviewed_at'])) ?></small>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php endif; ?>
+
 
 <?php if (!empty($pendingChangesDash)): ?>
     <div class="alert alert-warning shadow-sm border-0 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -276,51 +248,7 @@ try {
     </div>
 </div>
 
-<!-- Son Yorumlar -->
-<?php if (!empty($recentReviews)): ?>
-<div class="card border-0 shadow-sm" style="border-radius:12px;">
-    <div class="card-header bg-white border-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
-        <h6 class="fw-bold mb-0" style="color:var(--secondary);"><i class="fa-solid fa-star me-2 text-warning"></i>Son Değerlendirmeler</h6>
-        <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-secondary" style="font-size:11px;"><?= (int)$stats['review_count'] ?> toplam</span>
-            <a href="reviews.php" class="btn btn-sm btn-outline-primary">Tumunu Gor</a>
-        </div>
-    </div>
-    <div class="card-body p-0">
-        <?php foreach ($recentReviews as $rev):
-            $rName = !empty($rev['user_name']) ? htmlspecialchars($rev['user_name']) : 'Ziyaretçi';
-            $rLetter = mb_strtoupper(mb_substr($rName, 0, 1, 'UTF-8'), 'UTF-8');
-        ?>
-        <div class="review-item px-4">
-            <div class="d-flex gap-3 align-items-start">
-                <div class="review-avatar flex-shrink-0"><?= $rLetter ?></div>
-                <div class="flex-grow-1">
-                    <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-1">
-                        <strong class="small"><?= $rName ?></strong>
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="d-flex">
-                                <?php for($s=1;$s<=5;$s++): ?>
-                                    <i class="fa-<?= $s <= (int)$rev['rating'] ? 'solid' : 'regular' ?> fa-star" style="color:<?= $s <= (int)$rev['rating'] ? '#F59E0B' : '#d1d5db' ?>;font-size:11px;min-width:auto;"></i>
-                                <?php endfor; ?>
-                            </div>
-                            <?php if ($rev['status'] === 'pending'): ?>
-                                <span class="badge bg-warning text-dark" style="font-size:9px;">Onay Bekliyor</span>
-                            <?php elseif ($rev['status'] === 'rejected'): ?>
-                                <span class="badge bg-danger" style="font-size:9px;">Reddedildi</span>
-                            <?php endif; ?>
-                            <small class="text-muted" style="font-size:11px;"><?= date('d.m.Y', strtotime($rev['created_at'])) ?></small>
-                        </div>
-                    </div>
-                    <?php if (!empty($rev['comment'])): ?>
-                        <p class="small text-muted mb-0" style="line-height:1.5;"><?= htmlspecialchars(mb_substr($rev['comment'], 0, 200)) ?><?= mb_strlen($rev['comment']) > 200 ? '…' : '' ?></p>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-        <?php endforeach; ?>
-    </div>
-</div>
-<?php endif; ?>
+
 
 <style>
 .hover-shadow:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); border-color: #e2e8f0 !important; background: #fafafa !important; }

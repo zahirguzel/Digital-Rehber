@@ -122,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $address = trim($_POST['address']);
         $phone = trim($_POST['phone']);
         $whatsapp = trim($_POST['whatsapp']);
+        $email = trim($_POST['email'] ?? '');
         $google_maps_iframe = trim($_POST['google_maps_iframe']);
         $instagram = trim($_POST['instagram']);
         $tiktok = trim($_POST['tiktok']);
@@ -191,8 +192,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     if ($_POST['action'] === 'add') {
                         // Insert
-                        $sql = "INSERT INTO businesses (category_id, city, district, name, slug, description, address, phone, whatsapp, google_maps_iframe, instagram, tiktok, facebook, menu_url, website, yemeksepeti, theme_color, logo_path, cover_image_path, is_premium) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                        $stmtIns = $db->query($sql, [$category_id, $city, $district, $name, $slug, $description, $address, $phone, $whatsapp, $google_maps_iframe, $instagram, $tiktok, $facebook, $menu_url, $website, $yemeksepeti, $theme_color, $logo_path, $cover_image_path, $is_premium]);
+                        $sql = "INSERT INTO businesses (category_id, city, district, name, slug, description, address, phone, whatsapp, email, google_maps_iframe, instagram, tiktok, facebook, menu_url, website, yemeksepeti, theme_color, logo_path, cover_image_path, is_premium) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        $stmtIns = $db->query($sql, [$category_id, $city, $district, $name, $slug, $description, $address, $phone, $whatsapp, $email, $google_maps_iframe, $instagram, $tiktok, $facebook, $menu_url, $website, $yemeksepeti, $theme_color, $logo_path, $cover_image_path, $is_premium]);
                         $businessId = $db->getPDO()->lastInsertId();
 
                         // Generate username
@@ -213,12 +214,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         $db->query("INSERT INTO business_users (business_id, username, password, force_password_change) VALUES (?, ?, ?, 1)", [$businessId, $username, $hashedPw]);
 
+                        if (function_exists('logAction')) logAction('create', 'businesses', $name, $businessId);
+
                         $successMsg = "İşletme başarıyla eklendi!<br><strong>Kullanıcı Adı:</strong> {$username}<br><strong>Şifre:</strong> {$newPassword}<br><small>Lütfen bu şifreyi işletmeye iletin.</small>";
                         $action = 'list'; // Redirect to list
                     } else {
                         // Update
-                        $sql = "UPDATE businesses SET category_id = ?, city = ?, district = ?, name = ?, slug = ?, description = ?, address = ?, phone = ?, whatsapp = ?, google_maps_iframe = ?, instagram = ?, tiktok = ?, facebook = ?, menu_url = ?, website = ?, yemeksepeti = ?, theme_color = ?, logo_path = ?, cover_image_path = ?, is_premium = ? WHERE id = ?";
-                        $stmtUp = $db->query($sql, [$category_id, $city, $district, $name, $slug, $description, $address, $phone, $whatsapp, $google_maps_iframe, $instagram, $tiktok, $facebook, $menu_url, $website, $yemeksepeti, $theme_color, $logo_path, $cover_image_path, $is_premium, $id]);
+                        $sql = "UPDATE businesses SET category_id = ?, city = ?, district = ?, name = ?, slug = ?, description = ?, address = ?, phone = ?, whatsapp = ?, email = ?, google_maps_iframe = ?, instagram = ?, tiktok = ?, facebook = ?, menu_url = ?, website = ?, yemeksepeti = ?, theme_color = ?, logo_path = ?, cover_image_path = ?, is_premium = ? WHERE id = ?";
+                        $stmtUp = $db->query($sql, [$category_id, $city, $district, $name, $slug, $description, $address, $phone, $whatsapp, $email, $google_maps_iframe, $instagram, $tiktok, $facebook, $menu_url, $website, $yemeksepeti, $theme_color, $logo_path, $cover_image_path, $is_premium, $id]);
                         
                         // Handle Business User update
                         $buUser = trim($_POST['bu_username'] ?? '');
@@ -241,6 +244,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 }
                             }
                         }
+
+                        if (function_exists('logAction')) logAction('update', 'businesses', $name, $id);
 
                         $successMsg = "İşletme başarıyla güncellendi.";
                         $action = 'list'; // Redirect to list
@@ -273,6 +278,8 @@ if ($action === 'delete' && $id > 0) {
             }
         }
 
+        if (function_exists('logAction')) logAction('delete', 'businesses', 'İşletme ID: ' . $id, $id);
+
         $successMsg = "İşletme başarıyla silindi.";
     } catch (Exception $e) {
         $errorMsg = "İşletme silinirken hata oluştu: " . $e->getMessage();
@@ -289,6 +296,7 @@ if (isset($_GET['del_gallery']) && intval($_GET['del_gallery']) > 0) {
             $db->query("DELETE FROM business_gallery WHERE id = ?", [$delId]);
             $file = __DIR__ . '/../public/images/gallery/' . $row['business_id'] . '/' . $row['image_path'];
             if (file_exists($file)) @unlink($file);
+            if (function_exists('logAction')) logAction('delete', 'business_gallery', 'Galeri Görseli ID: ' . $delId, $delId);
             $successMsg = "Galeri görseli başarıyla silindi.";
             $action = 'edit';
             $id = intval($row['business_id']);
@@ -515,6 +523,11 @@ include 'includes/header.php';
                                         <?php if (!empty($biz['whatsapp'])): ?>
                                             <div class="text-success small"><i
                                                     class="fa-brands fa-whatsapp me-1 fw-bold"></i><?= htmlspecialchars($biz['whatsapp']) ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($biz['email'])): ?>
+                                            <div class="text-primary small"><i
+                                                    class="fa-solid fa-envelope me-1"></i><?= htmlspecialchars($biz['email']) ?>
                                             </div>
                                         <?php endif; ?>
                                     </td>
@@ -745,9 +758,9 @@ include 'includes/header.php';
 
                     <!-- Phone -->
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">Sabit Telefon</label>
+                        <label class="form-label fw-semibold">Tel No</label>
                         <input type="text" name="phone" class="form-control"
-                            value="<?= htmlspecialchars($business['phone'] ?? '') ?>" placeholder="Örn: 0326 222 11 22">
+                            value="<?= htmlspecialchars($business['phone'] ?? '') ?>" placeholder="Örn: 05xx xxx xx xx">
                     </div>
 
                     <!-- WhatsApp -->
@@ -757,6 +770,14 @@ include 'includes/header.php';
                             value="<?= htmlspecialchars($business['whatsapp'] ?? '') ?>" placeholder="Örn: 905321112233">
                         <span class="text-muted small" style="font-size: 11px;">Başında ülke koduyla boşluksuz yazın (örn.
                             90 ile başlayarak).</span>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">E-posta Adresi</label>
+                        <input type="email" name="email" id="edit_email" class="form-control"
+                            value="<?= htmlspecialchars($business['email'] ?? '') ?>" placeholder="Örn: info@isletme.com">
+                        <span class="text-muted small" style="font-size: 11px;">İşletme iletişim ve şifre sıfırlama e-postası.</span>
                     </div>
 
                     <!-- Address -->
@@ -868,7 +889,7 @@ include 'includes/header.php';
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Şifre <span class="text-muted fw-normal">(Değiştirmek veya belirlemek için girin)</span></label>
                         <div class="input-group">
-                            <input type="text" name="bu_password" id="bu_password" class="form-control" placeholder="Min. 6 karakter">
+                            <input type="text" name="bu_password" id="bu_password" class="form-control" placeholder="Min. 8 karakter (A-Z, a-z, 0-9)">
                             <button class="btn btn-outline-secondary" type="button" onclick="generateRandomPassword()"><i class="fa-solid fa-dice me-1"></i> Rastgele Üret</button>
                         </div>
                         <span class="text-muted small">İşletme yetkilisi ilk girişinde şifresini değiştirmeye zorlanacaktır.</span>

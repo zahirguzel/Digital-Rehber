@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_bizuser'])) {
         } catch (Exception $e) {
             $errorMsg = strpos($e->getMessage(), '1062') !== false ? 'Bu kullanıcı adı zaten alınmış.' : 'Hata: ' . $e->getMessage();
         }
-    } else { $errorMsg = 'Kullanıcı adı ve en az 6 karakterli şifre giriniz.'; }
+    } else { $errorMsg = 'Kullanıcı adı ve en az 8 karakterli şifre giriniz.'; }
 }
 
 // ── Fetch data ────────────────────────────────────────────────

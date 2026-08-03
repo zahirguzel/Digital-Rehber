@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $userModel = new User();
                 $user = $userModel->login($email, $password);
                 
-                if ($user) {
+                if (is_array($user)) {
                     RateLimitMiddleware::resetLogin($email);
                     
                     Session::set('user_logged_in', true);
@@ -40,8 +40,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     Logger::info('User logged in', ['user_id' => $user['id']]);
                     
-                    header('Location: ' . $redirect);
-                    exit;
+                    if (!empty($user['force_password_change'])) {
+                        Session::set('user_force_password', true);
+                        header('Location: sifre-degistir.php?force=1');
+                        exit;
+                    } else {
+                        Session::set('user_force_password', false);
+                        header('Location: ' . $redirect);
+                        exit;
+                    }
+                } elseif ($user === 'banned') {
+                    $error = 'Hesabınız banlı. Detaylı bilgi için iletişim kanallarımızdan iletişime geçebilirsiniz.';
                 } else {
                     $error = 'E-posta adresi veya şifre hatalı.';
                 }
@@ -85,6 +94,9 @@ require_once __DIR__ . '/includes/header.php';
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-lock text-muted"></i></span>
                                 <input type="password" name="password" class="form-control border-start-0 ps-2" required>
+                            </div>
+                            <div class="text-end mt-1">
+                                <a href="sifremi-unuttum.php" class="small text-decoration-none fw-semibold" style="color: #D62828;">Şifremi Unuttum?</a>
                             </div>
                         </div>
                         

@@ -93,15 +93,18 @@ $menuQr    = "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" . 
                 </div>
 
                 <!-- Download Buttons -->
-                <div class="d-flex gap-2 w-100">
+                <div class="d-flex gap-2 w-100 flex-wrap">
+                    <a href="<?= htmlspecialchars($profileUrl) ?>" target="_blank" class="btn btn-outline-danger flex-fill fw-semibold">
+                        <i class="fa-solid fa-eye me-1"></i> Sayfayı Aç
+                    </a>
                     <a href="<?= htmlspecialchars($profileQr) ?>" download="kartvizit_qr_<?= htmlspecialchars($bizSlug) ?>.png" target="_blank"
                        class="btn btn-primary flex-fill fw-semibold">
-                        <i class="fa-solid fa-download me-1"></i> PNG İndir
+                        <i class="fa-solid fa-download me-1"></i> PNG
                     </a>
                     <a href="https://api.qrserver.com/v1/create-qr-code/?size=800x800&data=<?= urlencode($profileUrl) ?>&color=1E293B&bgcolor=FFFFFF&margin=10&format=svg"
                        download="kartvizit_qr_<?= htmlspecialchars($bizSlug) ?>.svg" target="_blank"
                        class="btn btn-outline-secondary flex-fill fw-semibold">
-                        <i class="fa-solid fa-vector-square me-1"></i> SVG İndir
+                        <i class="fa-solid fa-vector-square me-1"></i> SVG
                     </a>
                 </div>
             </div>
@@ -141,15 +144,18 @@ $menuQr    = "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" . 
                 </div>
 
                 <!-- Download Buttons -->
-                <div class="d-flex gap-2 w-100">
+                <div class="d-flex gap-2 w-100 flex-wrap">
+                    <a href="<?= htmlspecialchars($menuUrl) ?>" target="_blank" class="btn btn-outline-danger flex-fill fw-semibold">
+                        <i class="fa-solid fa-eye me-1"></i> Sayfayı Aç
+                    </a>
                     <a href="<?= htmlspecialchars($menuQr) ?>" download="menu_qr_<?= htmlspecialchars($bizSlug) ?>.png" target="_blank"
                        class="btn btn-primary flex-fill fw-semibold">
-                        <i class="fa-solid fa-download me-1"></i> PNG İndir
+                        <i class="fa-solid fa-download me-1"></i> PNG
                     </a>
                     <a href="https://api.qrserver.com/v1/create-qr-code/?size=800x800&data=<?= urlencode($menuUrl) ?>&color=1E293B&bgcolor=FFFFFF&margin=10&format=svg"
                        download="menu_qr_<?= htmlspecialchars($bizSlug) ?>.svg" target="_blank"
                        class="btn btn-outline-secondary flex-fill fw-semibold">
-                        <i class="fa-solid fa-vector-square me-1"></i> SVG İndir
+                        <i class="fa-solid fa-vector-square me-1"></i> SVG
                     </a>
                 </div>
             </div>

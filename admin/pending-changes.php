@@ -40,6 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 if (function_exists('logAdminAction')) {
                     logAdminAction('approve', 'pending_changes', $bizName . ' - ' . $change['field_label'] . ' (Onaylandı)', $changeId);
                 }
+                
+                // İşletmeye bildirim gönder
+                $msg = "Profilinizdeki '" . $change['field_label'] . "' güncellemesi onaylanarak yayına alındı.";
+                $db->getPDO()->prepare("INSERT INTO business_notifications (business_id, type, title, message, is_read) VALUES (?, 'success', 'Değişiklik Onaylandı', ?, 0)")->execute([$bizId, $msg]);
+
                 $successMsg = "Değişiklik onaylandı ve yayına alındı.";
             } catch (Exception $e) {
                 $db->getPDO()->rollBack();
@@ -52,6 +57,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             if (function_exists('logAdminAction')) {
                 logAdminAction('reject', 'pending_changes', $bizName . ' - ' . $change['field_label'] . ' (Ret: ' . ($reason ?: 'Belirtilmedi') . ')', $changeId);
             }
+            
+            // İşletmeye bildirim gönder
+            $msg = "Profilinizdeki '" . $change['field_label'] . "' güncellemesi reddedildi. Neden: " . ($reason ?: 'Belirtilmedi');
+            $db->getPDO()->prepare("INSERT INTO business_notifications (business_id, type, title, message, is_read) VALUES (?, 'error', 'Değişiklik Reddedildi', ?, 0)")->execute([$bizId, $msg]);
+
             $successMsg = "Değişiklik reddedildi.";
         }
     } else {

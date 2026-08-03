@@ -25,13 +25,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     validateCSRF();
     
     // Fetch current data to compare
-    $curr = $db->query("SELECT * FROM businesses WHERE id = $bizId")->fetch();
+    $stmt = $db->prepare("SELECT * FROM businesses WHERE id = ?");
+    $stmt->execute([$bizId]);
+    $curr = $stmt->fetch();
     
     $fields = [
         'description' => ['label' => 'Hakkımızda', 'new' => trim($_POST['description'] ?? '')],
         'address' => ['label' => 'Adres', 'new' => trim($_POST['address'] ?? '')],
         'phone' => ['label' => 'Telefon', 'new' => trim($_POST['phone'] ?? '')],
         'whatsapp' => ['label' => 'WhatsApp', 'new' => trim($_POST['whatsapp'] ?? '')],
+        'email' => ['label' => 'E-posta Adresi', 'new' => trim($_POST['email'] ?? '')],
         'instagram' => ['label' => 'Instagram', 'new' => trim($_POST['instagram'] ?? '')],
         'facebook' => ['label' => 'Facebook', 'new' => trim($_POST['facebook'] ?? '')],
         'tiktok' => ['label' => 'TikTok', 'new' => trim($_POST['tiktok'] ?? '')],
@@ -65,17 +68,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($newVal !== $oldVal) {
                 // If there's already a pending change for this field, update it. Otherwise insert.
-                $check = $db->getPDO()->prepare("SELECT id FROM business_pending_changes WHERE business_id = ? AND field_name = ? AND status = 'pending'");
+                $check = $db->prepare("SELECT id FROM business_pending_changes WHERE business_id = ? AND field_name = ? AND status = 'pending'");
                 $check->execute([$bizId, $key]);
                 $existingPending = $check->fetchColumn();
                 
                 $type = $data['type'] ?? 'text';
                 
                 if ($existingPending) {
-                    $upd = $db->getPDO()->prepare("UPDATE business_pending_changes SET new_value = ?, submitted_at = NOW() WHERE id = ?");
+                    $upd = $db->prepare("UPDATE business_pending_changes SET new_value = ?, submitted_at = NOW() WHERE id = ?");
                     $upd->execute([$newVal, $existingPending]);
                 } else {
-                    $ins = $db->getPDO()->prepare("INSERT INTO business_pending_changes (business_id, field_name, field_label, old_value, new_value, change_type) VALUES (?, ?, ?, ?, ?, ?)");
+                    $ins = $db->prepare("INSERT INTO business_pending_changes (business_id, field_name, field_label, old_value, new_value, change_type) VALUES (?, ?, ?, ?, ?, ?)");
                     $ins->execute([$bizId, $key, $data['label'], $oldVal, $newVal, $type]);
                 }
                 $changesPending = true;
@@ -94,17 +97,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch business data
-$business = $db->query("SELECT * FROM businesses WHERE id = $bizId")->fetch(PDO::FETCH_ASSOC);
+$stmt = $db->prepare("SELECT * FROM businesses WHERE id = ?");
+$stmt->execute([$bizId]);
+$business = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Fetch pending changes
-$pending = $db->query("SELECT * FROM business_pending_changes WHERE business_id = $bizId AND status = 'pending'")->fetchAll(PDO::FETCH_ASSOC);
+$stmtPending = $db->prepare("SELECT * FROM business_pending_changes WHERE business_id = ? AND status = 'pending'");
+$stmtPending->execute([$bizId]);
+$pending = $stmtPending->fetchAll(PDO::FETCH_ASSOC);
 $pendingFields = [];
 foreach ($pending as $p) {
     $pendingFields[$p['field_name']] = $p;
 }
 
-// Fetch rejected changes for display
-$rejectedChanges = $db->query("SELECT * FROM business_pending_changes WHERE business_id = $bizId AND status = 'rejected' ORDER BY reviewed_at DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+// Fetch rejected changes for display is removed because it will be handled by notifications.
 
 // Override business data with pending values for display in the form so the user sees what they submitted
 foreach ($pendingFields as $key => $p) {
@@ -136,28 +142,6 @@ require_once __DIR__ . '/includes/header.php';
     <div class="alert alert-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i><?= htmlspecialchars($errorMsg) ?></div>
 <?php endif; ?>
 
-<?php if (!empty($rejectedChanges)): ?>
-    <div class="alert alert-danger shadow-sm border-0 mb-4">
-        <div class="d-flex align-items-start gap-3">
-            <i class="fa-solid fa-circle-xmark fs-4 mt-1 text-danger"></i>
-            <div class="w-100">
-                <h6 class="fw-bold mb-1">Değişiklik Talebiniz Reddedildi</h6>
-                <p class="mb-2 small">Profilinizde yaptığınız bazı güncellemeler yönetici tarafından reddedilmiştir:</p>
-                <div class="list-group list-group-flush border rounded small">
-                    <?php foreach ($rejectedChanges as $rej): ?>
-                    <div class="list-group-item bg-light d-flex justify-content-between align-items-center py-2">
-                        <div>
-                            <strong class="text-danger"><?= htmlspecialchars($rej['field_label'] ?: $rej['field_name']) ?></strong>
-                            <div class="text-dark mt-1"><strong>Red Sebebi:</strong> <?= htmlspecialchars($rej['reject_reason'] ?: 'Belirtilmedi') ?></div>
-                            <small class="text-muted"><i class="fa-regular fa-clock me-1"></i> Tarih: <?= date('d.m.Y H:i', strtotime($rej['reviewed_at'])) ?></small>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php endif; ?>
 
 <?php if (!empty($pendingFields)): ?>
     <div class="alert alert-warning shadow-sm border-0 d-flex align-items-start gap-3">
@@ -219,6 +203,14 @@ require_once __DIR__ . '/includes/header.php';
                                 <span class="input-group-text bg-light border-end-0"><i class="fa-brands fa-whatsapp text-success"></i></span>
                                 <input type="text" name="whatsapp" class="form-control border-start-0 <?= getPendingClass('whatsapp', $pendingFields) ?>" value="<?= htmlspecialchars($business['whatsapp'] ?? '') ?>" placeholder="90555...">
                             </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">E-posta Adresi <?= getPendingBadge('email', $pendingFields) ?></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-envelope text-primary"></i></span>
+                                <input type="email" name="email" class="form-control border-start-0 <?= getPendingClass('email', $pendingFields) ?>" value="<?= htmlspecialchars($business['email'] ?? '') ?>" placeholder="info@isletme.com">
+                            </div>
+                            <span class="text-muted small" style="font-size: 11px;">Müşteri iletişimi ve panel şifre sıfırlama için kullanılır.</span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Instagram <?= getPendingBadge('instagram', $pendingFields) ?></label>

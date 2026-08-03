@@ -201,6 +201,26 @@ $bizSlug = $_SESSION['biz_slug'] ?? '';
             <h4 class="mb-0 fw-bold d-none d-md-block text-navy"><?= htmlspecialchars($pageTitle) ?></h4>
         </div>
         <div class="d-flex align-items-center gap-3">
+            <?php
+            $unreadNotifCount = 0;
+            $headerBizId = (int)($_SESSION['biz_id'] ?? ($bizId ?? 0));
+            if ($headerBizId > 0) {
+                try {
+                    $pdo = Database::getInstance()->getPDO();
+                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM business_notifications WHERE business_id = ? AND is_read = 0");
+                    $stmt->execute([$headerBizId]);
+                    $unreadNotifCount = $stmt->fetchColumn();
+                } catch (Exception $e) {}
+            }
+            ?>
+            <a href="notifications.php" class="btn btn-light rounded-circle position-relative p-2 d-flex align-items-center justify-content-center text-decoration-none" style="width: 38px; height: 38px; border: 1px solid #E2E8F0;" title="Bildirimler">
+                <i class="fa-regular fa-bell text-navy"></i>
+                <?php if ($unreadNotifCount > 0): ?>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                        <?= $unreadNotifCount > 99 ? '99+' : $unreadNotifCount ?>
+                    </span>
+                <?php endif; ?>
+            </a>
             <a href="../esnaf/<?= htmlspecialchars($bizSlug) ?>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3">
                 <i class="fa-solid fa-eye me-1"></i> Profili Gör
             </a>

@@ -65,10 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 if ($_POST['action'] === 'add') {
                     $stmtIns = $db->query("INSERT INTO advertisements (title, image_path, target_url, position, active) VALUES (?, ?, ?, ?, ?)", [$title, $image_path, $target_url, $position, $active]);
+                    $newId = $db->getPDO()->lastInsertId();
+                    if (function_exists('logAction')) logAction('create', 'advertisements', $title, $newId);
                     $successMsg = "Reklam başarıyla eklendi.";
                     $action = 'list';
                 } else {
                     $stmtUp = $db->query("UPDATE advertisements SET title = ?, image_path = ?, target_url = ?, position = ?, active = ? WHERE id = ?", [$title, $image_path, $target_url, $position, $active, $id]);
+                    if (function_exists('logAction')) logAction('update', 'advertisements', $title, $id);
                     
                     if ($image_path !== $currentImage && !empty($currentImage) && strpos($currentImage, 'http') !== 0) {
                         @unlink('../public/images/' . $currentImage);
@@ -87,14 +90,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Delete Advertisement
 if ($action === 'delete' && $id > 0) {
     try {
-        $stmtCur = $db->query("SELECT image_path FROM advertisements WHERE id = ?", [$id]);
-        $currentImage = $stmtCur->fetchColumn() ?: '';
+        $stmtCur = $db->query("SELECT title, image_path FROM advertisements WHERE id = ?", [$id]);
+        $curData = $stmtCur->fetch();
+        $currentImage = $curData['image_path'] ?? '';
+        $delTitle = $curData['title'] ?? 'Reklam ID: ' . $id;
 
         $stmtDel = $db->query("DELETE FROM advertisements WHERE id = ?", [$id]);
 
         if (!empty($currentImage) && strpos($currentImage, 'http') !== 0) {
             @unlink('../public/images/' . $currentImage);
         }
+        
+        if (function_exists('logAction')) logAction('delete', 'advertisements', $delTitle, $id);
 
         $successMsg = "Reklam başarıyla silindi.";
     } catch (Exception $e) {
@@ -256,6 +263,7 @@ elseif ($action === 'new' || $action === 'edit'): ?>
                         <select name="position" class="form-select">
                             <option value="home_banner" <?= (isset($ad['position']) && $ad['position'] === 'home_banner') ? 'selected' : '' ?>>Ana Sayfa Banner</option>
                             <option value="sidebar" <?= (isset($ad['position']) && $ad['position'] === 'sidebar') ? 'selected' : '' ?>>Yan Panel (Sidebar)</option>
+                            <option value="esnaf_alt" <?= (isset($ad['position']) && $ad['position'] === 'esnaf_alt') ? 'selected' : '' ?>>Esnaf Sayfası - Sağ Alt (Ayrıntıların Altı)</option>
                         </select>
                     </div>
 

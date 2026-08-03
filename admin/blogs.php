@@ -44,14 +44,18 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 // Delete handler
 if ($action === 'delete' && $id > 0) {
     try {
-        $stmtCur = $db->query("SELECT image_path FROM blogs WHERE id = ?", [$id]);
-        $currentImage = $stmtCur->fetchColumn() ?: '';
+        $stmtCur = $db->query("SELECT title, image_path FROM blogs WHERE id = ?", [$id]);
+        $curData = $stmtCur->fetch();
+        $currentImage = $curData['image_path'] ?? '';
+        $delTitle = $curData['title'] ?? 'Blog ID: ' . $id;
 
         $stmt = $db->query("DELETE FROM blogs WHERE id = ?", [$id]);
 
         if (!empty($currentImage) && strpos($currentImage, 'http') !== 0) {
             @unlink('../public/uploads/' . $currentImage);
         }
+
+        if (function_exists('logAction')) logAction('delete', 'blogs', $delTitle, $id);
 
         header("Location: blogs.php?success=1");
         exit;
@@ -111,6 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 
                 $stmt = $db->query("INSERT INTO blogs (title, slug, summary, content, image_path, meta_description, meta_keywords) VALUES (?, ?, ?, ?, ?, ?, ?)", [$title, $slug, $summary, $content, $image_path, $meta_description, $meta_keywords]);
+                $newId = $db->getPDO()->lastInsertId();
+                if (function_exists('logAction')) logAction('create', 'blogs', $title, $newId);
                 header("Location: blogs.php?success=1");
                 exit;
             } catch (Exception $e) {
@@ -125,6 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 
                 $stmt = $db->query("UPDATE blogs SET title = ?, slug = ?, summary = ?, content = ?, image_path = ?, meta_description = ?, meta_keywords = ? WHERE id = ?", [$title, $slug, $summary, $content, $image_path, $meta_description, $meta_keywords, $id]);
+                if (function_exists('logAction')) logAction('update', 'blogs', $title, $id);
                 header("Location: blogs.php?success=1");
                 exit;
             } catch (Exception $e) {

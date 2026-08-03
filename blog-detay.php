@@ -184,7 +184,7 @@ require_once 'includes/header.php';
                 </div>
 
                 <?php if ($sidebarAd):
-                    $adImgUrl = (strpos($sidebarAd['image_path'], 'http') === 0) ? $sidebarAd['image_path'] : '/public/images/' . $sidebarAd['image_path'];
+                    $adImgUrl = (strpos($sidebarAd['image_path'], 'http') === 0) ? $sidebarAd['image_path'] : seoGetBaseUrl() . '/public/images/' . ltrim($sidebarAd['image_path'], '/');
                 ?>
                 <div class="directory-portal-ad biz-portal-widget">
                     <span class="directory-portal-ad__label">Sponsorlu</span>

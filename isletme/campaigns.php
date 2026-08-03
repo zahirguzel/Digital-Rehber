@@ -65,6 +65,7 @@ try {
 
 // Handle Form Submission (new or edit)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && in_array($_POST['action'], ['add', 'edit'], true)) {
+    validateCSRF();
     $title = trim($_POST['title'] ?? '');
     $campaign_type = trim($_POST['campaign_type'] ?? 'indirim');
     $summary = trim($_POST['summary'] ?? '');
@@ -109,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && in_array
                     $errorMsg = 'Bu kampanyayı düzenleme yetkiniz yok veya kampanya bulunamadı.';
                 } else {
                     $cover_image_path = isletmeCampUpload('cover_file', 'cover_url', $cur['cover_image_path']);
-                    $sql = 'UPDATE campaigns SET title=?, campaign_type=?, summary=?, description=?, discount_label=?, original_price=?, sale_price=?, start_date=?, end_date=?, cover_image_path=? WHERE id=? AND business_id=?';
+                    $sql = 'UPDATE campaigns SET title=?, campaign_type=?, summary=?, description=?, discount_label=?, original_price=?, sale_price=?, start_date=?, end_date=?, cover_image_path=?, status="pending" WHERE id=? AND business_id=?';
                     $db->query($sql, [
                         $title, $campaign_type, $summary, $description, $discount_label,
                         $original_price !== '' ? $original_price : null,
@@ -328,6 +329,11 @@ require_once __DIR__ . '/includes/header.php';
                             <td>
                                 <?php if ($camp['is_published']): ?>
                                     <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> Yayında</span>
+                                <?php elseif (($camp['status'] ?? '') === 'rejected'): ?>
+                                    <span class="badge bg-danger" title="<?= htmlspecialchars($camp['reject_reason'] ?? '') ?>"><i class="fa-solid fa-xmark me-1"></i> Reddedildi</span>
+                                    <div class="mt-1 small text-danger fw-semibold" style="font-size: 0.75rem; line-height: 1.2;">
+                                        <?= htmlspecialchars($camp['reject_reason'] ?? 'Red nedeni belirtilmedi') ?>
+                                    </div>
                                 <?php else: ?>
                                     <span class="badge bg-warning text-dark"><i class="fa-solid fa-clock me-1"></i> Onay Bekliyor</span>
                                 <?php endif; ?>
@@ -361,6 +367,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="card-body p-4">
             <form method="POST" action="campaigns.php" enctype="multipart/form-data">
+                <?= CSRFMiddleware::field() ?>
                 <input type="hidden" name="action" value="<?= $action === 'new' ? 'add' : 'edit' ?>">
                 <?php if ($action === 'edit'): ?>
                     <input type="hidden" name="id" value="<?= (int) $id ?>">
@@ -415,36 +422,39 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
 
                     <div class="col-md-12">
+                        <label class="form-label fw-semibold">Kapak Görseli <small class="text-muted">(Dosya Yükle veya İnternet URL'si)</small></label>
+                        <?php if (!empty($camp['cover_image_path'] ?? '')): ?>
+                            <div class="mb-2 d-flex align-items-center gap-3">
+                                <img src="<?= htmlspecialchars(getCampaignImageUrl($camp['cover_image_path'] ?? '')) ?>" alt="Kapak" class="img-thumbnail shadow-sm" style="max-height: 120px; max-width: 220px; object-fit:cover;">
+                                <span class="small text-muted">Mevcut görsel. Değiştirmek için yeni dosya seçin veya URL girin.</span>
+                            </div>
+                        <?php endif; ?>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1">Dosya Yükle</label>
+                                <input type="file" name="cover_file" class="form-control" accept="image/*">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1">veya Görsel URL</label>
+                                <input type="url" name="cover_url" class="form-control" placeholder="https://..." value="<?= (strpos($camp['cover_image_path'] ?? '', 'http') === 0) ? htmlspecialchars($camp['cover_image_path']) : '' ?>">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
                         <label class="form-label fw-semibold">Kısa Özet <small class="text-muted">(Kart üzerinde görünür)</small></label>
                         <input type="text" name="summary" class="form-control" maxlength="250"
                                value="<?= htmlspecialchars($camp['summary'] ?? '') ?>"
                                placeholder="Kampanyanızı bir cümle ile özetleyin...">
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-12 mb-5">
                         <label class="form-label fw-semibold">Detaylı Açıklama <small class="text-muted">(Kalın, büyük başlık, liste gibi biçimler ekleyebilirsiniz)</small></label>
-                        <div id="quill-editor" style="min-height:180px; background:#fff; border:1px solid #dee2e6; border-radius:0 0 .375rem .375rem;"></div>
+                        <div id="quill-editor" style="min-height: 250px; background:#fff; border:1px solid #dee2e6; border-radius:0 0 .375rem .375rem;"></div>
                         <textarea name="description" id="description-hidden" class="d-none"><?= htmlspecialchars($camp['description'] ?? '') ?></textarea>
-                    </div>
-
-                    <div class="col-md-12">
-                        <label class="form-label fw-semibold">Kapak Görseli <small class="text-muted">(Dosya Yükle veya İnternet URL'si)</small></label>
-                        <?php if (!empty($camp['cover_image_path'])): ?>
-                            <div class="mb-2">
-                                <img src="<?= htmlspecialchars(getCampaignImageUrl($camp['cover_image_path'])) ?>" alt="Kapak" class="img-thumbnail" style="max-height: 120px;">
-                            </div>
-                        <?php endif; ?>
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <input type="file" name="cover_file" class="form-control" accept="image/*">
-                            </div>
-                            <div class="col-md-6">
-                                <input type="url" name="cover_url" class="form-control" placeholder="https://..." value="<?= (strpos($camp['cover_image_path'] ?? '', 'http') === 0) ? htmlspecialchars($camp['cover_image_path']) : '' ?>">
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+                <div class="mt-5 pt-3 border-top d-flex justify-content-end gap-2" style="position: relative; z-index: 10;">
                     <a href="campaigns.php" class="btn btn-light border px-4">İptal</a>
                     <button type="submit" class="btn btn-primary px-4 fw-bold">
                         <i class="fa-solid fa-floppy-disk me-1"></i> <?= $action === 'new' ? 'Kampanyayı Kaydet' : 'Değişiklikleri Güncelle' ?>

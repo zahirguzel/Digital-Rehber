@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS businesses (
     address TEXT,
     phone VARCHAR(50),
     whatsapp VARCHAR(50),
+    email VARCHAR(255) NULL,
     google_maps_iframe TEXT,
     instagram VARCHAR(255) NULL,
     tiktok VARCHAR(255) NULL,

@@ -27,8 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Lütfen tüm zorunlu alanları doldurun.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'Lütfen geçerli bir e-posta adresi girin.';
-        } elseif (strlen($password) < 6) {
-            $error = 'Şifreniz en az 6 karakter olmalıdır.';
+        } elseif (!SecurityHelper::validatePasswordStrength($password)) {
+            $error = SecurityHelper::getPasswordStrengthMessage();
         } elseif ($password !== $passwordConfirm) {
             $error = 'Şifreler eşleşmiyor.';
         } else {
@@ -107,8 +107,9 @@ require_once __DIR__ . '/includes/header.php';
                             <label class="form-label fw-semibold small text-muted">Şifre</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-lock text-muted"></i></span>
-                                <input type="password" name="password" class="form-control border-start-0 ps-2" required placeholder="En az 6 karakter">
+                                <input type="password" name="password" class="form-control border-start-0 ps-2" required placeholder="En az 8 karakter (Büyük/Küçük harf, Rakam)">
                             </div>
+                            <div class="form-text small text-muted">En az 8 karakter; büyük harf, küçük harf ve rakam içermelidir.</div>
                         </div>
                         
                         <div class="mb-4">

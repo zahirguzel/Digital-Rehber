@@ -115,6 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $db->getPDO()->prepare('UPDATE settings SET telegram_enabled = ?, telegram_bot_token = ?, telegram_chat_id_1 = ?, telegram_chat_id_2 = ? WHERE id = 1')
                 ->execute([$telegram_enabled, $telegram_bot_token, $telegram_chat_id_1, $telegram_chat_id_2]);
+            if (function_exists('logAction')) logAction('update', 'settings', 'Telegram Ayarları', 1);
             $successMsg = 'Telegram bildirim ayarları kaydedildi.';
             $settings = $db->query('SELECT * FROM settings WHERE id = 1')->fetch();
         } catch (Exception $e) {
@@ -154,6 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             try {
                 $db->getPDO()->prepare("UPDATE settings SET admin_primary_color=? WHERE id=1")->execute([$color]);
+                if (function_exists('logAction')) logAction('update', 'settings', 'Panel Rengi', 1);
                 $successMsg = 'Panel rengi güncellendi.';
                 $settings = $db->query("SELECT * FROM settings WHERE id = 1")->fetch();
             } catch (Exception $e) { $errorMsg = 'Hata: ' . $e->getMessage(); }
@@ -241,6 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $contact_captcha
             ]);
             
+            if (function_exists('logAction')) logAction('update', 'settings', 'Genel Ayarlar', 1);
             $successMsg = "Site ayarları başarıyla güncellendi.";
             
             // Refresh settings local data
@@ -277,6 +280,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
          
         try {
             $db->getPDO()->prepare("UPDATE settings SET home_hero_video = ?, home_hero_poster = ?, home_hero_title = ?, home_hero_subtitle = ?, home_hero_description = ?, home_hero_primary_text = ?, home_hero_primary_url = ?, home_hero_secondary_text = ?, home_hero_secondary_url = ?, home_hero_consumer_text = ?, home_hero_consumer_link_text = ?, home_search_label = ?, home_services_title = ?, home_services_desc = ?, home_influencer_title = ?, home_influencer_desc = ?, home_events_title = ?, home_events_desc = ?, home_blog_title = ?, home_blog_desc = ?, home_banner_fallback_title = ?, home_banner_fallback_description = ? WHERE id = 1")->execute([$home_hero_video, $home_hero_poster, $home_hero_title, $home_hero_subtitle, $home_hero_description, $home_hero_primary_text, $home_hero_primary_url, $home_hero_secondary_text, $home_hero_secondary_url, $home_hero_consumer_text, $home_hero_consumer_link_text, $home_search_label, $home_services_title, $home_services_desc, $home_influencer_title, $home_influencer_desc, $home_events_title, $home_events_desc, $home_blog_title, $home_blog_desc, $home_banner_fallback_title, $home_banner_fallback_description]);
+            if (function_exists('logAction')) logAction('update', 'settings', 'Ana Sayfa İçerik', 1);
             $successMsg = "Ana sayfa medya ve içerik ayarları güncellendi.";
             $settings = $db->query("SELECT * FROM settings WHERE id = 1")->fetch();
         } catch (Exception $e) {
@@ -308,16 +312,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if (!empty($new_password)) {
                             if ($new_password !== $confirm_password) {
                                 $errorMsg = "Yeni şifreler uyuşmuyor.";
-                            } elseif (strlen($new_password) < 6) {
-                                $errorMsg = "Yeni şifre en az 6 karakter olmalıdır.";
+                            } elseif (strlen($new_password) < 8) {
+                                $errorMsg = "Yeni şifre en az 8 karakter olmalıdır.";
                             } else {
                                 $hashed = password_hash($new_password, PASSWORD_DEFAULT);
                                 $stmtUpdate = $db->query("UPDATE admins SET username = ?, password = ? WHERE id = ?", [$new_username, $hashed, $_SESSION['admin_id']]);
+                                if (function_exists('logAction')) logAction('update', 'admins', 'Hesap Ayarları (Şifre Dahil)', $_SESSION['admin_id']);
                                 $successMsg = "Kullanıcı adı ve şifreniz başarıyla güncellendi.";
                                 $_SESSION['admin_username'] = $new_username;
                             }
                         } else {
                             $stmtUpdate = $db->query("UPDATE admins SET username = ? WHERE id = ?", [$new_username, $_SESSION['admin_id']]);
+                            if (function_exists('logAction')) logAction('update', 'admins', 'Hesap Ayarları', $_SESSION['admin_id']);
                             $successMsg = "Kullanıcı adınız başarıyla güncellendi.";
                             $_SESSION['admin_username'] = $new_username;
                         }
@@ -726,7 +732,7 @@ endforeach; ?>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Yeni Şifre</label>
                             <input type="password" name="new_password" class="form-control" placeholder="Değiştirmek istemiyorsanız boş bırakın">
-                            <span class="text-muted small" style="font-size: 11px;">En az 6 karakter olmalıdır.</span>
+                            <span class="text-muted small" style="font-size: 11px;">En az 8 karakter olmalıdır.</span>
                         </div>
                         
                         <!-- Confirm Password -->
