@@ -3,6 +3,7 @@ require_once __DIR__ . '/autoload.php';
 require_once 'config/db.php';
 require_once 'includes/influencer-helpers.php';
 require_once 'includes/seo-meta.php';
+use App\Services\EmailService;
 
 $successMsg = '';
 $errorMsg = '';
@@ -67,6 +68,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'youtube' => $youtube,
                 'bio' => $bio,
             ]);
+
+            $emailService = new EmailService();
+            $emailContent = "
+                <p><strong>Ad Soyad:</strong> {$name}</p>
+                <p><strong>E-posta:</strong> {$email}</p>
+                <p><strong>Telefon:</strong> {$phone}</p>
+                <p><strong>İlçe:</strong> {$district}</p>
+                <p><strong>Kategori:</strong> {$niche}</p>
+                <p><strong>Instagram:</strong> {$instagram}</p>
+                <p><strong>TikTok:</strong> {$tiktok}</p>
+                <p><strong>YouTube:</strong> {$youtube}</p>
+                <p><strong>Bio:</strong><br/>{$bio}</p>
+            ";
+            $emailService->sendAdminNotification('Yeni Influencer Başvurusu', $emailContent, $email);
+
             $successMsg = 'Başvurunuz alındı. Profiliniz incelendikten ve onayınız doğrulandıktan sonra yayına alınacaktır.';
             $name = $email = $phone = $instagram = $tiktok = $youtube = $bio = '';
             $district = '';
@@ -245,10 +261,10 @@ require_once 'includes/header.php';
                                         <strong>Profil ve isim kullanım onayı:</strong> Adım, fotoğrafım, sosyal medya linklerim ve biyografim <?= SecurityHelper::escape(seoGetSiteTitle()) ?> sitesinde yayınlanması için yazılı iznimi veriyorum. İstediğim zaman kaldırma talebinde bulunabileceğimi biliyorum.
                                     </label>
                                 </div>
-                                <div class="form-check mb-0">
-                                    <input class="form-check-input" type="checkbox" name="consent_kvkk" id="consent_kvkk" value="1" required>
-                                    <label class="form-check-label" for="consent_kvkk">
-                                        <a href="/gizlilik-politikasi#influencer-kvkk" target="_blank">Gizlilik & KVKK</a> metnini okudum; kişisel verilerimin influencer rehberi hizmeti kapsamında işlenmesini kabul ediyorum.
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="consent_kvkk" id="consentKvkk" required>
+                                    <label class="form-check-label text-muted" for="consentKvkk" style="font-size: 0.95rem;">
+                                        <a href="<?= seoGetBaseUrl() ?>/gizlilik-politikasi#influencer-kvkk" target="_blank">Gizlilik & KVKK</a> metnini okudum; kişisel verilerimin influencer rehberi hizmeti kapsamında işlenmesini kabul ediyorum.
                                     </label>
                                 </div>
                             </div>

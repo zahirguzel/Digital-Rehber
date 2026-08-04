@@ -26,15 +26,19 @@ require_once 'includes/header.php';
 ?>
 
 <!-- Hakkımızda Hero Alanı -->
-<header class="py-5 bg-light" style="background: linear-gradient(135deg, rgba(243,244,246,1) 0%, rgba(229,231,235,1) 100%); border-bottom: 1px solid #e5e7eb;">
-    <div class="container text-center py-4 reveal-on-scroll">
-        <h1 class="display-4 fw-bold text-navy mb-3"><?= SecurityHelper::escape($page['title']) ?></h1>
+<header class="py-5 position-relative overflow-hidden" style="background: linear-gradient(135deg, var(--primary) 0%, #1a1a2e 100%);">
+    <!-- Dekoratif Arka Plan Şekilleri -->
+    <div class="position-absolute rounded-circle" style="width: 300px; height: 300px; background: rgba(255,255,255,0.05); top: -100px; left: -100px;"></div>
+    <div class="position-absolute rounded-circle" style="width: 400px; height: 400px; background: rgba(255,255,255,0.05); bottom: -200px; right: -100px;"></div>
+    
+    <div class="container text-center py-4 reveal-on-scroll position-relative" style="z-index: 2;">
+        <h1 class="display-4 fw-bold text-white mb-3" style="text-shadow: 0 2px 4px rgba(0,0,0,0.2);"><?= SecurityHelper::escape($page['title']) ?></h1>
         <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
-            <span style="width: 40px; height: 3px; background: var(--primary); border-radius: 2px;"></span>
-            <i class="fa-solid fa-users text-muted opacity-50"></i>
-            <span style="width: 40px; height: 3px; background: var(--primary); border-radius: 2px;"></span>
+            <span style="width: 40px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px;"></span>
+            <i class="fa-solid fa-users text-white opacity-75"></i>
+            <span style="width: 40px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px;"></span>
         </div>
-        <p class="lead text-muted mx-auto" style="max-width: 600px;"><?= SecurityHelper::escape($page['meta_description']) ?></p>
+        <p class="lead text-white opacity-75 mx-auto" style="max-width: 600px;"><?= SecurityHelper::escape($page['meta_description']) ?></p>
     </div>
 </header>
 
@@ -49,7 +53,13 @@ require_once 'includes/header.php';
                 </div>
             </div>
             <div class="col-lg-6 text-center">
-                <img src="/public/images/mockup.png" alt="Hakkımızda Görseli" class="img-fluid rounded-4 shadow-sm" style="max-height: 400px; object-fit: contain;">
+                <?php
+                $hakkimizdaGorsel = $siteUrl('public/images/mockup.png');
+                if (!empty($siteSettings['site_logo'])) {
+                    $hakkimizdaGorsel = (strpos($siteSettings['site_logo'], 'http') === 0) ? $siteSettings['site_logo'] : $siteUrl('public/images/' . $siteSettings['site_logo']);
+                }
+                ?>
+                <img src="<?= SecurityHelper::escape($hakkimizdaGorsel) ?>" alt="<?= SecurityHelper::escape($page['title']) ?>" class="img-fluid rounded-4 shadow-sm" style="max-height: 400px; object-fit: contain;">
             </div>
         </div>
 

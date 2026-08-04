@@ -122,6 +122,7 @@ $menu = [
             ['title' => 'Kullanıcılar & Üyeler', 'icon' => 'fa-solid fa-users', 'url' => 'users.php'],
             ['title' => 'Adminler', 'icon' => 'fa-solid fa-users-gear', 'url' => 'admins.php'],
             ['title' => 'İşlem Kayıtları', 'icon' => 'fa-solid fa-clock-rotate-left', 'url' => 'logs.php'],
+            ['title' => 'Çöp Kutusu', 'icon' => 'fa-solid fa-trash-can', 'url' => 'cop-kutusu.php'],
             ['title' => '2FA Ayarı', 'icon' => 'fa-solid fa-shield-halved', 'url' => '2fa-setup.php'],
         ]
     ]

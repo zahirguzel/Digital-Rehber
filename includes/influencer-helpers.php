@@ -203,9 +203,9 @@ if (!function_exists('getInfluencerRemovalRequestTypeLabel')) {
 if (!function_exists('getInfluencerPendingRequestsCount')) {
     function getInfluencerPendingRequestsCount($pdo) {
         try {
-            $apps = (int) $pdo->query("SELECT COUNT(*) FROM influencer_applications WHERE status = 'pending'")->fetchColumn();
-            $collabs = (int) $pdo->query('SELECT COUNT(*) FROM influencer_collaboration_requests WHERE is_read = 0')->fetchColumn();
-            $removals = (int) $pdo->query("SELECT COUNT(*) FROM influencer_removal_requests WHERE status = 'pending'")->fetchColumn();
+            $apps = (int) $pdo->query("SELECT COUNT(*) FROM influencer_applications WHERE status = 'pending' AND is_deleted = 0")->fetchColumn();
+            $collabs = (int) $pdo->query("SELECT COUNT(*) FROM influencer_collaboration_requests WHERE is_read = 0 AND is_deleted = 0")->fetchColumn();
+            $removals = (int) $pdo->query("SELECT COUNT(*) FROM influencer_removal_requests WHERE status = 'pending' AND is_deleted = 0")->fetchColumn();
             return $apps + $collabs + $removals;
         } catch (Exception $e) {
             return 0;
@@ -215,15 +215,17 @@ if (!function_exists('getInfluencerPendingRequestsCount')) {
 
 if (!function_exists('influencerRemovalRequestUrl')) {
     function influencerRemovalRequestUrl($slug = null) {
+        $base = function_exists('seoGetBaseUrl') ? seoGetBaseUrl() : '';
         if ($slug === null || $slug === '') {
-            return '/influencer-kaldirma-talebi';
+            return $base . '/influencer-kaldirma-talebi';
         }
-        return '/influencer-kaldirma-talebi/' . rawurlencode($slug);
+        return $base . '/influencer-kaldirma-talebi/' . rawurlencode($slug);
     }
 }
 
 if (!function_exists('influencerQrUrl')) {
     function influencerQrUrl($slug) {
-        return '/i/' . rawurlencode($slug);
+        $base = function_exists('seoGetBaseUrl') ? seoGetBaseUrl() : '';
+        return $base . '/i/' . rawurlencode($slug);
     }
 }

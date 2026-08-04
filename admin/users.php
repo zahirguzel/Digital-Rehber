@@ -68,15 +68,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
         if ($type === 'business_user') {
             $stmt = $db->query("SELECT username FROM business_users WHERE id = ?", [$targetId]);
             $bRow = $stmt->fetch(PDO::FETCH_ASSOC);
-            $db->getPDO()->prepare("DELETE FROM business_users WHERE id = ?")->execute([$targetId]);
-            logAction('delete', 'business_users', $bRow['username'] ?? 'İşletme Kullanıcısı', $targetId);
-            $_SESSION['flash_success'] = 'İşletme kullanıcısı başarıyla silindi.';
+            $db->getPDO()->prepare("UPDATE business_users SET is_deleted = 1 WHERE id = ?")->execute([$targetId]);
+            logAction('delete', 'business_users', 'Soft Delete: ' . ($bRow['username'] ?? 'İşletme Kullanıcısı'), $targetId);
+            $_SESSION['flash_success'] = 'İşletme kullanıcısı başarıyla silindi (Çöp Kutusuna taşındı).';
         } else {
             $stmt = $db->query("SELECT name, email FROM users WHERE id = ?", [$targetId]);
             $uRow = $stmt->fetch(PDO::FETCH_ASSOC);
-            $db->getPDO()->prepare("DELETE FROM users WHERE id = ?")->execute([$targetId]);
-            logAction('delete', 'users', $uRow['name'] ?? 'Kullanıcı', $targetId);
-            $_SESSION['flash_success'] = 'Kullanıcı hesabı başarıyla silindi.';
+            $db->getPDO()->prepare("UPDATE users SET is_deleted = 1 WHERE id = ?")->execute([$targetId]);
+            logAction('delete', 'users', 'Soft Delete: ' . ($uRow['name'] ?? 'Kullanıcı'), $targetId);
+            $_SESSION['flash_success'] = 'Kullanıcı hesabı başarıyla silindi (Çöp Kutusuna taşındı).';
         }
     } catch (Exception $e) {
         $_SESSION['flash_error'] = 'Silme işlemi başarısız: ' . $e->getMessage();
@@ -122,10 +122,10 @@ $page_u = max(1, intval($_GET['page_u'] ?? 1));
 $offset_u = ($page_u - 1) * $limit;
 $search_u = trim($_GET['search_u'] ?? '');
 
-$sql_u_base = "FROM users";
+$sql_u_base = "FROM users WHERE is_deleted = 0";
 $params_u = [];
 if ($search_u !== '') {
-    $sql_u_base .= " WHERE name LIKE ? OR email LIKE ?";
+    $sql_u_base .= " AND (name LIKE ? OR email LIKE ?)";
     $params_u[] = "%$search_u%";
     $params_u[] = "%$search_u%";
 }
@@ -142,10 +142,10 @@ $page_b = max(1, intval($_GET['page_b'] ?? 1));
 $offset_b = ($page_b - 1) * $limit;
 $search_b = trim($_GET['search_b'] ?? '');
 
-$sql_b_base = "FROM business_users bu LEFT JOIN businesses b ON bu.business_id = b.id";
+$sql_b_base = "FROM business_users bu LEFT JOIN businesses b ON bu.business_id = b.id WHERE bu.is_deleted = 0";
 $params_b = [];
 if ($search_b !== '') {
-    $sql_b_base .= " WHERE bu.username LIKE ? OR b.name LIKE ?";
+    $sql_b_base .= " AND (bu.username LIKE ? OR b.name LIKE ?)";
     $params_b[] = "%$search_b%";
     $params_b[] = "%$search_b%";
 }

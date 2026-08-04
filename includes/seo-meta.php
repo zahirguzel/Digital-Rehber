@@ -430,7 +430,7 @@ if (!function_exists('seoFindCityByDistrict')) {
                     FROM districts d
                     JOIN cities c ON d.city_id = c.id
                     WHERE d.name = ?
-                    ORDER BY (SELECT COUNT(*) FROM businesses b WHERE b.city = c.name) DESC, (c.name = 'Kıbrıs') DESC, c.name ASC
+                    ORDER BY (SELECT COUNT(*) FROM businesses b WHERE b.city = c.name AND b.is_deleted = 0) DESC, (c.name = 'Kıbrıs') DESC, c.name ASC
                     LIMIT 1
                 ");
                 $stmtBiz->execute([$districtName]);
@@ -473,21 +473,19 @@ if (!function_exists('seoGetÅžehirDistricts')) {
 
 if (!function_exists('seoGetŞehirDistrictGeo')) {
     function seoGetŞehirDistrictGeo($district) {
+        // Buraya Kıbrıs ilçelerinize ait enlem/boylam (latitude/longitude) verilerini girebilirsiniz.
+        // Girilmeyen ilçeler için varsayılan olarak Kıbrıs (Lefkoşa) merkez koordinatı döndürülür.
         $coords = [
-            'Antakya' => ['latitude' => 36.2025, 'longitude' => 36.1606],
-            'İskenderun' => ['latitude' => 36.5872, 'longitude' => 36.1733],
-            'Payas' => ['latitude' => 36.7569, 'longitude' => 36.2167],
-            'Defne' => ['latitude' => 36.1950, 'longitude' => 36.1400],
-            'Samandağ' => ['latitude' => 36.0800, 'longitude' => 35.9700],
-            'Arsuz' => ['latitude' => 36.4120, 'longitude' => 35.8920],
-            'Reyhanlı' => ['latitude' => 36.2680, 'longitude' => 36.5670],
-            'Kırıkhan' => ['latitude' => 36.4990, 'longitude' => 36.3570],
-            'Dörtyol' => ['latitude' => 36.8390, 'longitude' => 36.2150],
-            'Harbiye' => ['latitude' => 36.1450, 'longitude' => 36.0800],
-            'Erzin' => ['latitude' => 36.9540, 'longitude' => 36.1990],
-            'Belen' => ['latitude' => 36.4890, 'longitude' => 36.1940],
+            'Lefkoşa' => ['latitude' => 35.1856, 'longitude' => 33.3823],
+            'Girne' => ['latitude' => 35.3365, 'longitude' => 33.3182],
+            'Gazimağusa' => ['latitude' => 35.1250, 'longitude' => 33.9400],
+            'Güzelyurt' => ['latitude' => 35.1994, 'longitude' => 32.9922],
+            'İskele' => ['latitude' => 35.2869, 'longitude' => 33.8822],
+            'Lefke' => ['latitude' => 35.1119, 'longitude' => 32.8483],
         ];
-        return isset($coords[$district]) ? $coords[$district] : ['latitude' => 36.2025, 'longitude' => 36.1606];
+        
+        // Eğer ilçeye özel koordinat yoksa varsayılan Kıbrıs (Lefkoşa) merkez koordinatı döner.
+        return isset($coords[$district]) ? $coords[$district] : ['latitude' => 35.1856, 'longitude' => 33.3823];
     }
 }
 

@@ -397,7 +397,7 @@ if (empty($influencers)): ?>
                             </tr>
                             <?php
 else: foreach ($influencers as $inf):
-                                $infQrUrl = rtrim($baseUrl, '/') . influencerQrUrl($inf['slug']);
+                                $infQrUrl = influencerQrUrl($inf['slug']);
                                 $infQrImageSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($infQrUrl);
                             ?>
                             <tr>

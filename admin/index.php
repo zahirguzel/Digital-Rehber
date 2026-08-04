@@ -26,8 +26,8 @@ $recentEventSubmissions = [];
 
 // Fetch Statistics
 try {
-    $totalBusinesses = $db->query("SELECT COUNT(*) FROM businesses")->fetchColumn();
-    $premiumBusinesses = $db->query("SELECT COUNT(*) FROM businesses WHERE is_premium = 1")->fetchColumn();
+    $totalBusinesses = $db->query("SELECT COUNT(*) FROM businesses WHERE is_deleted = 0")->fetchColumn();
+    $premiumBusinesses = $db->query("SELECT COUNT(*) FROM businesses WHERE is_premium = 1 AND is_deleted = 0")->fetchColumn();
     $totalCategories = $db->query("SELECT COUNT(*) FROM categories")->fetchColumn();
     $activeAds = $db->query("SELECT COUNT(*) FROM advertisements WHERE active = 1")->fetchColumn();
 
@@ -36,14 +36,14 @@ try {
     $pendingEventSubmissions = getEventPendingSubmissionsCount($db->getPDO());
     $pendingCampaignRequests = (int) $db->query("SELECT COUNT(*) FROM campaigns WHERE is_published = 0")->fetchColumn();
 
-    $stmtRecent = $db->query("SELECT b.*, c.name as category_name FROM businesses b LEFT JOIN categories c ON b.category_id = c.id ORDER BY b.id DESC LIMIT 5");
+    $stmtRecent = $db->query("SELECT b.*, c.name as category_name FROM businesses b LEFT JOIN categories c ON b.category_id = c.id WHERE b.is_deleted = 0 ORDER BY b.id DESC LIMIT 5");
     $recentBusinesses = $stmtRecent->fetchAll();
 
     $recentMessages = $db->query("SELECT * FROM contact_messages ORDER BY is_read ASC, created_at DESC LIMIT 5")->fetchAll();
 
     $influencerFeed = [];
 
-    $pendingApps = $db->query("SELECT id, name, email, district, created_at FROM influencer_applications WHERE status = 'pending' ORDER BY created_at DESC LIMIT 4")->fetchAll();
+    $pendingApps = $db->query("SELECT id, name, email, district, created_at FROM influencer_applications WHERE status = 'pending' AND is_deleted = 0 ORDER BY created_at DESC LIMIT 4")->fetchAll();
     foreach ($pendingApps as $row) {
         $influencerFeed[] = [
             'type' => 'application',

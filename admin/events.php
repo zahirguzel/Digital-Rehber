@@ -125,9 +125,9 @@ if ($action === 'delete' && $id > 0) {
         $stmtName->execute([$id]);
         $delTitle = $stmtName->fetchColumn() ?: 'Etkinlik ID: ' . $id;
 
-        $db->getPDO()->prepare('DELETE FROM events WHERE id = ?')->execute([$id]);
-        if (function_exists('logAction')) logAction('delete', 'events', $delTitle, $id);
-        $successMsg = 'Etkinlik silindi.';
+        $db->getPDO()->prepare('UPDATE events SET is_deleted = 1 WHERE id = ?')->execute([$id]);
+        if (function_exists('logAction')) logAction('delete', 'events', 'Soft Delete: ' . $delTitle, $id);
+        $successMsg = 'Etkinlik başarıyla silindi (Çöp Kutusuna taşındı).';
     } catch (Exception $e) {
         $errorMsg = 'Silinemedi: ' . $e->getMessage();
     }
@@ -177,7 +177,7 @@ if ($action === 'edit' && $id > 0) {
 
 $events = [];
 if ($action === 'list') {
-    $events = $db->query('SELECT * FROM events ORDER BY start_date DESC, is_featured DESC')->fetchAll();
+    $events = $db->query('SELECT * FROM events WHERE is_deleted = 0 ORDER BY start_date DESC, is_featured DESC')->fetchAll();
 }
 
 $categories = eventCategories();

@@ -40,7 +40,7 @@ if (empty($slug)) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT b.*, c.name as category_name, c.slug as category_slug FROM businesses b LEFT JOIN categories c ON b.category_id = c.id WHERE b.slug = ?");
+    $stmt = $pdo->prepare("SELECT b.*, c.name as category_name, c.slug as category_slug FROM businesses b LEFT JOIN categories c ON b.category_id = c.id WHERE b.slug = ? AND b.is_deleted = 0");
     $stmt->execute([$slug]);
     $business = $stmt->fetch();
 
@@ -78,7 +78,7 @@ try {
                         $reviewModel->addReview($business['id'], $userId, $rating, $comment);
                         $reviewMsg = "Yorumunuz başarıyla eklendi!";
                         
-                        $stmt = $pdo->prepare("SELECT b.*, c.name as category_name, c.slug as category_slug FROM businesses b LEFT JOIN categories c ON b.category_id = c.id WHERE b.slug = ?");
+                        $stmt = $pdo->prepare("SELECT b.*, c.name as category_name, c.slug as category_slug FROM businesses b LEFT JOIN categories c ON b.category_id = c.id WHERE b.slug = ? AND b.is_deleted = 0");
                         $stmt->execute([$slug]);
                         $business = $stmt->fetch();
                     }

@@ -16,17 +16,10 @@ if (!function_exists('dutyPharmacyNormalizeDistrictName')) {
             return function_exists('seoGetRegionName') ? seoGetRegionName() : 'Şehir';
         }
 
+        // EczaneAPI bazen ilçeleri farklı yazabilir. İhtiyaç halinde kendi ilçeleriniz için buraya eşleştirme ekleyebilirsiniz.
+        // Örnek: 'merkez ilçe 2' => 'Merkez'
         $aliases = [
-            'iskenderun-2' => 'İskenderun',
-            'iskenderun 2' => 'İskenderun',
-            'arsuz karaagac' => 'Arsuz',
-            'arsuz karaağaç' => 'Arsuz',
-            'samandag karacay' => 'Samandağ',
-            'samandağ karaçay' => 'Samandağ',
-            'aktepe hassa' => 'Hassa',
-            'kumlu' => 'Kumlu',
-            'yayladagi' => 'Yayladağı',
-            'altinozu' => 'Altınözü',
+            // Kendi alias'larınızı buraya ekleyebilirsiniz...
         ];
 
         $lower = mb_strtolower($name, 'UTF-8');

@@ -189,7 +189,7 @@ if (!function_exists('getDistrictPageById')) {
 if (!function_exists('getDistrictPagesList')) {
     function getDistrictPagesList($pdo, $publishedOnly = false) {
         try {
-            $sql = 'SELECT dp.*, (SELECT COUNT(*) FROM businesses b WHERE b.district = dp.district_name) AS business_count
+            $sql = 'SELECT dp.*, (SELECT COUNT(*) FROM businesses b WHERE b.district = dp.district_name AND b.is_deleted = 0) AS business_count
                     FROM district_pages dp';
             if ($publishedOnly) {
                 $sql .= ' WHERE dp.is_published = 1';
@@ -250,15 +250,15 @@ if (!function_exists('getDistrictBusinessStats')) {
     function getDistrictBusinessStats($pdo, $districtName) {
         $stats = ['total' => 0, 'premium' => 0, 'categories' => 0];
         try {
-            $stmt = $pdo->prepare('SELECT COUNT(*) FROM businesses WHERE district = ?');
+            $stmt = $pdo->prepare('SELECT COUNT(*) FROM businesses WHERE district = ? AND is_deleted = 0');
             $stmt->execute([$districtName]);
             $stats['total'] = (int) $stmt->fetchColumn();
 
-            $stmt = $pdo->prepare('SELECT COUNT(*) FROM businesses WHERE district = ? AND is_premium = 1');
+            $stmt = $pdo->prepare('SELECT COUNT(*) FROM businesses WHERE district = ? AND is_premium = 1 AND is_deleted = 0');
             $stmt->execute([$districtName]);
             $stats['premium'] = (int) $stmt->fetchColumn();
 
-            $stmt = $pdo->prepare('SELECT COUNT(DISTINCT category_id) FROM businesses WHERE district = ?');
+            $stmt = $pdo->prepare('SELECT COUNT(DISTINCT category_id) FROM businesses WHERE district = ? AND is_deleted = 0');
             $stmt->execute([$districtName]);
             $stats['categories'] = (int) $stmt->fetchColumn();
         } catch (Exception $e) {
@@ -274,7 +274,7 @@ if (!function_exists('getDistrictBusinesses')) {
                 'SELECT b.*, c.name AS category_name
                  FROM businesses b
                  LEFT JOIN categories c ON b.category_id = c.id
-                 WHERE b.district = ?
+                 WHERE b.district = ? AND b.is_deleted = 0
                  ORDER BY b.is_premium DESC, b.name ASC
                  LIMIT ' . (int) $limit
             );

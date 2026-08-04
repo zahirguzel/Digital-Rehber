@@ -138,7 +138,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     <!-- Businesses -->
     <?php
     try {
-        $businesses = $pdo->query("SELECT slug FROM businesses")->fetchAll();
+        $businesses = $pdo->query("SELECT slug FROM businesses WHERE is_deleted = 0")->fetchAll();
         foreach ($businesses as $biz) {
             echo "    <url>\n";
             echo "        <loc>" . $baseUrl . "esnaf/" . htmlspecialchars($biz['slug']) . "</loc>\n";

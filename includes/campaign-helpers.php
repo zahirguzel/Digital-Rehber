@@ -175,7 +175,7 @@ if (!function_exists('getCampaignBusiness')) {
                 'SELECT b.*, c.name AS category_name
                  FROM businesses b
                  LEFT JOIN categories c ON c.id = b.category_id
-                 WHERE b.id = ?
+                 WHERE b.id = ? AND b.is_deleted = 0
                  LIMIT 1'
             );
             $stmt->execute([(int) $businessId]);

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/autoload.php';
 require_once 'config/db.php';
 require_once 'includes/influencer-helpers.php';
+use App\Services\EmailService;
 
 $slug = trim($_GET['slug'] ?? '');
 if ($slug === '') {
@@ -63,14 +64,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['collab_submit'])) {
             $ins = $pdo->prepare("INSERT INTO influencer_collaboration_requests (influencer_id, business_name, contact_name, email, phone, collab_type, message) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $ins->execute([$influencer['id'], $businessName, $contactName, $email, $phone, $collabType, $message]);
             require_once __DIR__ . '/includes/telegram-notify.php';
-            telegramNotifyInfluencerCollaboration($pdo, [
+            $collabData = [
                 'business_name' => $businessName,
                 'contact_name' => $contactName,
                 'email' => $email,
                 'phone' => $phone,
                 'collab_type' => $collabType,
                 'message' => $message,
-            ], $influencer);
+            ];
+            telegramNotifyInfluencerCollaboration($pdo, $collabData, $influencer);
+            
+            if (!empty($influencer['contact_email'])) {
+                $emailService = new EmailService();
+                $emailService->sendCollaborationEmail($influencer['contact_email'], $influencer['name'], $collabData);
+            }
+
             $collabSuccess = 'İş birliği talebiniz alındı. En kısa sürede size dönüş yapılacaktır.';
         } catch (Exception $e) {
             $collabError = 'Talep gönderilirken hata oluştu. Lütfen tekrar deneyin.';

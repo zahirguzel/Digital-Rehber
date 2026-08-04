@@ -12,7 +12,7 @@ $metaKeywords = $regionLower . ' ilçeleri, ' . $regionLower . ' esnaf, ' . $reg
 
 $districtCounts = [];
 try {
-    $rows = $pdo->query("SELECT district, COUNT(*) AS cnt FROM businesses WHERE district IS NOT NULL AND district != '' GROUP BY district")->fetchAll();
+    $rows = $pdo->query("SELECT district, COUNT(*) AS cnt FROM businesses WHERE district IS NOT NULL AND district != '' AND is_deleted = 0 GROUP BY district")->fetchAll();
     foreach ($rows as $row) {
         $districtCounts[$row['district']] = (int) $row['cnt'];
     }

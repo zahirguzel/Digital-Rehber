@@ -268,6 +268,50 @@ Admin paneli: /admin/login.php
   Sorularınız için yazılımı size gönderen kişiyle iletişime geçin.
 
 
+15. CANLI YAYINA ALMA (PRODUCTION) ÖNCESİ DETAYLI AYARLAR
+--------------------------------------------------------------------------------
+
+Canlıya (gerçek domaine) çıkmadan hemen önce aşağıdaki 2 dosyada mutlaka 
+bu düzenlemeleri yapmalısınız:
+
+A) .env DOSYASI (Mail ve Hata Gizleme Ayarları)
+   - Ana dizindeki .env.example dosyasının adını .env yapın.
+   - Dosyayı açın ve en üstteki Test/Geliştirici modunu kapatın:
+       APP_ENV=production
+       APP_DEBUG=false
+     (Bu sayede ekrana şifre/onay kodu basılmaz ve hatalar gizlenir.)
+
+   - Dosyadaki MAIL_ kısmını doldurun:
+     * Hosting Maili için:
+       MAIL_HOST=mail.sizindomain.com (veya hosting smtp adresi)
+       MAIL_PORT=465 veya 587
+       MAIL_USER=info@sizindomain.com
+       MAIL_PASS=mail_sifreniz
+     * Gmail kullanacaksanız:
+       MAIL_HOST=smtp.gmail.com
+       MAIL_PORT=587
+       MAIL_USER=gmailadresiniz@gmail.com
+       MAIL_PASS=16_haneli_google_uygulama_sifresi
+       
+   - İletişim, İşletme ve Etkinlik Başvuru formlarının yöneticisi (size) gelebilmesi için:
+       ADMIN_EMAIL=sizin_mail_adresiniz@gmail.com
+B) .htaccess DOSYASI (Alan Adı ve Dizin Yönlendirmeleri)
+   - Klasör Yolunu Değiştirme:
+     Dosya içindeki 4. satırda bulunan "RewriteBase /digitalrehber/" yazısını 
+     "RewriteBase /" olarak güncelleyin. (Eğer siteyi public_html içine kurduysanız).
+   - Domain (HTTPS) Yönlendirmesi:
+     Dosyada bulunan 5 satırlık "sizindomain.com" kodlarının başındaki 
+     # işaretlerini kaldırın ve "sizindomain" yazan yerlere kendi sitenizin 
+     gerçek adını (örn: ahmet.com) yazın.
+
+C) SEO KOORDİNATLARI (Farklı Bir Ülke/Şehir İçin Kurulum Yapılacaksa)
+   - Sistem şu an varsayılan olarak Kıbrıs (Lefkoşa, Girne vb.) koordinatlarına ayarlıdır.
+   - Eğer bu yazılımı ileride tamamen farklı bir şehir/ülke için kurarsanız:
+     "includes/seo-meta.php" dosyasını açıp "seoGetŞehirDistrictGeo" fonksiyonunu bulun.
+     Oradaki Kıbrıs koordinatlarını silip kurduğunuz yeni şehrin ilçe koordinatlarını
+     girebilirsiniz.
+
+
 ================================================================================
   Özet kontrol listesi:
     [ ] database.sql import edildi
@@ -275,6 +319,8 @@ Admin paneli: /admin/login.php
     [ ] public/images/ yazılabilir
     [ ] Admin girişi yapıldı, şifre değiştirildi
     [ ] Ayarlar → site adı ve logo güncellendi
-    [ ] .htaccess domain satırları düzenlendi (canlı)
-    [ ] migrate.php silindi veya kapatıldı (canlı)
+    [ ] .env dosyası oluşturuldu ve APP_ENV=production yapıldı
+    [ ] .env dosyasında SMTP Mail bilgileri girildi
+    [ ] .htaccess domain satırları düzenlendi ve RewriteBase / yapıldı
+    [ ] migrate.php ve scripts/ klasörü içindeki örnek veriler silindi
 ================================================================================

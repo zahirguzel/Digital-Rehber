@@ -1,4 +1,9 @@
 <?php
+
+namespace App\Services;
+
+use App\Services\EmailService;
+
 /**
  * PasswordResetService
  *
@@ -79,15 +84,16 @@ class PasswordResetService {
             // 7. İşlemi denetim loglarına ekle
             $this->logSecurity($ip, $email, 'OTP_SENT', "6 haneli OTP kodu üretildi ({$userType}).");
 
-            // 8. E-posta Gönderim Simülasyonu / Kancası
-            // Localhost (XAMPP) ortamında geliştirme ve test kolaylığı için dev_otp alanında kodu döndürüyoruz.
-            // Canlı sunucuda mail fonksiyonu entegre edilebilir.
+            // 8. E-posta Gönderme
+            $emailService = new EmailService();
+            $emailService->sendPasswordResetEmail($email, $otpCode);
+            
             $isLocalhost = in_array($_SERVER['SERVER_NAME'] ?? 'localhost', ['localhost', '127.0.0.1', '::1']);
 
             return [
                 'success'   => true,
                 'message'   => 'Şifre sıfırlama kodu e-posta adresinize gönderildi. (Geçerlilik: 5 Dakika)',
-                'dev_otp'   => $isLocalhost ? $otpCode : null,
+                'dev_otp'   => $isLocalhost ? $otpCode : null, // Geliştirme ortamında ekrana basmaya devam etsin
                 'user_type' => $userType,
                 'email'     => $email
             ];

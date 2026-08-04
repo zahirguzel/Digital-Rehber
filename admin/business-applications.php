@@ -95,10 +95,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 ];
             }
         } elseif ($action === 'delete') {
-            $stmt = $db->prepare("DELETE FROM business_applications WHERE id = ?");
+            $stmtName = $db->prepare("SELECT business_name FROM business_applications WHERE id = ?");
+            $stmtName->execute([$appId]);
+            $bizName = $stmtName->fetchColumn() ?: 'Bilinmeyen Başvuru';
+
+            $stmt = $db->prepare("UPDATE business_applications SET is_deleted = 1 WHERE id = ?");
             $stmt->execute([$appId]);
-            if (function_exists('logAction')) logAction('delete', 'business_applications', 'Başvuru ID: ' . $appId, $appId);
-            $_SESSION['ba_success'] = "Başvuru kalıcı olarak silindi.";
+            if (function_exists('logAction')) logAction('delete', 'business_applications', 'Soft Delete: ' . $bizName, $appId);
+            $_SESSION['ba_success'] = "Başvuru başarıyla silindi (Gizlendi).";
         }
     } catch (Exception $e) {
         if ($db->inTransaction()) $db->rollBack();
@@ -111,9 +115,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 
 // Fetch pending applications
-$pending = $db->query("SELECT * FROM business_applications WHERE status = 'pending' ORDER BY created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
+$pending = $db->query("SELECT * FROM business_applications WHERE status = 'pending' AND is_deleted = 0 ORDER BY created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
 // Fetch history
-$history = $db->query("SELECT * FROM business_applications WHERE status != 'pending' ORDER BY updated_at DESC LIMIT 50")->fetchAll(PDO::FETCH_ASSOC);
+$history = $db->query("SELECT * FROM business_applications WHERE status != 'pending' AND is_deleted = 0 ORDER BY updated_at DESC LIMIT 50")->fetchAll(PDO::FETCH_ASSOC);
 
 $pageTitle = 'İşletme Başvuruları';
 require_once 'includes/header.php';

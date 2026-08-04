@@ -44,11 +44,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $successMsg = 'Kaldırma talebi işlendi.';
     }
+    
+    // Soft Delete Actions
+    if (isset($_POST['delete_app']) && (int) $_POST['delete_app'] > 0) {
+        $delId = (int) $_POST['delete_app'];
+        $stmtName = $db->query("SELECT name FROM influencer_applications WHERE id = ?", [$delId]);
+        $row = $stmtName->fetch();
+        $name = $row ? $row['name'] : 'Bilinmeyen Başvuru';
+        $db->getPDO()->prepare('UPDATE influencer_applications SET is_deleted = 1 WHERE id = ?')->execute([$delId]);
+        if (function_exists('logAction')) logAction('delete', 'influencer_applications', "Soft Delete: $name", $delId);
+        $successMsg = 'Başvuru başarıyla silindi (Gizlendi).';
+    }
+    if (isset($_POST['delete_collab']) && (int) $_POST['delete_collab'] > 0) {
+        $delId = (int) $_POST['delete_collab'];
+        $stmtName = $db->query("SELECT brand_name FROM influencer_collaboration_requests WHERE id = ?", [$delId]);
+        $row = $stmtName->fetch();
+        $name = $row ? $row['brand_name'] : 'Bilinmeyen İş Birliği';
+        $db->getPDO()->prepare('UPDATE influencer_collaboration_requests SET is_deleted = 1 WHERE id = ?')->execute([$delId]);
+        if (function_exists('logAction')) logAction('delete', 'influencer_collaboration_requests', "Soft Delete: $name", $delId);
+        $successMsg = 'İş birliği talebi başarıyla silindi (Gizlendi).';
+    }
+    if (isset($_POST['delete_removal']) && (int) $_POST['delete_removal'] > 0) {
+        $delId = (int) $_POST['delete_removal'];
+        $stmtName = $db->query("SELECT contact_email FROM influencer_removal_requests WHERE id = ?", [$delId]);
+        $row = $stmtName->fetch();
+        $name = $row ? $row['contact_email'] : 'Bilinmeyen Talep';
+        $db->getPDO()->prepare('UPDATE influencer_removal_requests SET is_deleted = 1 WHERE id = ?')->execute([$delId]);
+        if (function_exists('logAction')) logAction('delete', 'influencer_removal_requests', "Soft Delete: $name", $delId);
+        $successMsg = 'Kaldırma talebi başarıyla silindi (Gizlendi).';
+    }
 }
 
-$applications = $db->query("SELECT * FROM influencer_applications ORDER BY FIELD(status,'pending','approved','rejected'), created_at DESC")->fetchAll();
-$collabs = $db->query('SELECT c.*, i.name AS influencer_name, i.slug FROM influencer_collaboration_requests c JOIN influencers i ON i.id = c.influencer_id ORDER BY c.is_read ASC, c.created_at DESC')->fetchAll();
-$removals = $db->query('SELECT r.*, i.slug FROM influencer_removal_requests r LEFT JOIN influencers i ON i.id = r.influencer_id ORDER BY FIELD(r.status,\'pending\',\'processed\'), r.created_at DESC')->fetchAll();
+$applications = $db->query("SELECT * FROM influencer_applications WHERE is_deleted = 0 ORDER BY FIELD(status,'pending','approved','rejected'), created_at DESC")->fetchAll();
+$collabs = $db->query('SELECT c.*, i.name AS influencer_name, i.slug FROM influencer_collaboration_requests c JOIN influencers i ON i.id = c.influencer_id WHERE c.is_deleted = 0 ORDER BY c.is_read ASC, c.created_at DESC')->fetchAll();
+$removals = $db->query('SELECT r.*, i.slug FROM influencer_removal_requests r LEFT JOIN influencers i ON i.id = r.influencer_id WHERE r.is_deleted = 0 ORDER BY FIELD(r.status,\'pending\',\'processed\'), r.created_at DESC')->fetchAll();
 
 $pendingApps = count(array_filter($applications, function ($a) { return $a['status'] === 'pending'; }));
 $unreadCollabs = count(array_filter($collabs, function ($c) { return !$c['is_read']; }));
@@ -219,6 +248,11 @@ endif; ?>
                                 </select>
                                 <button type="submit" class="btn btn-sm btn-primary">Kaydet</button>
                             </form>
+                            <form method="post" class="d-inline-block" onsubmit="return confirm('Bu başvuruyu silmek (gizlemek) istediğinize emin misiniz?');">
+                                <?= CSRFMiddleware::field() ?>
+                                <input type="hidden" name="delete_app" value="<?= (int) $app['id'] ?>">
+                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Sil (Gizle)"><i class="fa-solid fa-trash"></i></button>
+                            </form>
                         </div>
                         <?php
 if ($bioPreview !== ''): ?>
@@ -266,7 +300,7 @@ else: foreach ($collabs as $c):
             ?>
                 <tr class="<?= !$c['is_read'] ? 'table-warning' : '' ?>">
                     <td class="ps-4">
-                        <a href="../influencer/<?= htmlspecialchars($c['slug']) ?>" target="_blank" class="fw-bold text-decoration-none"><?= htmlspecialchars($c['influencer_name']) ?></a>
+                        <a href="<?= seoGetBaseUrl() ?>/influencer/<?= htmlspecialchars($c['slug']) ?>" target="_blank" class="fw-bold text-decoration-none"><?= htmlspecialchars($c['influencer_name']) ?></a>
                         <br><small class="text-muted"><?= htmlspecialchars(date('d.m.Y H:i', strtotime($c['created_at']))) ?></small>
                     </td>
                     <td><?= htmlspecialchars($c['business_name']) ?></td>
@@ -315,6 +349,11 @@ if (!$c['is_read']): ?>
                             </form>
                             <?php
 endif; ?>
+                            <form method="post" class="d-inline-block" onsubmit="return confirm('Bu iş birliği talebini silmek (gizlemek) istediğinize emin misiniz?');">
+                                <?= CSRFMiddleware::field() ?>
+                                <input type="hidden" name="delete_collab" value="<?= (int) $c['id'] ?>">
+                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Sil (Gizle)"><i class="fa-solid fa-trash"></i></button>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -392,6 +431,11 @@ endif; ?>
                             </form>
                             <?php
 endif; ?>
+                            <form method="post" class="d-inline-block" onsubmit="return confirm('Bu KVKK talebini silmek (gizlemek) istediğinize emin misiniz?');">
+                                <?= CSRFMiddleware::field() ?>
+                                <input type="hidden" name="delete_removal" value="<?= (int) $r['id'] ?>">
+                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Sil (Gizle)"><i class="fa-solid fa-trash"></i></button>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -548,7 +592,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('collab-modal-email').textContent = btn.dataset.email || '—';
             document.getElementById('collab-modal-phone').textContent = btn.dataset.phone || '—';
             document.getElementById('collab-modal-message').textContent = btn.dataset.message || '—';
-            document.getElementById('collab-modal-profile-link').href = '/influencer/' + (btn.dataset.slug || '');
+            document.getElementById('collab-modal-profile-link').href = '<?= seoGetBaseUrl() ?>/influencer/' + (btn.dataset.slug || '');
         });
     });
 

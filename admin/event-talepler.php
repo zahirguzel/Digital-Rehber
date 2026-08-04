@@ -26,11 +26,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $successMsg = 'Başvuru durumu güncellendi.';
         }
     }
+    if (isset($_POST['delete_submission']) && (int) $_POST['delete_submission'] > 0) {
+        $delId = (int) $_POST['delete_submission'];
+        $stmtName = $db->query("SELECT title FROM event_submissions WHERE id = ?", [$delId]);
+        $row = $stmtName->fetch();
+        $title = $row ? $row['title'] : 'Bilinmeyen Başvuru';
+
+        $db->getPDO()->prepare('UPDATE event_submissions SET is_deleted = 1 WHERE id = ?')->execute([$delId]);
+        if (function_exists('logAction')) logAction('delete', 'event_submissions', "Soft Delete: $title", $delId);
+        $successMsg = 'Başvuru başarıyla silindi (Gizlendi).';
+    }
 }
 
 $submissions = [];
 try {
-    $submissions = $db->query("SELECT s.*, e.slug AS event_slug FROM event_submissions s LEFT JOIN events e ON e.id = s.event_id ORDER BY FIELD(s.status,'pending','approved','rejected'), s.created_at DESC")->fetchAll();
+    $submissions = $db->query("SELECT s.*, e.slug AS event_slug FROM event_submissions s LEFT JOIN events e ON e.id = s.event_id WHERE s.is_deleted = 0 ORDER BY FIELD(s.status,'pending','approved','rejected'), s.created_at DESC")->fetchAll();
 } catch (Exception $e) {
     $errorMsg = 'Tablo bulunamadı. Canlıda event_submissions tablosunu oluşturmanız gerekir.';
 }
@@ -130,6 +140,11 @@ elseif (!empty($sub['event_id'])): ?>
                         <a href="events.php?action=edit&id=<?= (int) $sub['event_id'] ?>" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-pen"></i></a>
                         <?php
 endif; ?>
+                        <form method="post" class="d-inline-block ms-1" onsubmit="return confirm('Bu başvuruyu silmek (gizlemek) istediğinize emin misiniz?');">
+                            <?= CSRFMiddleware::field() ?>
+                            <input type="hidden" name="delete_submission" value="<?= (int) $sub['id'] ?>">
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Sil (Gizle)"><i class="fa-solid fa-trash"></i></button>
+                        </form>
                     </td>
                 </tr>
 

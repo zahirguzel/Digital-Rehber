@@ -3,6 +3,7 @@ require_once __DIR__ . '/autoload.php';
 require_once 'config/db.php';
 require_once 'includes/event-helpers.php';
 require_once 'includes/seo-meta.php';
+use App\Services\EmailService;
 
 $successMsg = '';
 $errorMsg = '';
@@ -101,6 +102,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $notes !== '' ? $notes : null,
                 $consentKvkk,
             ]);
+            
+            $emailService = new EmailService();
+            $emailContent = "
+                <p><strong>İletişim Ad Soyad:</strong> {$contact_name}</p>
+                <p><strong>E-posta:</strong> {$contact_email}</p>
+                <p><strong>Telefon:</strong> {$contact_phone}</p>
+                <p><strong>Etkinlik Adı:</strong> {$title}</p>
+                <p><strong>Kategori:</strong> {$category}</p>
+                <p><strong>İlçe:</strong> {$district}</p>
+                <p><strong>Mekan:</strong> {$venue_name}</p>
+                <p><strong>Başlangıç:</strong> {$start_date} {$start_time}</p>
+            ";
+            $emailService->sendAdminNotification('Yeni Etkinlik Başvurusu', $emailContent, $contact_email);
+
             $successMsg = 'Etkinlik başvurunuz alındı. Editör ekibimiz inceledikten sonra takvimde yayınlanacaktır.';
             $contact_name = $contact_email = $contact_phone = $title = $venue_name = $address = '';
             $start_date = $end_date = $start_time = $end_time = $description = '';

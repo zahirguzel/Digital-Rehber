@@ -98,8 +98,8 @@ require_once 'includes/header.php';
                 <h2>Aradığınız yanıtı bulamadınız mı?</h2>
                 <p>Ekibimiz işletme kaydı, dijital hizmetler ve rehber kullanımı hakkında size yardımcı olmaya hazır.</p>
                 <div class="faq-portal-cta__actions">
-                    <a href="/iletisim" class="btn btn-primary fw-semibold"><i class="fa-solid fa-paper-plane me-2"></i> Bize Ulaşın</a>
-                    <a href="/gizlilik-politikasi" class="btn btn-outline-primary fw-semibold">Gizlilik & KVKK</a>
+                    <a href="<?= seoGetBaseUrl() ?>/iletisim" class="btn btn-primary fw-semibold"><i class="fa-solid fa-paper-plane me-2"></i> Bize Ulaşın</a>
+                    <a href="<?= seoGetBaseUrl() ?>/gizlilik-politikasi" class="btn btn-outline-primary fw-semibold">Gizlilik & KVKK</a>
                 </div>
             </aside>
         </div>

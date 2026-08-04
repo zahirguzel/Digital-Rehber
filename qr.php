@@ -10,7 +10,7 @@ if (empty($slug)) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT b.*, c.name as category_name FROM businesses b LEFT JOIN categories c ON b.category_id = c.id WHERE b.slug = ?");
+    $stmt = $pdo->prepare("SELECT b.*, c.name as category_name FROM businesses b LEFT JOIN categories c ON b.category_id = c.id WHERE b.slug = ? AND b.is_deleted = 0");
     $stmt->execute([$slug]);
     $business = $stmt->fetch();
     

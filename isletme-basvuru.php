@@ -1,10 +1,15 @@
 <?php
 require_once __DIR__ . '/autoload.php';
 require_once __DIR__ . '/includes/seo-meta.php';
+use App\Services\EmailService;
 
 $db = Database::getInstance()->getPDO();
 $successMsg = '';
 $errorMsg = '';
+$captchaActive = 1;
+try {
+    $captchaActive = (int) $db->query('SELECT contact_captcha FROM settings WHERE id = 1')->fetchColumn();
+} catch (Exception $e) {}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!CSRFMiddleware::validate()) {
@@ -18,12 +23,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = trim($_POST['email'] ?? '');
         $description = trim($_POST['description'] ?? '');
         
+        $captchaAnswer = isset($_POST['captcha_answer']) ? (int) $_POST['captcha_answer'] : -1;
+        $correctAnswer = isset($_SESSION['captcha_result']) ? (int) $_SESSION['captcha_result'] : -2;
+
         if (empty($businessName) || empty($city) || empty($district) || empty($contactName) || empty($phone)) {
             $errorMsg = "Lütfen zorunlu alanları doldurun.";
+        } elseif ($captchaActive && $captchaAnswer !== $correctAnswer) {
+            $errorMsg = "Güvenlik doğrulaması hatalı! Lütfen tekrar deneyin.";
         } else {
             try {
                 $stmt = $db->prepare("INSERT INTO business_applications (business_name, city, district, contact_name, phone, email, description) VALUES (?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([$businessName, $city, $district, $contactName, $phone, $email, $description]);
+                
+                $emailService = new EmailService();
+                $emailContent = "
+                    <p><strong>İşletme Adı:</strong> {$businessName}</p>
+                    <p><strong>Yetkili:</strong> {$contactName}</p>
+                    <p><strong>Telefon:</strong> {$phone}</p>
+                    <p><strong>Bölge/İlçe:</strong> {$city} / {$district}</p>
+                    <p><strong>E-posta:</strong> {$email}</p>
+                    <p><strong>Açıklama:</strong><br/>{$description}</p>
+                ";
+                $emailService->sendAdminNotification('Yeni İşletme Başvurusu', $emailContent, $email);
+
                 $successMsg = "Başvurunuz başarıyla alınmıştır. En kısa sürede yetkili ekibimiz sizinle iletişime geçecektir.";
             } catch (Exception $e) {
                 $errorMsg = "Başvuru sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
@@ -43,6 +65,14 @@ try {
     }
 } catch (Exception $e) {}
 $citiesJson = json_encode($citiesData, JSON_UNESCAPED_UNICODE);
+
+$num1 = 0;
+$num2 = 0;
+if ($captchaActive) {
+    $num1 = rand(2, 9);
+    $num2 = rand(2, 9);
+    $_SESSION['captcha_result'] = $num1 + $num2;
+}
 
 $pageTitle = "İşletme Başvurusu";
 require_once __DIR__ . '/includes/header.php';
@@ -126,6 +156,13 @@ require_once __DIR__ . '/includes/header.php';
                                     <label class="form-label fw-semibold">İşletme Hakkında Kısa Bilgi</label>
                                     <textarea name="description" class="form-control" rows="3" placeholder="Sektörünüz, ürünleriniz veya belirtmek istedikleriniz..."></textarea>
                                 </div>
+                                
+                                <?php if ($captchaActive): ?>
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">Güvenlik: <?= $num1 ?> + <?= $num2 ?> = ? <span class="text-danger">*</span></label>
+                                    <input type="number" name="captcha_answer" class="form-control" required placeholder="İşlemin sonucu">
+                                </div>
+                                <?php endif; ?>
                                 
                                 <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow-sm">
                                     Başvurumu Tamamla <i class="fa-solid fa-arrow-right ms-2"></i>

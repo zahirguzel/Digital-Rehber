@@ -1,0 +1,1 @@
+<?php require "autoload.php"; require "config/db.php"; $db = Database::getInstance()->getPDO(); try { $rows = $db->query("SHOW COLUMNS FROM event_submissions")->fetchAll(); print_r($rows); $rows2 = $db->query("SHOW COLUMNS FROM influencer_applications")->fetchAll(); print_r($rows2); } catch (Exception $e) { echo $e->getMessage(); }

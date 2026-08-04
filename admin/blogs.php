@@ -49,13 +49,9 @@ if ($action === 'delete' && $id > 0) {
         $currentImage = $curData['image_path'] ?? '';
         $delTitle = $curData['title'] ?? 'Blog ID: ' . $id;
 
-        $stmt = $db->query("DELETE FROM blogs WHERE id = ?", [$id]);
+        $stmt = $db->query("UPDATE blogs SET is_deleted = 1 WHERE id = ?", [$id]);
 
-        if (!empty($currentImage) && strpos($currentImage, 'http') !== 0) {
-            @unlink('../public/uploads/' . $currentImage);
-        }
-
-        if (function_exists('logAction')) logAction('delete', 'blogs', $delTitle, $id);
+        if (function_exists('logAction')) logAction('delete', 'blogs', 'Soft Delete: ' . $delTitle, $id);
 
         header("Location: blogs.php?success=1");
         exit;
@@ -158,9 +154,9 @@ if ($action === 'list') {
     try {
         $search = $_GET['search'] ?? '';
         if (!empty($search)) {
-            $stmt = $db->query("SELECT * FROM blogs WHERE title LIKE ? OR summary LIKE ? ORDER BY created_at DESC", ["%$search%", "%$search%"]);
+            $stmt = $db->query("SELECT * FROM blogs WHERE is_deleted = 0 AND (title LIKE ? OR summary LIKE ?) ORDER BY created_at DESC", ["%$search%", "%$search%"]);
         } else {
-            $stmt = $db->query("SELECT * FROM blogs ORDER BY created_at DESC");
+            $stmt = $db->query("SELECT * FROM blogs WHERE is_deleted = 0 ORDER BY created_at DESC");
         }
         $blogs = $stmt->fetchAll();
     } catch (Exception $e) {

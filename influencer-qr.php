@@ -6,7 +6,7 @@ require_once 'includes/seo-meta.php';
 
 $slug = trim($_GET['slug'] ?? '');
 if ($slug === '') {
-    header('Location: /influencerlar');
+    header('Location: ' . seoGetBaseUrl() . '/influencerlar');
     exit;
 }
 
@@ -17,7 +17,7 @@ try {
 
     if (!$influencer) {
         header('HTTP/1.0 404 Not Found');
-        header('Location: /404');
+        header('Location: ' . seoGetBaseUrl() . '/404');
         exit;
     }
 } catch (Exception $e) {
@@ -42,7 +42,7 @@ $themeColor = !empty($influencer['theme_color']) ? $influencer['theme_color'] : 
 $nicheLabel = getInfluencerNicheLabel($influencer['niche']);
 $platforms = influencerPlatforms();
 $featuredLinks = parseInfluencerFeaturedLinks($influencer['featured_links']);
-$profileUrl = '/influencer/' . $influencer['slug'];
+$profileUrl = seoGetBaseUrl() . '/influencer/' . $influencer['slug'];
 $collabUrl = $profileUrl . '#isbirligi';
 
 $buttons = [];
@@ -134,7 +134,7 @@ $buttons[] = [
         }
     } catch (Exception $e) {}
     $qrBaseUrl = seoGetBaseUrl();
-    $qrCanonicalUrl = $qrBaseUrl . influencerQrUrl($influencer['slug']);
+    $qrCanonicalUrl = influencerQrUrl($influencer['slug']);
     $qrOgImage = $avatarImage ?: $coverImage;
     $_qrFaviconSetting = $siteSettings['site_logo'] ?? '';
     $qrSiteFavicon = !empty($_qrFaviconSetting) ? ($qrBaseUrl . '/public/images/' . ltrim($_qrFaviconSetting, '/')) : ($qrBaseUrl . '/public/images/default_favicon.png');

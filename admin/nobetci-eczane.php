@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $db = Database::getInstance();
+$pdo = $db->getPDO();
 
 require_once '../includes/duty-pharmacy-helpers.php';
 

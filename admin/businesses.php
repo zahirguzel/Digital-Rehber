@@ -258,29 +258,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Delete Business
+// Soft Delete Business
 if ($action === 'delete' && $id > 0) {
     try {
-        // Fetch logo and cover paths before deleting
-        $stmtPaths = $db->query("SELECT logo_path, cover_image_path FROM businesses WHERE id = ?", [$id]);
-        $paths = $stmtPaths->fetch();
+        $stmtName = $db->query("SELECT name FROM businesses WHERE id = ?", [$id]);
+        $bizRow = $stmtName->fetch();
+        $bizName = $bizRow ? $bizRow['name'] : 'Bilinmeyen İşletme';
 
-        $stmtDel = $db->query("DELETE FROM businesses WHERE id = ?", [$id]);
-
-        if ($paths) {
-            $logo = $paths['logo_path'];
-            $cover = $paths['cover_image_path'];
-            if (!empty($logo) && $logo !== 'default_logo.png' && strpos($logo, 'http') !== 0) {
-                @unlink('../public/images/' . $logo);
-            }
-            if (!empty($cover) && $cover !== 'default_cover.jpg' && strpos($cover, 'http') !== 0) {
-                @unlink('../public/images/' . $cover);
-            }
-        }
-
-        if (function_exists('logAction')) logAction('delete', 'businesses', 'İşletme ID: ' . $id, $id);
-
-        $successMsg = "İşletme başarıyla silindi.";
+        $db->query("UPDATE businesses SET is_deleted = 1 WHERE id = ?", [$id]);
+        if (function_exists('logAction')) logAction('delete', 'businesses', "Soft Delete: $bizName", $id);
+        $successMsg = "İşletme başarıyla silindi (Çöp Kutusuna taşındı).";
     } catch (Exception $e) {
         $errorMsg = "İşletme silinirken hata oluştu: " . $e->getMessage();
     }
@@ -411,7 +398,7 @@ if ($action === 'list') {
         $search = $_GET['search'] ?? '';
         $catFilter = isset($_GET['category_id']) ? intval($_GET['category_id']) : 0;
 
-        $sql = "SELECT b.*, c.name as category_name FROM businesses b LEFT JOIN categories c ON b.category_id = c.id WHERE 1=1";
+        $sql = "SELECT b.*, c.name as category_name FROM businesses b LEFT JOIN categories c ON b.category_id = c.id WHERE b.is_deleted = 0";
         $params = [];
 
         if (!empty($search)) {
@@ -667,7 +654,7 @@ include 'includes/header.php';
                     <!-- City -->
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Bölge (Şehir) <span class="text-danger">*</span></label>
-                        <select name="city" id="citySelect" class="form-select" required>
+                        <select name="city" id="citySelect" class="form-select" required disabled title="Bölge (Şehir) genel ayarlardan belirlenir ve buradan değiştirilemez.">
                             <option value="">-- Bölge Seçin --</option>
                             <?php foreach($citiesData as $cName => $dists): ?>
                                 <option value="<?= htmlspecialchars($cName) ?>" <?= (($business['city'] ?? '') === $cName) ? 'selected' : '' ?>><?= htmlspecialchars($cName) ?></option>

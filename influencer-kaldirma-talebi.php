@@ -102,7 +102,7 @@ $metaDescription = $linkedProfile
     : $_siteTitle . ' influencer profilinizin kaldırılması veya düzeltilmesi için KVKK kapsamında talep formu.';
 $metaKeywords = 'influencer profil kaldırma, kvkk talep, ' . strtolower($_siteTitle);
 // seo-meta.php already required above
-$canonicalUrl = seoGetBaseUrl() . influencerRemovalRequestUrl($linkedProfile ? $linkedProfile['slug'] : null);
+$canonicalUrl = influencerRemovalRequestUrl($linkedProfile ? $linkedProfile['slug'] : null);
 require_once 'includes/header.php';
 ?>
 
@@ -287,7 +287,7 @@ require_once 'includes/header.php';
                         </div>
 
                         <p class="portal-form-footer-note">
-                            Detaylı bilgi: <a href="/gizlilik-politikasi#influencer-kvkk">Gizlilik & KVKK — Influencer bölümü</a>
+                            Detaylı bilgi: <a href="<?= seoGetBaseUrl() ?>/gizlilik-politikasi#influencer-kvkk">Gizlilik & KVKK — Influencer bölümü</a>
                             <?php if (!$linkedProfile): ?>
                             · Profilinizi biliyorsanız <a href="/influencerlar">rehberden</a> profil sayfasına gidip oradan da talep oluşturabilirsiniz.
                             <?php endif; ?>

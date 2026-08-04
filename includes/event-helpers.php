@@ -164,7 +164,7 @@ if (!function_exists('getEventSubmissionStatusLabel')) {
 if (!function_exists('getEventPendingSubmissionsCount')) {
     function getEventPendingSubmissionsCount($pdo) {
         try {
-            return (int) $pdo->query("SELECT COUNT(*) FROM event_submissions WHERE status = 'pending'")->fetchColumn();
+            return (int) $pdo->query("SELECT COUNT(*) FROM event_submissions WHERE status = 'pending' AND is_deleted = 0")->fetchColumn();
         } catch (Exception $e) {
             return 0;
         }

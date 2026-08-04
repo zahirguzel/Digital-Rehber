@@ -63,7 +63,7 @@ RewriteRule ^etkinlik/([a-zA-Z0-9_-]+)/?$ etkinlik.php?slug=$1 [L,QSA]
 RewriteRule ^kampanyalar/?$ kampanyalar.php [L,QSA]
 RewriteRule ^kampanya/([a-zA-Z0-9_-]+)/?$ kampanya.php?slug=$1 [L,QSA]
 
-# Nöbetçi eczane: /nobetci-eczane, /nobetci-eczane/payas
+# Nöbetçi eczane: /nobetci-eczane, /nobetci-eczane/ilçe
 RewriteRule ^nobetci-eczane/([a-z0-9-]+)/?$ nobetci-eczane.php?district_slug=$1 [L,QSA]
 RewriteRule ^nobetci-eczane/?$ nobetci-eczane.php [L,QSA]
 

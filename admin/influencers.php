@@ -135,9 +135,9 @@ if ($action === 'delete' && $id > 0) {
         $stmtName->execute([$id]);
         $delName = $stmtName->fetchColumn() ?: 'Influencer ID: ' . $id;
 
-        $db->getPDO()->prepare('DELETE FROM influencers WHERE id = ?')->execute([$id]);
-        if (function_exists('logAction')) logAction('delete', 'influencers', $delName, $id);
-        $successMsg = 'Profil silindi.';
+        $db->getPDO()->prepare('UPDATE influencers SET is_deleted = 1 WHERE id = ?')->execute([$id]);
+        if (function_exists('logAction')) logAction('delete', 'influencers', 'Soft Delete: ' . $delName, $id);
+        $successMsg = 'Profil başarıyla silindi (Çöp Kutusuna taşındı).';
     } catch (Exception $e) {
         $errorMsg = 'Silinemedi: ' . $e->getMessage();
     }
@@ -163,7 +163,7 @@ if ($action === 'edit' && $id > 0) {
 
 $influencers = [];
 if ($action === 'list') {
-    $influencers = $db->query('SELECT * FROM influencers ORDER BY is_premium DESC, name ASC')->fetchAll();
+    $influencers = $db->query('SELECT * FROM influencers WHERE is_deleted = 0 ORDER BY is_premium DESC, name ASC')->fetchAll();
 }
 
 $niches = influencerNiches();
@@ -223,7 +223,7 @@ endif; ?>
                         <div class="btn-group gap-2">
                         <?php
 if ($inf['is_published'] && $inf['consent_given']):
-                            $infQrUrl = rtrim($baseUrl, '/') . influencerQrUrl($inf['slug']);
+                            $infQrUrl = influencerQrUrl($inf['slug']);
                             $infQrImageSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($infQrUrl);
                         ?>
                         <button type="button" class="btn btn-primary btn-sm px-2" data-bs-toggle="modal" data-bs-target="#infQrModal<?= $inf['id'] ?>" title="QR Kod Al">

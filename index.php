@@ -22,7 +22,7 @@ try {
 // Fetch Premium Businesses (homepage rotator)
 $premiumBusinesses = [];
 try {
-    $stmt = $pdo->query("SELECT b.*, c.name as category_name, c.slug as category_slug FROM businesses b LEFT JOIN categories c ON b.category_id = c.id WHERE b.is_premium = 1 ORDER BY RAND() LIMIT 12");
+    $stmt = $pdo->query("SELECT b.*, c.name as category_name, c.slug as category_slug FROM businesses b LEFT JOIN categories c ON b.category_id = c.id WHERE b.is_premium = 1 AND b.is_deleted = 0 ORDER BY RAND() LIMIT 12");
     $premiumBusinesses = $stmt->fetchAll();
 } catch (Exception $e) {}
 
@@ -31,8 +31,8 @@ $statBusinesses = 0;
 $statDistricts = 0;
 $statCategories = 0;
 try {
-    $statBusinesses = (int) $pdo->query("SELECT COUNT(*) FROM businesses")->fetchColumn();
-    $statDistricts = (int) $pdo->query("SELECT COUNT(DISTINCT district) FROM businesses WHERE district IS NOT NULL AND district != ''")->fetchColumn();
+    $statBusinesses = (int) $pdo->query("SELECT COUNT(*) FROM businesses WHERE is_deleted = 0")->fetchColumn();
+    $statDistricts = (int) $pdo->query("SELECT COUNT(DISTINCT district) FROM businesses WHERE district IS NOT NULL AND district != '' AND is_deleted = 0")->fetchColumn();
     $statCategories = (int) $pdo->query("SELECT COUNT(*) FROM categories")->fetchColumn();
 } catch (Exception $e) {}
 
@@ -110,7 +110,7 @@ $homeReviewsPageCount = 1;
 $reviewModel = new Review();
 $districtCounts = [];
 try {
-    $districtRows = $pdo->query("SELECT district, COUNT(*) AS cnt FROM businesses WHERE district IS NOT NULL AND district != '' GROUP BY district")->fetchAll();
+    $districtRows = $pdo->query("SELECT district, COUNT(*) AS cnt FROM businesses WHERE district IS NOT NULL AND district != '' AND is_deleted = 0 GROUP BY district")->fetchAll();
     foreach ($districtRows as $dr) {
         $districtCounts[$dr['district']] = (int) $dr['cnt'];
     }

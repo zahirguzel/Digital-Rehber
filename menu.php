@@ -7,7 +7,7 @@ require_once __DIR__ . '/includes/seo-meta.php';
 $slug = $_GET['slug'] ?? '';
 if (empty($slug)) { header('Location: ' . seoGetBaseUrl() . '/'); exit; }
 
-$stmt = $pdo->prepare("SELECT * FROM businesses WHERE slug = ?");
+$stmt = $pdo->prepare("SELECT * FROM businesses WHERE slug = ? AND is_deleted = 0");
 $stmt->execute([$slug]);
 $business = $stmt->fetch();
 if (!$business) { header('HTTP/1.0 404 Not Found'); header('Location: ' . seoGetBaseUrl() . '/404'); exit; }

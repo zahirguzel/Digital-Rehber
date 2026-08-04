@@ -2,6 +2,7 @@
 require_once __DIR__ . '/autoload.php';
 require_once 'config/db.php';
 require_once __DIR__ . '/includes/seo-meta.php';
+use App\Services\EmailService;
 
 $successMsg = '';
 $errorMsg = '';
@@ -66,6 +67,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'subject' => $subject,
                 'message' => $message,
             ]);
+            
+            $emailService = new EmailService();
+            $emailContent = "
+                <p><strong>Gönderen:</strong> {$name}</p>
+                <p><strong>E-posta:</strong> {$email}</p>
+                <p><strong>Telefon:</strong> {$phone}</p>
+                <p><strong>Konu:</strong> {$subject}</p>
+                <p><strong>Mesaj:</strong><br/>{$message}</p>
+            ";
+            $emailService->sendAdminNotification('Yeni İletişim Formu Mesajı', $emailContent, $email);
+
             $successMsg = 'Mesajınız başarıyla iletildi. En kısa sürede sizinle iletişime geçilecektir.';
             $name = '';
             $email = '';

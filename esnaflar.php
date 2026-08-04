@@ -38,7 +38,7 @@ if ($city === '' && $defaultCity !== '') {
 if ($city !== '' && $city !== $defaultCity && $defaultCity !== '') {
     $cityBizCount = 0;
     try {
-        $cityBizCount = (int) $pdo->query("SELECT COUNT(*) FROM businesses WHERE city = " . $pdo->quote($city))->fetchColumn();
+        $cityBizCount = (int) $pdo->query("SELECT COUNT(*) FROM businesses WHERE city = " . $pdo->quote($city) . " AND is_deleted = 0")->fetchColumn();
     } catch (Exception $e) {}
     if ($cityBizCount === 0) {
         $city = $defaultCity;
@@ -90,10 +90,10 @@ $sql = "SELECT b.*, c.name as category_name, c.slug as category_slug,
 $whereClause = "";
 $params = [];
 if (!empty($city)) {
-    $whereClause .= " WHERE b.city = :city";
+    $whereClause .= " WHERE b.city = :city AND b.is_deleted = 0";
     $params[':city'] = $city;
 } else {
-    $whereClause .= " WHERE 1=1";
+    $whereClause .= " WHERE b.is_deleted = 0";
 }
 if (!empty($district)) {
     $whereClause .= " AND b.district = :district";
