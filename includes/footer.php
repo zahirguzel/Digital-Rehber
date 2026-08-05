@@ -74,7 +74,7 @@ if (!isset($siteUrl)) {
                         <?php 
                         $logoUrl = (strpos($siteSettings['site_logo'], 'http') === 0) ? $siteSettings['site_logo'] : $siteUrl('public/images/' . $siteSettings['site_logo']); 
                         ?>
-                        <img src="<?= SecurityHelper::escape($logoUrl) ?>" alt="<?= SecurityHelper::escape($siteSettings['site_title']) ?>" style="max-height: 120px; margin-top: -25px; margin-bottom: -15px; object-fit: contain; border-radius: var(--radius-sm); display: block;">
+                        <img src="<?= SecurityHelper::escape($logoUrl) ?>" alt="<?= SecurityHelper::escape($siteSettings['site_title']) ?>" width="180" height="120" style="max-height: 120px; margin-top: -25px; margin-bottom: -15px; object-fit: contain; border-radius: var(--radius-sm); display: block;" loading="lazy">
                     <?php else: ?>
                         <div class="brand-logo-wrapper d-inline-flex mb-3 align-items-center justify-content-center" style="width: 44px; height: 44px; background: var(--primary); border-radius: 12px;">
                             <i class="fa-solid fa-leaf text-white" style="font-size: 20px;"></i>
@@ -106,7 +106,7 @@ if (!isset($siteUrl)) {
 
             <!-- Quick Links -->
             <div class="col-lg-2 col-md-6 mb-5 mb-lg-0">
-                <h5 class="footer-widget-title">Kurumsal</h5>
+                <h3 class="footer-widget-title">Kurumsal</h3>
                 <ul class="footer-nav">
                     <li><a href="<?= SecurityHelper::escape($siteUrl('hakkimizda')) ?>">Hakkımızda</a></li>
                     <li><a href="<?= SecurityHelper::escape($siteUrl('esnaflar')) ?>">İşletmeler</a></li>
@@ -122,7 +122,7 @@ if (!isset($siteUrl)) {
 
             <!-- Categories -->
             <div class="col-lg-3 col-md-6 mb-5 mb-lg-0">
-                <h5 class="footer-widget-title">Popüler Kategoriler</h5>
+                <h3 class="footer-widget-title">Popüler Kategoriler</h3>
                 <ul class="footer-nav">
                     <li><a href="<?= SecurityHelper::escape($siteUrl('esnaflar?category=yeme-icme')) ?>">Restoranlar & Kafeler</a></li>
                     <li><a href="<?= SecurityHelper::escape($siteUrl('esnaflar?category=otomotiv-sanayi')) ?>">Otomotiv & Servis</a></li>
@@ -135,7 +135,7 @@ if (!isset($siteUrl)) {
 
             <!-- Contact & Newsletter -->
             <div class="col-lg-3 col-md-6">
-                <h5 class="footer-widget-title">Bize Ulaşın</h5>
+                <h3 class="footer-widget-title">Bize Ulaşın</h3>
                 <ul class="footer-contact-info mb-4">
                     <li>
                         <i class="fa-solid fa-location-dot mt-1"></i>
@@ -157,6 +157,36 @@ if (!isset($siteUrl)) {
             </div>
         </div>
     </div>
+    
+    <?php
+    $siteKeywords = trim($siteSettings['site_keywords'] ?? '');
+    if (!empty($siteKeywords)):
+        $keywordsArray = array_map('trim', explode(',', $siteKeywords));
+        $keywordsArray = array_filter($keywordsArray);
+        if (!empty($keywordsArray)):
+    ?>
+    <div class="footer-seo-tags py-4 mt-3 border-top" style="background-color: rgba(0,0,0,0.02);">
+        <div class="container">
+            <div class="d-flex flex-wrap gap-2 justify-content-center align-items-center">
+                <span class="text-muted fw-bold me-2 mb-1" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-tags me-1"></i> Popüler Aramalar:
+                </span>
+                <?php foreach ($keywordsArray as $kw): ?>
+                    <a href="<?= SecurityHelper::escape($siteUrl('esnaflar?q=' . urlencode($kw))) ?>" 
+                       class="badge rounded-pill text-decoration-none px-3 py-2" 
+                       style="background-color: var(--surface); color: var(--text-main); border: 1px solid var(--border-color); font-weight: 500; font-size: 13px; transition: all 0.2s;"
+                       onmouseover="this.style.backgroundColor='var(--primary)'; this.style.color='#fff'; this.style.borderColor='var(--primary)';"
+                       onmouseout="this.style.backgroundColor='var(--surface)'; this.style.color='var(--text-main)'; this.style.borderColor='var(--border-color)';">
+                        #<?= htmlspecialchars(str_replace(' ', '', mb_strtolower($kw, 'UTF-8'))) ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+    <?php 
+        endif;
+    endif; 
+    ?>
     
     <div class="footer-bottom">
         <div class="container">

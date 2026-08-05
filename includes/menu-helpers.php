@@ -93,17 +93,9 @@ if (!function_exists('resolveMenuItemImagePath')) {
      */
     function resolveMenuItemImagePath(array $file, $urlInput, $existing, $uploadDir) {
         if (!empty($file['name']) && ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-            $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-            if (!in_array($ext, $allowed, true)) {
-                return false;
-            }
-            $fname = uniqid('item_') . '.' . $ext;
-            if (move_uploaded_file($file['tmp_name'], rtrim($uploadDir, '/') . '/' . $fname)) {
-                return $fname;
+            $processResult = processAndSaveImage($file, $uploadDir, 'item_');
+            if ($processResult['success']) {
+                return $processResult['filename'];
             }
             return false;
         }

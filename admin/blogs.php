@@ -19,15 +19,11 @@ $errorMsg = '';
 // Helper function for uploading blog images
 function handleBlogUpload($fileKey, $fallbackUrlKey, $currentValue = '') {
     if (isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] === UPLOAD_ERR_OK) {
-        $fileName = 'blog_' . time() . '_' . preg_replace('/[^a-zA-Z0-9\._-]/', '', basename($_FILES[$fileKey]['name']));
-        $targetDir = '../public/uploads/';
+        $targetDir = __DIR__ . '/../public/uploads/';
+        $processResult = processAndSaveImage($_FILES[$fileKey], $targetDir, 'blog_');
         
-        if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0777, true);
-        }
-        
-        if (move_uploaded_file($_FILES[$fileKey]['tmp_name'], $targetDir . $fileName)) {
-            return $fileName;
+        if ($processResult['success']) {
+            return $processResult['filename'];
         }
     }
     

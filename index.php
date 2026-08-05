@@ -48,7 +48,7 @@ if (empty($heroSlides)) {
         'title' => 'Kıbrıs\'ın Dijital İşletme & Esnaf Rehberi',
         'subtitle' => 'ğŸ“ Kıbrıs Bölgesinin Dijital Rehberi',
         'description' => 'Avukat, oto servis, güzellik merkezi ve daha fazlasını tek tıkla bulun.',
-        'image_path' => '/digitalrehber/public/images/hero-slider.jpg',
+        'image_path' => rtrim(seoGetBaseUrl(), '/') . '/public/images/hero-slider.jpg',
         'button_text' => 'İşletme Ara',
         'button_url' => '/esnaflar',
         'button2_text' => 'İşletmeni Eklet',
@@ -207,6 +207,7 @@ $buildHomeReviewsUrl = static function (array $overrides = []) use ($homeReviews
 require_once 'includes/header.php';
 ?>
 
+
 <!-- ===== HERO CAROUSEL (Bootstrap 5, 3 Otomatik Geçişli Slayt) ===== -->
 <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
 
@@ -222,8 +223,11 @@ require_once 'includes/header.php';
     <div class="carousel-inner" style="min-height: 100vh;">
         <?php foreach ($heroSlides as $i => $slide): ?>
         <div class="carousel-item <?= $i === 0 ? 'active' : '' ?>" style="min-height: 100vh;">
-            <!-- Fotoğraf Arka Plan -->
-            <div class="hero-carousel-bg" style="background-image: url('<?= htmlspecialchars($slide['image_path']) ?>');"></div>
+            <?php 
+                $cleanPath = str_replace('/digitalrehber/', '/', $slide['image_path']);
+                $resolvedHeroBg = (strpos($cleanPath, 'http') === 0) ? $cleanPath : seoResolveAbsoluteUrl(ltrim($cleanPath, '/'), $baseUrl);
+            ?>
+            <div class="hero-carousel-bg" style="background-image: url('<?= htmlspecialchars($resolvedHeroBg) ?>');"></div>
             <!-- Karanlık Overlay -->
             <div class="hero-carousel-overlay"></div>
 
@@ -266,7 +270,7 @@ require_once 'includes/header.php';
                                         <div class="col-12 col-md-3">
                                             <div class="input-group">
                                                 <span class="input-group-text bg-transparent border-0 text-danger"><i class="fa-solid fa-location-dot fs-5"></i></span>
-                                                <select name="district" class="form-select bg-transparent border-0 fw-semibold text-dark" style="font-size: 15px; height: 52px; box-shadow: none;">
+                                                <select name="district" aria-label="İlçe seçimi" class="form-select bg-transparent border-0 fw-semibold text-dark" style="font-size: 15px; height: 52px; box-shadow: none;">
                                                     <option value="">Tüm İlçeler</option>
                                                     <?php foreach ($districts as $dist): ?>
                                                         <option value="<?= htmlspecialchars($dist) ?>"><?= htmlspecialchars($dist) ?></option>
@@ -278,7 +282,7 @@ require_once 'includes/header.php';
                                         <div class="col-12 col-md-3">
                                             <div class="input-group">
                                                 <span class="input-group-text bg-transparent border-0 text-danger"><i class="fa-solid fa-tags fs-5"></i></span>
-                                                <select name="category" class="form-select bg-transparent border-0 fw-semibold text-dark" style="font-size: 15px; height: 52px; box-shadow: none;">
+                                                <select name="category" aria-label="Sektör seçimi" class="form-select bg-transparent border-0 fw-semibold text-dark" style="font-size: 15px; height: 52px; box-shadow: none;">
                                                     <option value="">Tüm Sektörler</option>
                                                     <?php foreach ($categories as $cat): ?>
                                                         <option value="<?= htmlspecialchars($cat['slug']) ?>"><?= htmlspecialchars($cat['name']) ?></option>
@@ -290,11 +294,11 @@ require_once 'includes/header.php';
                                         <div class="col-12 col-md-3 flex-grow-1">
                                             <div class="input-group">
                                                 <span class="input-group-text bg-transparent border-0 text-danger"><i class="fa-solid fa-magnifying-glass fs-5"></i></span>
-                                                <input type="text" name="q" class="form-control bg-transparent border-0 fw-medium text-dark" placeholder="İşletme adı, kuaför, avukat..." style="font-size: 15px; height: 52px; box-shadow: none;">
+                                                <input type="text" name="q" aria-label="Arama terimi" class="form-control bg-transparent border-0 fw-medium text-dark" placeholder="İşletme adı, kuaför, avukat..." style="font-size: 15px; height: 52px; box-shadow: none;">
                                             </div>
                                         </div>
                                         <div class="col-12 col-md-auto">
-                                            <button type="submit" class="btn btn-danger w-100 fw-bold px-4 shadow d-flex align-items-center justify-content-center gap-2" style="height: 52px; border-radius: 12px; font-size: 16px; background: #ff545a; border-color: #ff545a;">
+                                            <button type="submit" class="btn btn-danger w-100 fw-bold px-4 shadow d-flex align-items-center justify-content-center gap-2" style="height: 52px; border-radius: 12px; font-size: 16px; background: #d32f2f; border-color: #d32f2f;">
                                                 <i class="fa-solid fa-magnifying-glass"></i>
                                                 <span>HEMEN ARA</span>
                                             </button>
@@ -318,12 +322,19 @@ require_once 'includes/header.php';
                             <?php if (!empty($slide['button_text']) || !empty($slide['button2_text'])): ?>
                             <div class="d-flex flex-wrap gap-3 justify-content-center">
                                 <?php if (!empty($slide['button_text'])): ?>
-                                <a href="<?= htmlspecialchars(seoResolveAbsoluteUrl($slide['button_url'] ?? 'esnaflar', $baseUrl)) ?>" class="btn btn-danger fw-bold px-4 py-2 shadow" style="border-radius: 10px; font-size: 15px; background: #ff545a; border-color: #ff545a;">
+                                <a href="<?= htmlspecialchars(seoResolveAbsoluteUrl($slide['button_url'] ?? 'esnaflar', $baseUrl)) ?>" class="btn btn-danger fw-bold px-4 py-2 shadow" style="border-radius: 10px; font-size: 15px; background: #d32f2f; border-color: #d32f2f;">
                                     <i class="fa-solid fa-magnifying-glass me-2"></i><?= htmlspecialchars($slide['button_text']) ?>
                                 </a>
                                 <?php endif; ?>
                                 <?php if (!empty($slide['button2_text'])): ?>
-                                <a href="<?= htmlspecialchars(seoResolveAbsoluteUrl($slide['button2_url'] ?? 'isletme', $baseUrl)) ?>" class="btn btn-danger fw-bold px-4 py-2 shadow" style="border-radius: 10px; font-size: 15px; background: #ff545a; border-color: #ff545a;">
+                                <?php 
+                                    $btn2Url = $slide['button2_url'] ?? 'isletme';
+                                    // Eğer link direkt isletme veya login'e gidiyorsa iletişim sayfasına yönlendir.
+                                    if (trim($btn2Url) === 'isletme' || trim($btn2Url) === '/isletme' || strpos($btn2Url, 'isletme/login.php') !== false) {
+                                        $btn2Url = 'iletisim?subject=' . urlencode('Yeni İşletme Kaydı');
+                                    }
+                                ?>
+                                <a href="<?= htmlspecialchars(seoResolveAbsoluteUrl($btn2Url, $baseUrl)) ?>" class="btn btn-danger fw-bold px-4 py-2 shadow" style="border-radius: 10px; font-size: 15px; background: #d32f2f; border-color: #d32f2f;">
                                     <?php
                                     $btn2Text = $slide['button2_text'];
                                     if (in_array(trim($btn2Text), ['İşletmemi Ekle', 'İşletmemi Eklet'], true)) {

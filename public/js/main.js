@@ -56,13 +56,7 @@ function initRevealOnScroll() {
     });
 
     for (var k = 0; k < elements.length; k++) {
-        var el = elements[k];
-        var rect = el.getBoundingClientRect();
-        if (rect.top < window.innerHeight + 250) {
-            el.classList.add('is-visible');
-        } else {
-            observer.observe(el);
-        }
+        observer.observe(elements[k]);
     }
 }
 

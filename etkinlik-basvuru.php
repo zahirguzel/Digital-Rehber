@@ -70,13 +70,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             if (isset($_FILES['cover_image_file']) && $_FILES['cover_image_file']['error'] === UPLOAD_ERR_OK) {
-                $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9\._-]/', '', basename($_FILES['cover_image_file']['name']));
                 $targetDir = __DIR__ . '/public/images/';
-                if (!is_dir($targetDir)) {
-                    mkdir($targetDir, 0755, true);
-                }
-                if (move_uploaded_file($_FILES['cover_image_file']['tmp_name'], $targetDir . $fileName)) {
-                    $cover_image_url = $fileName;
+                $processResult = processAndSaveImage($_FILES['cover_image_file'], $targetDir, 'evt_');
+                
+                if ($processResult['success']) {
+                    $cover_image_url = $processResult['filename'];
+                } else {
+                    $errorMsg = $processResult['error'];
                 }
             }
 

@@ -6566,8 +6566,8 @@ a:hover {
 }
 
 .footer-portal-cta__panel--media .footer-portal-cta__tag {
-    background: rgba(214, 40, 40, 0.08);
-    color: var(--primary);
+    background: rgba(214, 40, 40, 0.1);
+    color: #d32f2f;
 }
 
 .footer-portal-cta__panel h2 {

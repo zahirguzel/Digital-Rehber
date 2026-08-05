@@ -3,6 +3,10 @@
 namespace App\Services;
 
 use App\Services\EmailService;
+use Database;
+use SecurityHelper;
+use Exception;
+use PDO;
 
 /**
  * PasswordResetService
@@ -37,7 +41,7 @@ class PasswordResetService {
      * @param string $email E-posta veya işletme kullanıcı adı
      * @return array ['success' => bool, 'message' => string, 'dev_otp' => string|null, 'user_type' => string|null]
      */
-    public function requestOtp($email) {
+    public function requestOtp($email, $requestedType = 'all') {
         $email = trim($email);
         $ip    = SecurityHelper::getClientIP();
 
@@ -55,7 +59,7 @@ class PasswordResetService {
         }
 
         // 3. Kullanıcının sistemde kayıtlı olup olmadığının kontrolü (Bireysel veya İşletme)
-        $account = $this->findAccountByEmail($email);
+        $account = $this->findAccountByEmail($email, $requestedType);
         if (!$account) {
             // Neden sahte/genel mesaj veya uyarı logluyoruz?:
             // Güvenlik açısından "böyle bir kullanıcı yok" mesajı verilebilir veya güvenlik takibi için loglanabilir.
@@ -204,10 +208,9 @@ class PasswordResetService {
             // 6. Kullanıcının tablosunu PDO Prepared Statement ile güncelle
             if ($userType === 'business') {
                 $stmtUpd = $this->db->prepare("
-                    UPDATE business_users bu
-                    LEFT JOIN businesses b ON bu.business_id = b.id
-                    SET bu.password = ?, bu.force_password_change = 0 
-                    WHERE bu.username = ? OR (b.email IS NOT NULL AND b.email != '' AND b.email = ?)
+                    UPDATE business_users
+                    SET password = ?, force_password_change = 0 
+                    WHERE username = ? OR business_id IN (SELECT id FROM businesses WHERE email = ?)
                 ");
                 $stmtUpd->execute([$hashedPassword, $email, $email]);
             } else {
@@ -236,40 +239,48 @@ class PasswordResetService {
      * @param string $email
      * @return array|null ['id' => int, 'email' => string, 'name' => string, 'type' => 'user'|'business']
      */
-    private function findAccountByEmail($email) {
-        // Önce normal üyeler (users) tablosuna bak
-        $stmtUser = $this->db->prepare("SELECT id, email, name FROM users WHERE email = ? LIMIT 1");
-        $stmtUser->execute([$email]);
-        $uRow = $stmtUser->fetch(PDO::FETCH_ASSOC);
+    private function findAccountByEmail($email, $requestedType = 'all') {
+        // Önce normal üyeler (users) tablosuna bak (Eğer tablo veritabanında yoksa hatayı yut)
+        if ($requestedType === 'all' || $requestedType === 'user') {
+            try {
+                $stmtUser = $this->db->prepare("SELECT id, email, name FROM users WHERE email = ? LIMIT 1");
+                $stmtUser->execute([$email]);
+                $uRow = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
-        if ($uRow) {
-            return [
-                'id'    => $uRow['id'],
-                'email' => $uRow['email'],
-                'name'  => $uRow['name'],
-                'type'  => 'user'
-            ];
+                if ($uRow) {
+                    return [
+                        'id'    => $uRow['id'],
+                        'email' => $uRow['email'],
+                        'name'  => $uRow['name'],
+                        'type'  => 'user'
+                    ];
+                }
+            } catch (Exception $e) {
+                // users tablosu yoksa PDOException atılır, bunu yoksayıp işletmelerde aramaya devam et.
+            }
         }
 
         // Bulunamazsa işletme hesapları (business_users) tablosuna bak (username veya b.email ile eşleşir)
-        $stmtBiz = $this->db->prepare("
-            SELECT bu.id, bu.username, b.email as biz_email, b.name as name
-            FROM business_users bu
-            LEFT JOIN businesses b ON bu.business_id = b.id
-            WHERE bu.username = ? OR (b.email IS NOT NULL AND b.email != '' AND b.email = ?)
-            LIMIT 1
-        ");
-        $stmtBiz->execute([$email, $email]);
-        $bRow = $stmtBiz->fetch(PDO::FETCH_ASSOC);
+        if ($requestedType === 'all' || $requestedType === 'business') {
+            $stmtBiz = $this->db->prepare("
+                SELECT bu.id, bu.username, b.email as biz_email, b.name as name
+                FROM business_users bu
+                LEFT JOIN businesses b ON bu.business_id = b.id
+                WHERE bu.username = ? OR (b.email IS NOT NULL AND b.email != '' AND b.email = ?)
+                LIMIT 1
+            ");
+            $stmtBiz->execute([$email, $email]);
+            $bRow = $stmtBiz->fetch(PDO::FETCH_ASSOC);
 
-        if ($bRow) {
-            return [
-                'id'       => $bRow['id'],
-                'email'    => !empty($bRow['biz_email']) ? $bRow['biz_email'] : $bRow['username'],
-                'username' => $bRow['username'],
-                'name'     => $bRow['name'] ?: $bRow['username'],
-                'type'     => 'business'
-            ];
+            if ($bRow) {
+                return [
+                    'id'       => $bRow['id'],
+                    'email'    => !empty($bRow['biz_email']) ? $bRow['biz_email'] : $bRow['username'],
+                    'username' => $bRow['username'],
+                    'name'     => $bRow['name'] ?: $bRow['username'],
+                    'type'     => 'business'
+                ];
+            }
         }
 
         return null;

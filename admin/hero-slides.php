@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
     if ($delId > 0) {
         $pdo->prepare("DELETE FROM hero_slides WHERE id = ?")->execute([$delId]);
         $success = 'Slayt silindi.';
-        logAdminAction($pdo, 'Hero slide deleted', ['id' => $delId]);
+        logAction('delete', 'hero_slides', 'Slide ' . $delId, $delId);
     }
 }
 
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($_POST['action'] ?? '', ['
     $title    = trim($_POST['title'] ?? '');
     $subtitle = trim($_POST['subtitle'] ?? '');
     $desc     = trim($_POST['description'] ?? '');
-    $imgPath  = trim($_POST['image_path'] ?? '/digitalrehber/public/images/hero-slider.jpg');
+    $imgPath  = trim($_POST['image_path'] ?? 'public/images/hero-slider.jpg');
     $btn1Text = trim($_POST['button_text'] ?? '');
     $btn1Url  = trim($_POST['button_url'] ?? '');
     $btn2Text = trim($_POST['button2_text'] ?? '');
@@ -53,15 +53,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($_POST['action'] ?? '', ['
     // Fotoğraf yükleme
     if (!empty($_FILES['slide_image']['name'])) {
         $uploadDir = __DIR__ . '/../public/images/hero/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0775, true);
-        $ext      = strtolower(pathinfo($_FILES['slide_image']['name'], PATHINFO_EXTENSION));
-        $allowed  = ['jpg', 'jpeg', 'png', 'webp'];
-        if (in_array($ext, $allowed) && $_FILES['slide_image']['size'] < 5 * 1024 * 1024) {
-            $fname    = 'hero_' . time() . '_' . rand(100, 999) . '.' . $ext;
-            move_uploaded_file($_FILES['slide_image']['tmp_name'], $uploadDir . $fname);
-            $imgPath = '/digitalrehber/public/images/hero/' . $fname;
+        $processResult = processAndSaveImage($_FILES['slide_image'], $uploadDir, 'hero_');
+        
+        if ($processResult['success']) {
+            $imgPath = 'public/images/hero/' . $processResult['filename'];
         } else {
-            $error = 'Geçersiz dosya formatı veya boyutu (max 5MB, jpg/png/webp).';
+            $error = $processResult['error'];
         }
     }
 
@@ -72,12 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($_POST['action'] ?? '', ['
             $pdo->prepare("UPDATE hero_slides SET title=?, subtitle=?, description=?, image_path=?, button_text=?, button_url=?, button2_text=?, button2_url=?, sort_order=?, is_active=? WHERE id=?")
                 ->execute([$title, $subtitle, $desc, $imgPath, $btn1Text, $btn1Url, $btn2Text, $btn2Url, $sortOrd, $isActive, $slideId]);
             $success = 'Slayt güncellendi.';
-            logAdminAction($pdo, 'Hero slide updated', ['id' => $slideId, 'title' => $title]);
+            logAction('update', 'hero_slides', $title, $slideId);
         } else {
             $pdo->prepare("INSERT INTO hero_slides (title, subtitle, description, image_path, button_text, button_url, button2_text, button2_url, sort_order, is_active) VALUES (?,?,?,?,?,?,?,?,?,?)")
                 ->execute([$title, $subtitle, $desc, $imgPath, $btn1Text, $btn1Url, $btn2Text, $btn2Url, $sortOrd, $isActive]);
             $success = 'Yeni slayt eklendi.';
-            logAdminAction($pdo, 'Hero slide added', ['title' => $title]);
+            logAction('create', 'hero_slides', $title, null);
         }
     }
 }
@@ -138,8 +135,10 @@ require_once __DIR__ . '/includes/header.php';
                     <label class="form-label fw-semibold">Arka Plan Fotoğrafı (yükle)</label>
                     <input type="file" name="slide_image" class="form-control" accept=".jpg,.jpeg,.png,.webp">
                     <div class="form-text">Max 5MB · JPG, PNG, WebP · Önerilen: 1920×800px</div>
-                    <?php if (!empty($editSlide['image_path'])): ?>
-                    <div class="mt-2"><img src="<?= htmlspecialchars($editSlide['image_path']) ?>" alt="Mevcut" style="height: 80px; border-radius: 8px; object-fit: cover;"></div>
+                    <?php if (!empty($editSlide['image_path'])): 
+                        $editSlideImgUrl = strpos($editSlide['image_path'], 'http') === 0 ? $editSlide['image_path'] : '/' . ltrim($editSlide['image_path'], '/');
+                    ?>
+                    <div class="mt-2"><img src="<?= htmlspecialchars($editSlideImgUrl) ?>" alt="Mevcut" style="height: 80px; border-radius: 8px; object-fit: cover;"></div>
                     <?php endif; ?>
                 </div>
                 <div class="col-12 col-md-6">
@@ -205,7 +204,10 @@ require_once __DIR__ . '/includes/header.php';
                     <?php foreach ($slides as $slide): ?>
                     <tr>
                         <td>
-                            <img src="<?= htmlspecialchars($slide['image_path']) ?>" alt=""
+                            <?php 
+                                $slideImgUrl = strpos($slide['image_path'], 'http') === 0 ? $slide['image_path'] : '/' . ltrim($slide['image_path'], '/');
+                            ?>
+                            <img src="<?= htmlspecialchars($slideImgUrl) ?>" alt=""
                                 style="width: 70px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0;"
                                 onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'70\' height=\'44\'><rect fill=\'%23e2e8f0\' width=\'70\' height=\'44\'/><text x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' fill=\'%23999\' font-size=\'10\'>Yok</text></svg>'">
                         </td>

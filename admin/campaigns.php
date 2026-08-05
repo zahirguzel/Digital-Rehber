@@ -21,13 +21,11 @@ $errorMsg = '';
 function campHandleUpload($fileKey, $urlKey, $current = '')
 {
     if (isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] === UPLOAD_ERR_OK) {
-        $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9\._-]/', '', basename($_FILES[$fileKey]['name']));
-        $targetDir = '../public/images/';
-        if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0755, true);
-        }
-        if (move_uploaded_file($_FILES[$fileKey]['tmp_name'], $targetDir . $fileName)) {
-            return $fileName;
+        $targetDir = __DIR__ . '/../public/images/';
+        $processResult = processAndSaveImage($_FILES[$fileKey], $targetDir, 'camp_');
+        
+        if ($processResult['success']) {
+            return $processResult['filename'];
         }
     }
     if (!empty($_POST[$urlKey])) {

@@ -105,19 +105,20 @@ $siteUrl = function ($path = '') use ($seoBaseUrlTrimmed) {
     <?= CSRFMiddleware::meta() ?>
     <?php endif; ?>
     
-    <!-- Google Fonts: Oswald (logo wordmark karakterine yakın, dik/kalın) & Plus Jakarta Sans -->
+    <!-- Google Fonts: Oswald & Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Font Awesome (Deferred for performance) -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"></noscript>
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?= SecurityHelper::escape($siteUrl('public/css/style.css?v=' . time())) ?>">
+    <link rel="stylesheet" href="<?= SecurityHelper::escape($siteUrl('public/css/style.min.css?v=' . filemtime(__DIR__ . '/../public/css/style.min.css'))) ?>">
     <?php
     // Dynamic primary color override from settings
     $_siteColor = $siteSettings['admin_primary_color'] ?? '#D62828';
@@ -188,6 +189,15 @@ $siteUrl = function ($path = '') use ($seoBaseUrlTrimmed) {
     
     <!-- Google Analytics / Custom Tracking Codes -->
     <?= $siteSettings['google_analytics'] ?>
+    
+    <?php
+    // LCP Optimizasyonu: Ana sayfadaysak ilk slayt görselini önceden yükle
+    if (basename($_SERVER['PHP_SELF']) === 'index.php' && !empty($heroSlides[0]['image_path'])) {
+        $firstSlideCleanPath = str_replace('/digitalrehber/', '/', $heroSlides[0]['image_path']);
+        $firstSlideResolved = (strpos($firstSlideCleanPath, 'http') === 0) ? $firstSlideCleanPath : seoResolveAbsoluteUrl(ltrim($firstSlideCleanPath, '/'), seoGetBaseUrl());
+        echo '<link rel="preload" as="image" href="' . htmlspecialchars($firstSlideResolved) . '" fetchpriority="high">' . "\n";
+    }
+    ?>
 </head>
 <body class="site-body">
 
@@ -240,22 +250,35 @@ $siteUrl = function ($path = '') use ($seoBaseUrlTrimmed) {
         <div class="portal-nav__top w-100 w-lg-auto d-flex align-items-center">
         <!-- Logo -->
         <a class="navbar-brand portal-brand d-flex align-items-center gap-2 flex-shrink-0" href="<?= SecurityHelper::escape($siteUrl('/')) ?>" aria-label="<?= SecurityHelper::escape($siteSettings['site_title']) ?> — Ana Sayfa">
-            <?php if (!empty($siteSettings['site_logo'])): ?>
-                <?php 
-                $logoUrl = (strpos($siteSettings['site_logo'], 'http') === 0) ? $siteSettings['site_logo'] : $siteUrl('public/images/' . $siteSettings['site_logo']); 
-                ?>
+            <?php 
+            $hasLogo = false;
+            $logoUrl = '';
+            if (!empty($siteSettings['site_logo'])) {
+                if (strpos($siteSettings['site_logo'], 'http') === 0) {
+                    $hasLogo = true;
+                    $logoUrl = $siteSettings['site_logo'];
+                } else {
+                    $localPath = __DIR__ . '/../public/images/' . $siteSettings['site_logo'];
+                    if (file_exists($localPath)) {
+                        $hasLogo = true;
+                        $logoUrl = $siteUrl('public/images/' . $siteSettings['site_logo']);
+                    }
+                }
+            }
+            ?>
+            <?php if ($hasLogo): ?>
                 <span class="navbar-brand-logo-wrap">
                     <img src="<?= SecurityHelper::escape($logoUrl) ?>" alt="<?= SecurityHelper::escape($siteSettings['site_title']) ?>" class="navbar-brand-logo" width="260" height="120" decoding="async" fetchpriority="high">
                 </span>
             <?php else: ?>
-                <div class="brand-logo-wrapper">
-                    <i class="fa-solid fa-leaf text-white"></i>
+                <div class="brand-logo-wrapper me-2" style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(214, 40, 40, 0.2);">
+                    <span class="text-white fw-bold fs-3" style="font-family: 'Oswald', sans-serif;"><?= mb_substr($siteSettings['site_title'], 0, 1, 'UTF-8') ?></span>
                 </div>
                 <div class="brand-text d-flex flex-column justify-content-center">
-                    <span class="brand-title fw-bold" style="white-space: normal; line-height: 1.15; max-width: 220px; font-size: 1.3rem; color: #1a1a1a; letter-spacing: -0.5px; word-break: break-word;">
+                    <span class="brand-title fw-bold" style="white-space: normal; line-height: 1.1; max-width: 220px; font-size: 1.3rem; color: #1e293b; letter-spacing: -0.5px; word-break: break-word; font-family: 'Plus Jakarta Sans', sans-serif;">
                         <?= SecurityHelper::escape($siteSettings['site_title']) ?>
                     </span>
-                    <span class="brand-subtitle text-muted text-uppercase fw-semibold" style="font-size: 0.65rem; letter-spacing: 1px; margin-top: 3px;">
+                    <span class="brand-subtitle text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 1px; margin-top: 2px; color: var(--primary);">
                         Şehrin Dijital Rehberi
                     </span>
                 </div>

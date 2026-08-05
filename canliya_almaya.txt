@@ -1,0 +1,23 @@
+===================================================
+KIBRIS REHBERİM - CANLIYA ALIM REHBERİ VE SEO SÜREÇLERİ
+===================================================
+
+1. UYGULANAN SEO VE REKLAM ADIMLARI (TAMAMLANDI):
+---------------------------------------------------
+- Footer Anahtar Kelime (Hashtag) Sistemi: Sitenin en alt bölümüne, yönetici panelinden ('SEO & Arama Motoru Yönetimi' -> 'Site Anahtar Kelimeleri') girilen kelimeleri çeken şık bir hashtag bulutu eklendi. Kelimelere tıklandığında otomatik arama sonuçları listelenir.
+- Veritabanı SEO Güncellemesi: Sitenin ana açıklaması (Description) ve anahtar kelimeleri (Keywords) Kıbrıs odağında otomatik olarak güncellendi.
+- Sistem SEO Dokümantasyonu: Sistemde halihazırda bulunan devasa SEO altyapısı (Schema.org JSON-LD, Open Graph, Canonical URL, Resim Tipi Tespiti) README.md dosyasına belgelenerek eklendi.
+
+2. CANLIYA ALMADAN ÖNCE SİZİN YAPMANIZ GEREKEN (MANUEL) ADIMLAR:
+---------------------------------------------------
+- Blog İçerikleri: Admin paneli üzerinden 'Blog Yazıları' sekmesine giderek Kıbrıs odaklı 3-4 adet içerik ekleyin (Örn: 'Girne'de En İyi Yemek Nerede Yenir?', 'Lefkoşa Güvenilir Tamirciler'). Bu içerikler, Google Reklamları çıkacağınız zaman direkt trafik yönlendireceğiniz mükemmel açılış (Landing) sayfaları olacaktır.
+- Bölge / İlçe Açıklamaları: Admin panelinde 'Bölgeler/İlçeler' alanına girerek hedefinizdeki her ilçe (Girne, Lefkoşa, Mağusa vb.) için kısa ve öz tanıtım yazıları doldurun.
+- Gerçek İşletme Verileri: Sistem sıfırlandığı için, vitrinlik birkaç tane (5-10 adet) premium 'Gerçek' işletme ekleyerek sistemi dolu ve aktif gösterin.
+
+3. CANLIYA ÇIKARKEN (GO-LIVE) YAPILACAKLAR:
+---------------------------------------------------
+- Robots.txt Kontrolü: Panelin SEO sekmesinden arama motoru botlarına izin verdiğinizi doğrulayın.
+- Google Search Console: Sitenizi canlı domaininize bağladıktan sonra sitemap linkinizi (siteniz.com/sitemap.xml) mutlaka Google'a bildirin (Search Console üzerinden).
+- SMTP (E-posta) Ayarları: Canlıya geçtiğinizde şifremi unuttum gibi maillerin çalışması için sunucunuzdan aldığınız e-posta adresi ve şifresini (SMTP) projeye kodlayın. (README.md dosyasında "2. Canlı Sunucuda Gerçek E-posta Onayı" başlığında nasıl yapılacağı anlatılmıştır).
+
+Tüm bu adımları takip ederek projeyi sorunsuz, SEO açısından en güçlü haliyle ve reklam bütçesini boşa harcamadan yayına alabilirsiniz! Başarılar dilerim.

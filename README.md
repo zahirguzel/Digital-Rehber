@@ -431,7 +431,21 @@ Bu platform herhangi bir şehir veya ülke için özelleştirilebilir:
 
 ## 🚀 Canlı Ortam (Production) Kurulumu & E-posta Onay Sistemi
 
-Platformu yerel sunucudan (localhost / XAMPP) canlı sunucuya taşıdığınızda, **Şifremi Unuttum** (hem normal kullanıcılar `sifremi-unuttum.php` hem de işletme sahipleri `isletme/sifremi-unuttum.php`) ekranlarındaki e-posta doğrulama (OTP) kodlarının gerçek e-posta olarak gönderilmesi ve test amaçlı "Geliştirici Modu"nun kapatılması için aşağıdaki adımları izleyin:
+Platformu yerel sunucudan (localhost / XAMPP) canlı sunucuya taşıdığınızda e-posta (SMTP) sisteminin ve şifre sıfırlama özelliklerinin hatasız (500 hatası vermeden) çalışması için aşağıdaki kritik adımları izleyin:
+
+### 0. Kritik Ön Koşul: Vendor Autoload Entegrasyonu (500 Hatası Çözümü)
+Canlı sunucuda formu doldurduğunuzda veya mail atmaya çalıştığınızda `HTTP 500 Error` alıyorsanız bunun sebebi PHPMailer eklentisinin yüklenememesidir.
+Bu sorunu çözmek için ana dizindeki **`autoload.php`** dosyasını açıp **28. Satırda** yer alan `// Load environment` kısmının hemen üstüne şu kodu eklemelisiniz:
+
+```php
+// Load composer dependencies if exists
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
+
+// Load environment
+require_once __DIR__ . '/config/environment.php';
+```
 
 ### 1. Geliştirici Modunu (`dev_otp`) Kapatmak
 
@@ -500,6 +514,39 @@ try {
 ```
 
 > **İpucu:** Bu entegrasyonu yaptığınızda hem normal kullanıcılar (`sifremi-unuttum.php`) hem de işletme sahipleri (`isletme/sifremi-unuttum.php`) için e-posta onaylı şifre yenileme akışı canlı ortamda sorunsuz olarak çalışacaktır.
+
+---
+
+---
+
+## 🚀 Gelişmiş SEO ve Reklam Altyapısı (Kıbrıs & Yerel Rehber Odaklı)
+
+Sistem, Google ve sosyal medya platformlarında (Facebook, Instagram, X vb.) maksimum görünürlük elde etmek için "Büyük Portal" (Yemeksepeti, Sahibinden, Yelp) standartlarında dinamik bir SEO mimarisine sahiptir. Bu altyapı sayesinde yüzlerce işletme ve sayfa manuel müdahaleye gerek kalmadan otomatik optimize edilir.
+
+### 1. JSON-LD Schema (Yapısal Veri)
+Sistem Google'ın en çok tercih ettiği yapısal veri kodlaması olan **Schema.org** altyapısını kullanır:
+- **Organization (Kurum):** Sitenizin iletişim bilgileri, logosu ve bölge konumu otomatik bildirilir.
+- **WebSite & WebPage:** Hangi sayfada bulunulduğunu hiyerarşik olarak belirtir.
+- **SearchAction:** Google arama sonuçlarında (SERP) sitenizin altında "Site İçi Arama Kutusu" çıkmasını tetikleyen özel yapılandırmadır.
+
+### 2. Open Graph & Twitter Cards Entegrasyonu
+Linkleriniz sosyal medyada ve WhatsApp'ta paylaşıldığında boş veya anlamsız görünmez:
+- Her sayfa ve işletme için dinamik **og:title**, **og:description** ve **og:image** etiketleri üretilir.
+- Sistem paylaşılan resmin türünü (MIME Tipi) otomatik tespit edip arama motorlarına iletir.
+- Twitter (X) paylaşımları için "summary_large_image" formatı varsayılan olarak uygulanır.
+
+### 3. Dinamik Meta Etiketler (Her Sayfaya Özel)
+- **İşletme Detay:** İşletme adı, kategorisi ve bulunduğu ilçeye göre otomatik Title ve Description oluşturulur (Örn: *Ahmet Usta - Girne Otomotiv | Dijital Rehber*).
+- **Filtre ve Kategori Sayfaları:** Seçilen ilçe ve kategoriye göre sayfa başlığı otomatik değişir.
+- **Dinamik Bölge Sayfaları:** Bölgeler için panelden girilen özel tanıtım yazıları doğrudan SEO açıklamalarına aktarılır.
+- **Blog Stratejisi:** Eklenen her blog yazısının kendi özel OpenGraph görseli ve meta başlığı bulunur. Google Reklamları açılış sayfaları için mükemmeldir.
+
+### 4. Sayfalandırma & Kopya İçerik Kontrolü (Canonical & NoIndex)
+- Google'ın sevmediği "kopya içerik" sorununu çözmek adına, filtreleme uygulanan arama sayfalarına anında **noindex** etiketi eklenir.
+- Her sayfanın orijinal kaynağını belirten **canonical** linki otomatik olarak kodun en üstüne yerleştirilir.
+
+### 5. Footer Anahtar Kelime / Hashtag Sistemi
+- Admin panelindeki *SEO ve Arama Motoru Yönetimi* sekmesinden eklenen virgülle ayrılmış site anahtar kelimeleri, Footer (Alt Bilgi) alanında şık hashtagler (örn: `#kibrisesnaf`) formatında tüm sayfalara dağıtılarak iç SEO (Internal Linking & Keyword Density) skoru güçlendirilir.
 
 ---
 

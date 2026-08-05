@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Logger::security('Business login rate limit exceeded', ['username' => $u, 'ip' => SecurityHelper::getClientIP()]);
             } else {
                 try {
-                    $bu = $db->fetchOne("SELECT bu.*, b.name as biz_name, b.slug as biz_slug FROM business_users bu JOIN businesses b ON bu.business_id = b.id WHERE bu.username = ?", [$u]);
+                    $bu = $db->fetchOne("SELECT bu.*, b.name as biz_name, b.slug as biz_slug FROM business_users bu JOIN businesses b ON bu.business_id = b.id WHERE bu.username = ? OR b.email = ?", [$u, $u]);
                     
                     if ($bu && SecurityHelper::verifyPassword($p, $bu['password'])) {
                         // Success
@@ -272,10 +272,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="POST" action="">
             <?= CSRFMiddleware::field() ?>
             <div class="mb-4">
-                <label class="form-label">Kullanıcı Adı</label>
+                <label class="form-label">Kullanıcı Adı veya E-posta</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                    <input type="text" name="username" class="form-control" placeholder="Örn: isletme_adi" required autofocus>
+                    <input type="text" name="username" class="form-control" placeholder="Örn: isletme_adi veya mail@adres.com" required autofocus>
                 </div>
             </div>
             <div class="mb-5">

@@ -11,7 +11,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$service = new PasswordResetService();
+$service = new \App\Services\PasswordResetService();
 $step    = intval($_GET['step'] ?? 1);
 $error   = '';
 $success = '';
@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $error = 'Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyin.';
     } else {
         $email = trim($_POST['email'] ?? '');
-        $result = $service->requestOtp($email);
+        $result = $service->requestOtp($email, 'business');
         
         if ($result['success']) {
             $_SESSION['biz_reset_email']   = $email;

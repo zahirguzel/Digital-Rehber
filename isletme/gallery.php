@@ -75,67 +75,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['gallery_image'])) {
     if ($totalGalleryCount >= 6) {
         $errorMsg = 'En fazla 6 adet görsel (aktif + onay bekleyen) yükleyebilirsiniz. Maksimum limite ulaşıldı.';
     } else {
-        $file = $_FILES['gallery_image'];
-        if ($file['error'] === UPLOAD_ERR_OK) {
-            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-            $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-            if (in_array($ext, $allowed)) {
-                $dirPath = __DIR__ . '/../public/images/gallery/' . $bizId;
-                if (!is_dir($dirPath)) {
-                    mkdir($dirPath, 0777, true);
-                }
-                
-                $newName = uniqid('gal_') . '.webp';
-                $targetPath = $dirPath . '/' . $newName;
-                
-                // Image processing
-                $info = getimagesize($file['tmp_name']);
-                if ($info !== false) {
-                    $width = $info[0];
-                    $height = $info[1];
-                    $type = $info[2];
-                    
-                    $src = null;
-                    if ($type == IMAGETYPE_JPEG) $src = imagecreatefromjpeg($file['tmp_name']);
-                    elseif ($type == IMAGETYPE_PNG) $src = imagecreatefrompng($file['tmp_name']);
-                    elseif ($type == IMAGETYPE_WEBP) $src = imagecreatefromwebp($file['tmp_name']);
-                    
-                    if ($src) {
-                        // Max width 1200px
-                        if ($width > 1200) {
-                            $newWidth = 1200;
-                            $newHeight = intval($height * ($newWidth / $width));
-                            $dst = imagecreatetruecolor($newWidth, $newHeight);
-                            // handle transparency
-                            imagealphablending($dst, false);
-                            imagesavealpha($dst, true);
-                            $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
-                            imagefilledrectangle($dst, 0, 0, $newWidth, $newHeight, $transparent);
-                            
-                            imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-                            imagewebp($dst, $targetPath, 85);
-                            imagedestroy($dst);
-                        } else {
-                            // just convert to webp
-                            imagewebp($src, $targetPath, 85);
-                        }
-                        imagedestroy($src);
-                        
-                        // Insert into pending changes for admin review
-                        $ins = $db->getPDO()->prepare("INSERT INTO business_pending_changes (business_id, field_name, field_label, old_value, new_value, change_type) VALUES (?, ?, ?, ?, ?, ?)");
-                        $ins->execute([$bizId, 'gallery_add', 'Galeri Fotoğrafı', '', $newName, 'gallery']);
-                        $successMsg = 'Görsel başarıyla yüklendi ve yönetici onayına gönderildi. Onaylandıktan sonra galerinizde yayınlanacaktır.';
-                    } else {
-                        $errorMsg = 'Görsel işlenemedi.';
-                    }
-                } else {
-                    $errorMsg = 'Geçersiz görsel formatı.';
-                }
-            } else {
-                $errorMsg = 'Sadece JPG, PNG veya WEBP yükleyebilirsiniz.';
-            }
+        $dirPath = __DIR__ . '/../public/images/gallery/' . $bizId;
+        $processResult = processAndSaveImage($_FILES['gallery_image'], $dirPath, 'gal_');
+        
+        if ($processResult['success']) {
+            $newName = $processResult['filename'];
+            
+            // Insert into pending changes for admin review
+            $ins = $db->getPDO()->prepare("INSERT INTO business_pending_changes (business_id, field_name, field_label, old_value, new_value, change_type) VALUES (?, ?, ?, ?, ?, ?)");
+            $ins->execute([$bizId, 'gallery_add', 'Galeri Fotoğrafı', '', $newName, 'gallery']);
+            $successMsg = 'Görsel başarıyla yüklendi ve yönetici onayına gönderildi. Onaylandıktan sonra galerinizde yayınlanacaktır.';
         } else {
-            $errorMsg = 'Yükleme sırasında hata oluştu.';
+            $errorMsg = $processResult['error'];
         }
     }
 }

@@ -33,6 +33,9 @@ Environment::load();
 Cache::init();
 Session::start();
 
+// Load helpers
+require_once __DIR__ . '/includes/image-helpers.php';
+
 // Load global site settings for white-labeling
 global $siteSettings;
 try {
