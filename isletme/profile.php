@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'facebook' => ['label' => 'Facebook', 'new' => trim($_POST['facebook'] ?? '')],
         'tiktok' => ['label' => 'TikTok', 'new' => trim($_POST['tiktok'] ?? '')],
         'website' => ['label' => 'Web Sitesi', 'new' => trim($_POST['website'] ?? '')],
+        'menu_url' => ['label' => 'Dijital Menü URL', 'new' => trim($_POST['menu_url'] ?? '')],
         'yemeksepeti' => ['label' => 'Yemeksepeti', 'new' => trim($_POST['yemeksepeti'] ?? '')],
         'google_maps_iframe' => ['label' => 'Google Maps', 'new' => trim($_POST['google_maps_iframe'] ?? '')],
         'theme_color' => ['label' => 'Tema Rengi', 'new' => trim($_POST['theme_color'] ?? '#E0533C')]
@@ -246,6 +247,14 @@ require_once __DIR__ . '/includes/header.php';
                                 <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-globe text-info"></i></span>
                                 <input type="text" name="website" class="form-control border-start-0 <?= getPendingClass('website', $pendingFields) ?>" value="<?= htmlspecialchars($business['website'] ?? '') ?>" placeholder="https://...">
                             </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Harici Menü Linki (Dijital Menü URL) <?= getPendingBadge('menu_url', $pendingFields) ?></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-utensils text-danger"></i></span>
+                                <input type="text" name="menu_url" class="form-control border-start-0 <?= getPendingClass('menu_url', $pendingFields) ?>" value="<?= htmlspecialchars($business['menu_url'] ?? '') ?>" placeholder="Örn: https://menulinkiniz.com">
+                            </div>
+                            <span class="text-muted small" style="font-size: 11px;">Mevcut bir dijital menünüz varsa buraya ekleyebilirsiniz. Boş bırakırsanız sistemin QR menüsü kullanılır.</span>
                         </div>
                     </div>
                 </div>

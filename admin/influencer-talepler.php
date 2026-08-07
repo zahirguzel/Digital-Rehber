@@ -66,9 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (isset($_POST['delete_removal']) && (int) $_POST['delete_removal'] > 0) {
         $delId = (int) $_POST['delete_removal'];
-        $stmtName = $db->query("SELECT contact_email FROM influencer_removal_requests WHERE id = ?", [$delId]);
+        $stmtName = $db->query("SELECT email FROM influencer_removal_requests WHERE id = ?", [$delId]);
         $row = $stmtName->fetch();
-        $name = $row ? $row['contact_email'] : 'Bilinmeyen Talep';
+        $name = $row ? $row['email'] : 'Bilinmeyen Talep';
         $db->getPDO()->prepare('UPDATE influencer_removal_requests SET is_deleted = 1 WHERE id = ?')->execute([$delId]);
         if (function_exists('logAction')) logAction('delete', 'influencer_removal_requests', "Soft Delete: $name", $delId);
         $successMsg = 'Kaldırma talebi başarıyla silindi (Gizlendi).';

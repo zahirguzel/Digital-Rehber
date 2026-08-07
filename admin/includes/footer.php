@@ -34,6 +34,8 @@ function initQuill(editorId, hiddenId) {
 }
 initQuill('quill-editor-camp', 'description-hidden-camp');
 initQuill('quill-editor-ev',   'description-hidden-ev');
+
+
 </script>
 </body>
 </html>

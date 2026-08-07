@@ -35,19 +35,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $db->prepare("INSERT INTO business_applications (business_name, city, district, contact_name, phone, email, description) VALUES (?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([$businessName, $city, $district, $contactName, $phone, $email, $description]);
                 
-                $emailService = new EmailService();
-                $emailContent = "
-                    <p><strong>İşletme Adı:</strong> {$businessName}</p>
-                    <p><strong>Yetkili:</strong> {$contactName}</p>
-                    <p><strong>Telefon:</strong> {$phone}</p>
-                    <p><strong>Bölge/İlçe:</strong> {$city} / {$district}</p>
-                    <p><strong>E-posta:</strong> {$email}</p>
-                    <p><strong>Açıklama:</strong><br/>{$description}</p>
-                ";
-                $emailService->sendAdminNotification('Yeni İşletme Başvurusu', $emailContent, $email);
+                try {
+                    $emailService = new EmailService();
+                    $emailContent = "
+                        <p><strong>İşletme Adı:</strong> {$businessName}</p>
+                        <p><strong>Yetkili:</strong> {$contactName}</p>
+                        <p><strong>Telefon:</strong> {$phone}</p>
+                        <p><strong>Bölge/İlçe:</strong> {$city} / {$district}</p>
+                        <p><strong>E-posta:</strong> {$email}</p>
+                        <p><strong>Açıklama:</strong><br/>{$description}</p>
+                    ";
+                    $emailService->sendAdminNotification('Yeni İşletme Başvurusu', $emailContent, $email);
+                } catch (\Throwable $e) {
+                    error_log("İşletme başvuru mail hatası: " . $e->getMessage());
+                }
 
                 $successMsg = "Başvurunuz başarıyla alınmıştır. En kısa sürede yetkili ekibimiz sizinle iletişime geçecektir.";
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 $errorMsg = "Başvuru sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
             }
         }

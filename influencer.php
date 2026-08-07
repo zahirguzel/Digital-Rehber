@@ -75,12 +75,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['collab_submit'])) {
             telegramNotifyInfluencerCollaboration($pdo, $collabData, $influencer);
             
             if (!empty($influencer['contact_email'])) {
-                $emailService = new EmailService();
-                $emailService->sendCollaborationEmail($influencer['contact_email'], $influencer['name'], $collabData);
+                try {
+                    $emailService = new EmailService();
+                    $emailService->sendCollaborationEmail($influencer['contact_email'], $influencer['name'], $collabData);
+                } catch (\Throwable $e) {
+                    error_log("Influencer collab mail hatası: " . $e->getMessage());
+                }
             }
 
             $collabSuccess = 'İş birliği talebiniz alındı. En kısa sürede size dönüş yapılacaktır.';
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $collabError = 'Talep gönderilirken hata oluştu. Lütfen tekrar deneyin.';
         }
     }

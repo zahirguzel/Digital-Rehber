@@ -280,8 +280,8 @@ else:
     <?= CSRFMiddleware::field() ?>
             <input type="hidden" name="action" value="<?= $isEdit ? 'edit' : 'add' ?>">
             <div class="row g-3">
-                <div class="col-md-6"><label class="form-label">Ad / Sahne Adı *</label><input type="text" name="name" class="form-control" required value="<?= htmlspecialchars($inf['name'] ?? '') ?>"></div>
-                <div class="col-md-6"><label class="form-label">Slug *</label><input type="text" name="slug" class="form-control" required value="<?= htmlspecialchars($inf['slug'] ?? '') ?>"></div>
+                <div class="col-md-6"><label class="form-label">Ad / Sahne Adı *</label><input type="text" id="inf_name" name="name" class="form-control" required value="<?= htmlspecialchars($inf['name'] ?? '') ?>"></div>
+                <div class="col-md-6"><label class="form-label">Slug *</label><input type="text" id="inf_slug" name="slug" class="form-control" required value="<?= htmlspecialchars($inf['slug'] ?? '') ?>"></div>
                 <div class="col-md-4"><label class="form-label">İlçe *</label><select name="district" class="form-select" required><?php
 foreach ($districts as $d): ?><option value="<?= htmlspecialchars($d) ?>" <?= (($inf['district'] ?? '') === $d) ? 'selected' : '' ?>><?= htmlspecialchars($d) ?></option><?php
 endforeach; ?></select></div>
@@ -300,8 +300,22 @@ endforeach; ?></select></div>
                 <div class="col-12">
                     <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="followers_verified" id="followers_verified" value="1" <?= !empty($inf['followers_verified_at']) ? 'checked' : '' ?>><label class="form-check-label" for="followers_verified">Takipçi sayılarını doğruladım (bugünün tarihi kaydedilir)</label></div>
                 </div>
-                <div class="col-md-6"><label class="form-label">Avatar (dosya)</label><input type="file" name="avatar_file" class="form-control"><input type="url" name="avatar_url" class="form-control mt-1" placeholder="veya görsel URL" value="<?= (strpos($inf['avatar_path'] ?? '', 'http') === 0) ? htmlspecialchars($inf['avatar_path']) : '' ?>"></div>
-                <div class="col-md-6"><label class="form-label">Kapak (dosya)</label><input type="file" name="cover_file" class="form-control"><input type="url" name="cover_url" class="form-control mt-1" placeholder="veya görsel URL" value="<?= (strpos($inf['cover_path'] ?? '', 'http') === 0) ? htmlspecialchars($inf['cover_path']) : '' ?>"></div>
+                <div class="col-md-6">
+                    <label class="form-label">Avatar (dosya)</label>
+                    <?php if (!empty($inf['avatar_path'])): ?>
+                        <div class="mb-2"><img src="<?= (strpos($inf['avatar_path'], 'http') === 0) ? htmlspecialchars($inf['avatar_path']) : '../public/images/' . htmlspecialchars($inf['avatar_path']) ?>" alt="Avatar" style="height:60px; width:60px; border-radius:8px; object-fit:cover; border:1px solid #ccc;"></div>
+                    <?php endif; ?>
+                    <input type="file" name="avatar_file" class="form-control">
+                    <input type="url" name="avatar_url" class="form-control mt-1" placeholder="veya görsel URL" value="<?= (strpos($inf['avatar_path'] ?? '', 'http') === 0) ? htmlspecialchars($inf['avatar_path']) : '' ?>">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Kapak (dosya)</label>
+                    <?php if (!empty($inf['cover_path'])): ?>
+                        <div class="mb-2"><img src="<?= (strpos($inf['cover_path'], 'http') === 0) ? htmlspecialchars($inf['cover_path']) : '../public/images/' . htmlspecialchars($inf['cover_path']) ?>" alt="Kapak" style="height:60px; border-radius:4px; object-fit:cover; border:1px solid #ccc;"></div>
+                    <?php endif; ?>
+                    <input type="file" name="cover_file" class="form-control">
+                    <input type="url" name="cover_url" class="form-control mt-1" placeholder="veya görsel URL" value="<?= (strpos($inf['cover_path'] ?? '', 'http') === 0) ? htmlspecialchars($inf['cover_path']) : '' ?>">
+                </div>
                 <div class="col-12"><label class="form-label">Öne çıkan linkler (satır satır)</label><textarea name="featured_links" class="form-control" rows="2"><?= htmlspecialchars($inf['featured_links'] ?? '') ?></textarea></div>
                 <div class="col-md-6"><label class="form-label">İletişim e-posta (gizli)</label><input type="email" name="contact_email" class="form-control" value="<?= htmlspecialchars($inf['contact_email'] ?? '') ?>"></div>
                 <div class="col-md-6"><label class="form-label">Onay tarihi</label><input type="date" name="consent_date" class="form-control" value="<?= htmlspecialchars($inf['consent_date'] ?? '') ?>"></div>
@@ -334,6 +348,31 @@ endforeach; ?>
 </div>
 <?php
 endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const nameInput = document.getElementById('inf_name');
+    const slugInput = document.getElementById('inf_slug');
+
+    <?php if ($action === 'new'): ?>
+        if (nameInput && slugInput) {
+            nameInput.addEventListener('input', function () {
+                let text = nameInput.value;
+                slugInput.value = text.toLowerCase()
+                    .replace(/ğ/g, 'g')
+                    .replace(/ü/g, 'u')
+                    .replace(/ş/g, 's')
+                    .replace(/ı/g, 'i')
+                    .replace(/ö/g, 'o')
+                    .replace(/ç/g, 'c')
+                    .replace(/[^a-z0-9]/g, '-')
+                    .replace(/-+/g, '-')
+                    .replace(/^-|-$/g, '');
+            });
+        }
+    <?php endif; ?>
+});
+</script>
 
 <script>
 async function downloadInfluencerQR(qrApiUrl, profileName) {

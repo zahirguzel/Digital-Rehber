@@ -76,7 +76,7 @@ try {
                         $reviewErr = "Lütfen 1 ile 5 arası bir puan verin.";
                     } else {
                         $reviewModel->addReview($business['id'], $userId, $rating, $comment);
-                        $reviewMsg = "Yorumunuz başarıyla eklendi!";
+                        $reviewMsg = "Yorumunuz alındı. İnceleme sonrasında yayınlanacaktır.";
                         
                         $stmt = $pdo->prepare("SELECT b.*, c.name as category_name, c.slug as category_slug FROM businesses b LEFT JOIN categories c ON b.category_id = c.id WHERE b.slug = ? AND b.is_deleted = 0");
                         $stmt->execute([$slug]);
@@ -106,6 +106,16 @@ try {
         $stmtGallery = $pdo->prepare("SELECT image_path FROM business_gallery WHERE business_id = ? ORDER BY sort_order ASC, id ASC LIMIT 6");
         $stmtGallery->execute([$business['id']]);
         $images = $stmtGallery->fetchAll();
+    } catch (Exception $e) {}
+
+    // Fetch Active Campaigns for this business
+    require_once __DIR__ . '/includes/campaign-helpers.php';
+    $businessCampaigns = [];
+    try {
+        $todayStr = date('Y-m-d');
+        $stmtCamp = $pdo->prepare('SELECT ' . campaignListSelectSql() . campaignListJoinSql() . ' WHERE c.is_published = 1 AND c.business_id = ? AND (c.end_date IS NULL OR c.end_date >= ?) ORDER BY c.is_featured DESC, c.start_date ASC LIMIT 6');
+        $stmtCamp->execute([$business['id'], $todayStr]);
+        $businessCampaigns = $stmtCamp->fetchAll();
     } catch (Exception $e) {}
 
     require_once __DIR__ . '/models/Business.php';
@@ -433,6 +443,59 @@ require_once 'includes/header.php';
                     </div>
                 </article>
                 <?php endif; ?>
+
+                <!-- Campaigns Section -->
+                <?php if (!empty($businessCampaigns)): ?>
+                <article class="biz-portal-panel reveal-on-scroll mt-4">
+                    <header class="biz-portal-panel__head">
+                        <span class="portal-section__index"><?= str_pad((string) $contentSectionNum++, 2, '0', STR_PAD_LEFT) ?></span>
+                        <div>
+                            <span class="portal-section__eyebrow">Fırsatlar</span>
+                            <h2>İşletme Kampanyaları</h2>
+                        </div>
+                    </header>
+                    <div class="biz-portal-panel__body">
+                        <div class="portal-event-grid camp-portal-grid">
+                            <?php foreach ($businessCampaigns as $i => $camp):
+                                $cover = getCampaignImageUrl($camp['cover_image_path'], 'https://images.unsplash.com/photo-1607083206869-4c6b6b127a1e?w=800&q=80');
+                                $badge = formatCampaignDateBadge($camp['start_date']);
+                                $rank = str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT);
+                            ?>
+                            <article class="portal-event-card camp-portal-card <?= $camp['is_featured'] ? 'portal-event-card--featured' : '' ?>">
+                                <?php if ($camp['is_featured']): ?>
+                                    <span class="portal-event-card__featured"><i class="fa-solid fa-star"></i> Öne Çıkan</span>
+                                <?php endif; ?>
+                                <span class="portal-event-card__rank"><?= $rank ?></span>
+                                <a href="<?= SecurityHelper::escape(seoGetBaseUrl() . '/kampanya/' . $camp['slug']) ?>" class="portal-event-card__link">
+                                    <div class="portal-event-card__cover" style="background-image: url('<?= SecurityHelper::escape($cover) ?>');">
+                                        <div class="portal-event-card__date">
+                                            <strong><?= SecurityHelper::escape($badge['day']) ?></strong>
+                                            <span><?= SecurityHelper::escape($badge['month']) ?></span>
+                                        </div>
+                                        <?php if (!empty($camp['discount_label'])): ?>
+                                            <span class="camp-portal-card__discount"><?= SecurityHelper::escape($camp['discount_label']) ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="portal-event-card__body">
+                                        <div class="portal-event-card__meta">
+                                            <?= renderCampaignStatusBadge($camp) ?>
+                                            <span class="portal-event-card__category"><?= SecurityHelper::escape(getCampaignTypeLabel($camp['campaign_type'])) ?></span>
+                                        </div>
+                                        <h3><?= SecurityHelper::escape($camp['title']) ?></h3>
+                                        <p class="portal-event-card__datetime">
+                                            <i class="fa-regular fa-calendar"></i>
+                                            <?= SecurityHelper::escape(formatCampaignDateRange($camp['start_date'], $camp['end_date'])) ?>
+                                        </p>
+                                        <?= renderCampaignPriceHtml($camp, 'camp-portal-price camp-portal-card__price') ?>
+                                    </div>
+                                </a>
+                            </article>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </article>
+                <?php endif; ?>
+
                 <!-- Reviews Section -->
                 <article class="biz-portal-panel reveal-on-scroll mt-4" id="reviews">
                     <header class="biz-portal-panel__head">
@@ -750,10 +813,10 @@ require_once 'includes/header.php';
             </div>
             <?php
             $vipWaPhone = preg_replace('/[^0-9]/', '', $siteSettings['contact_whatsapp'] ?? ($siteSettings['contact_phone'] ?? ''));
-            $vipWaUrl = !empty($vipWaPhone) ? ('https://wa.me/' . $vipWaPhone . '?text=' . urlencode('İşletmemi ekletmek istiyorum bilgi alabilir miyim?')) : seoResolveAbsoluteUrl('iletisim.php', $seoBaseUrl);
+            $vipWaUrl = !empty($vipWaPhone) ? ('https://wa.me/' . $vipWaPhone . '?text=' . urlencode('İşletmemi ekletmek istiyorum bilgi alabilir miyim?')) : seoResolveAbsoluteUrl('isletme-basvuru.php', $seoBaseUrl);
             ?>
             <div class="home-vip-cta__actions">
-                <a href="<?= seoResolveAbsoluteUrl('iletisim.php', $seoBaseUrl) ?>" class="home-vip-cta__btn-primary">
+                <a href="<?= seoResolveAbsoluteUrl('isletme-basvuru.php', $seoBaseUrl) ?>" class="home-vip-cta__btn-primary">
                     <i class="fa-solid fa-store"></i> Hemen İşletmeni Ekle
                 </a>
                 <a href="<?= $vipWaUrl ?>" class="home-vip-cta__btn-secondary" target="_blank" rel="noopener noreferrer">

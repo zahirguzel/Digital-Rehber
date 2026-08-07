@@ -68,15 +68,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'message' => $message,
             ]);
             
-            $emailService = new EmailService();
-            $emailContent = "
-                <p><strong>Gönderen:</strong> {$name}</p>
-                <p><strong>E-posta:</strong> {$email}</p>
-                <p><strong>Telefon:</strong> {$phone}</p>
-                <p><strong>Konu:</strong> {$subject}</p>
-                <p><strong>Mesaj:</strong><br/>{$message}</p>
-            ";
-            $emailService->sendAdminNotification('Yeni İletişim Formu Mesajı', $emailContent, $email);
+            try {
+                $emailService = new EmailService();
+                $emailContent = "
+                    <p><strong>Gönderen:</strong> {$name}</p>
+                    <p><strong>E-posta:</strong> {$email}</p>
+                    <p><strong>Telefon:</strong> {$phone}</p>
+                    <p><strong>Konu:</strong> {$subject}</p>
+                    <p><strong>Mesaj:</strong><br/>{$message}</p>
+                ";
+                $emailService->sendAdminNotification('Yeni İletişim Formu Mesajı', $emailContent, $email);
+            } catch (\Throwable $e) {
+                // Mail gönderilemese bile form veritabanına kaydedildiği için sorun yok
+                error_log("Iletisim formu mail hatasi: " . $e->getMessage());
+            }
 
             $successMsg = 'Mesajınız başarıyla iletildi. En kısa sürede sizinle iletişime geçilecektir.';
             $name = '';
@@ -84,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $phone = '';
             $subject = 'Yeni İşletme Kaydı';
             $message = '';
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $errorMsg = 'Mesaj gönderilirken hata oluştu. Lütfen tekrar deneyin.';
         }
     }

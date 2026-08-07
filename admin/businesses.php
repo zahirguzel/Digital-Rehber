@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = trim($_POST['name']);
         $slug = trim($_POST['slug']);
         $category_id = intval($_POST['category_id']);
-        $city = trim($_POST['city']);
+        $city = trim($_POST['city'] ?? '');
         if ($city === '') {
             try {
                 $settingsDefaultCity = $db->query("SELECT default_city FROM settings LIMIT 1")->fetchColumn();

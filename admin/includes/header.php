@@ -128,6 +128,9 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex-grow: 1;
         }
         
         .sidebar-menu .nav-link {
@@ -336,10 +339,40 @@
             border-radius: 4px;
         }
         
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+        
         /* Responsive tweaks */
         @media (max-width: 768px) {
             .sidebar {
-                display: none;
+                position: fixed;
+                top: 0;
+                left: -260px;
+                height: 100vh;
+                z-index: 1050;
+                transition: left 0.3s ease;
+            }
+            .sidebar.show {
+                left: 0;
+            }
+            /* Menü başlığında boşluk için ufak ayar */
+            .top-navbar .page-title-wrap {
+                margin-left: 10px;
             }
         }
     </style>
@@ -347,6 +380,9 @@
 <body>
 
     <div class="admin-wrapper">
+        
+        <!-- Mobile Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.querySelector('.sidebar').classList.remove('show'); this.classList.remove('show'); document.body.style.overflow = '';"></div>
         
         <!-- Sidebar Navigation -->
         <?php include 'sidebar.php'; ?>
@@ -356,7 +392,15 @@
             
             <!-- Top Navbar Header -->
             <div class="top-navbar">
-                <h4 class="h5 mb-0 fw-bold text-navy"><?= isset($pageTitle) ? htmlspecialchars($pageTitle) : 'Yönetim Paneli' ?></h4>
+                <div class="d-flex align-items-center">
+                    <!-- Mobile Hamburger -->
+                    <button class="btn btn-outline-secondary d-md-none border-0 px-2 py-1 me-2" id="mobileSidebarToggle" onclick="document.querySelector('.sidebar').classList.toggle('show'); document.getElementById('sidebarOverlay').classList.toggle('show'); document.body.style.overflow = document.querySelector('.sidebar').classList.contains('show') ? 'hidden' : '';">
+                        <i class="fa-solid fa-bars fs-4"></i>
+                    </button>
+                    <div class="page-title-wrap">
+                        <h4 class="h5 mb-0 fw-bold text-navy"><?= isset($pageTitle) ? htmlspecialchars($pageTitle) : 'Yönetim Paneli' ?></h4>
+                    </div>
+                </div>
                 <div class="d-flex align-items-center gap-3">
                     <span class="text-muted small d-none d-sm-inline"><i class="fa-solid fa-calendar me-1"></i> <?= date('d.m.Y') ?></span>
                     <a href="../" class="btn btn-outline-secondary btn-sm px-3" target="_blank"><i class="fa-solid fa-globe me-1"></i> Siteyi Aç</a>

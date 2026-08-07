@@ -7303,7 +7303,9 @@ a:hover {
         grid-column: 1 / -1 !important;
         border-bottom: 1px solid var(--border-color) !important;
     }
-
+    .search-dock--directory .search-dock__form--influencer .search-dock__field.search-dock__field--grow {
+        grid-column: auto !important;
+    }
     .search-dock--directory .search-dock__submit {
         grid-column: 1 / -1 !important;
         padding: 8px 14px !important;
@@ -7321,6 +7323,14 @@ a:hover {
         align-items: flex-start !important;
         gap: 14px !important;
         margin-bottom: 16px !important;
+    }
+
+    /* Influencer Kahraman Alanı (Hero) Düzeltmesi - Profil sayısını yukarı hizala */
+    .directory-portal-hero--influencer .directory-portal-hero__head {
+        align-items: flex-start !important;
+    }
+    .directory-portal-hero--influencer .directory-portal-hero__stat {
+        margin-top: 10px !important;
     }
 
     .directory-portal-hero--services .directory-portal-hero__head > div:first-child {
@@ -7497,15 +7507,19 @@ a:hover {
 
 .biz-portal-profile__brand {
     display: flex;
-    flex-direction: column;
-    gap: 18px;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
     min-width: 0;
+}
+
+.biz-portal-profile__info {
+    min-width: 0;
+    flex: 1;
 }
 
 @media (min-width: 576px) {
     .biz-portal-profile__brand {
-        flex-direction: row;
-        align-items: center;
         gap: 22px;
     }
 }

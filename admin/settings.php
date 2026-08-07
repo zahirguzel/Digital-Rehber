@@ -67,6 +67,14 @@ function ensureSettingsColumns(PDO $pdo) {
         'home_blog_desc' => "TEXT NULL AFTER home_blog_title",
         'home_banner_fallback_title' => "VARCHAR(160) NULL AFTER home_blog_desc",
         'home_banner_fallback_description' => "TEXT NULL AFTER home_banner_fallback_title",
+        // Mail ayarları
+        'mail_host'        => "VARCHAR(255) NULL DEFAULT NULL",
+        'mail_port'        => "SMALLINT UNSIGNED NULL DEFAULT 587",
+        'mail_user'        => "VARCHAR(255) NULL DEFAULT NULL",
+        'mail_pass'        => "VARCHAR(255) NULL DEFAULT NULL",
+        'mail_from'        => "VARCHAR(255) NULL DEFAULT NULL",
+        'mail_from_name'   => "VARCHAR(255) NULL DEFAULT NULL",
+        'mail_admin_email' => "VARCHAR(255) NULL DEFAULT NULL",
     ];
 
     foreach ($definitions as $column => $definition) {
@@ -102,6 +110,85 @@ try {
 
 // Handle Form Submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // ── Mail Ayarlarını Kaydet ────────────────────────────────────────
+    if (isset($_POST['update_mail'])) {
+        $mail_host        = trim($_POST['mail_host'] ?? '');
+        $mail_port        = (int)($_POST['mail_port'] ?? 587);
+        $mail_user        = trim($_POST['mail_user'] ?? '');
+        $mail_pass_new    = trim($_POST['mail_pass'] ?? '');
+        $mail_from        = trim($_POST['mail_from'] ?? '');
+        $mail_from_name   = trim($_POST['mail_from_name'] ?? '');
+        $mail_admin_email = trim($_POST['mail_admin_email'] ?? '');
+
+        // Şifre boş bırakıldıysa eski şifreyi koru
+        if ($mail_pass_new === '') {
+            $mail_pass_new = $settings['mail_pass'] ?? '';
+        }
+
+        if ($mail_port < 1 || $mail_port > 65535) {
+            $errorMsg = 'Geçersiz port numarası (1-65535 arası olmalıdır).';
+        } elseif (!empty($mail_from) && !filter_var($mail_from, FILTER_VALIDATE_EMAIL)) {
+            $errorMsg = 'Gönderici e-posta adresi geçersiz.';
+        } elseif (!empty($mail_admin_email) && !filter_var($mail_admin_email, FILTER_VALIDATE_EMAIL)) {
+            $errorMsg = 'Yönetici e-posta adresi geçersiz.';
+        } else {
+            try {
+                $db->getPDO()->prepare(
+                    'UPDATE settings SET mail_host=?, mail_port=?, mail_user=?, mail_pass=?, mail_from=?, mail_from_name=?, mail_admin_email=? WHERE id=1'
+                )->execute([$mail_host, $mail_port, $mail_user, $mail_pass_new, $mail_from, $mail_from_name, $mail_admin_email]);
+                if (function_exists('logAction')) logAction('update', 'settings', 'Mail Ayarları', 1);
+                $successMsg = 'Mail ayarları başarıyla kaydedildi.';
+                $settings   = $db->query('SELECT * FROM settings WHERE id = 1')->fetch();
+            } catch (Exception $e) {
+                $errorMsg = 'Mail ayarları kaydedilemedi: ' . $e->getMessage();
+            }
+        }
+    }
+
+    // ── Mail Test Gönder ────────────────────────────────────────────
+    if (isset($_POST['test_mail'])) {
+        $testTo = trim($_POST['mail_admin_email'] ?? ($settings['mail_admin_email'] ?? ''));
+        if (empty($testTo)) {
+            $errorMsg = 'Test için Yönetici E-posta adresi boş olamaz.';
+        } else {
+            try {
+                require_once __DIR__ . '/../vendor/autoload.php';
+                $tMail = new PHPMailer\PHPMailer\PHPMailer(true);
+                $tMail->isSMTP();
+                $tMail->Host       = $settings['mail_host'] ?? '';
+                $tMail->SMTPAuth   = true;
+                $tMail->Username   = $settings['mail_user'] ?? '';
+                $tMail->Password   = $settings['mail_pass'] ?? '';
+                $tMail->Port       = (int)($settings['mail_port'] ?? 587);
+                $tMail->SMTPSecure = ((int)($settings['mail_port'] ?? 587) === 465)
+                    ? PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
+                    : PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+                
+                // Hata tespiti için debug modunu açalım (sadece hata durumunda mesajı görmek için yakalayacağız)
+                $tMail->SMTPDebug = 2;
+                $debugLog = '';
+                $tMail->Debugoutput = function($str, $level) use (&$debugLog) {
+                    $debugLog .= htmlspecialchars($str) . "<br>";
+                };
+
+                $tMail->setFrom(
+                    $settings['mail_from'] ?: ($settings['mail_user'] ?? 'noreply@example.com'),
+                    $settings['mail_from_name'] ?: ($settings['site_title'] ?? 'Sistem')
+                );
+                $tMail->addAddress($testTo, 'Yönetici');
+                $tMail->CharSet = 'UTF-8';
+                $tMail->isHTML(true);
+                $tMail->Subject = 'Test Maili — ' . ($settings['site_title'] ?? 'Site');
+                $tMail->Body    = '<h2>✅ SMTP Bağlantısı Başarılı!</h2><p>Bu mail admin panelinden gönderilmiş bir test mailidir.</p>';
+                $tMail->send();
+                $successMsg = '✅ Test maili <strong>' . htmlspecialchars($testTo) . '</strong> adresine başarıyla gönderildi!';
+            } catch (\Exception $e) {
+                $errorMsg = '❌ Mail gönderilemedi: ' . htmlspecialchars($e->getMessage()) . '<hr><strong>Detaylı Bağlantı Hatası:</strong><br><small>' . $debugLog . '</small>';
+            }
+        }
+    }
+
     if (isset($_POST['update_telegram'])) {
         $telegram_enabled = isset($_POST['telegram_enabled']) ? 1 : 0;
         $telegram_bot_token = trim($_POST['telegram_bot_token'] ?? '');
@@ -384,6 +471,11 @@ endif; ?>
             <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold text-navy" id="telegram-tab" data-bs-toggle="tab" data-bs-target="#telegram-pane" type="button" role="tab">
                     <i class="fa-brands fa-telegram me-1"></i> Telegram
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-navy" id="mail-tab" data-bs-toggle="tab" data-bs-target="#mail-pane" type="button" role="tab">
+                    <i class="fa-solid fa-envelope me-1"></i> E-posta
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -703,7 +795,101 @@ endforeach; ?>
                 </form>
             </div>
 
-            <!-- TAB 3: ADMIN ACCOUNT -->
+            <!-- TAB: E-POSTA AYARLARI -->
+            <div class="tab-pane fade" id="mail-pane" role="tabpanel" aria-labelledby="mail-tab" tabindex="0">
+
+                <!-- Kaydetme Formu -->
+                <form action="" method="POST">
+                    <?= CSRFMiddleware::field() ?>
+                    <input type="hidden" name="update_mail" value="1">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <h6 class="fw-bold text-navy mb-1"><i class="fa-solid fa-envelope me-2 text-primary"></i>E-posta (SMTP) Ayarları</h6>
+                            <p class="text-muted small mb-0">Tüm sistem mailleri (şifre sıfırlama, başvuru bildirimi vb.) bu ayarlar üzerinden gönderilir. Şifre alanını boş bırakırsanız mevcut şifre korunur.</p>
+                        </div>
+
+                        <div class="col-12"><hr class="my-1"></div>
+
+                        <!-- SMTP Sunucu & Port -->
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">SMTP Sunucu (Host)</label>
+                            <input type="text" name="mail_host" class="form-control" value="<?= htmlspecialchars($settings['mail_host'] ?? '') ?>" placeholder="Örn: smtp.gmail.com veya smtp.hostinger.com">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Port</label>
+                            <input type="number" name="mail_port" class="form-control" list="port-options" value="<?= htmlspecialchars((string)($settings['mail_port'] ?? 587)) ?>" min="1" max="65535" placeholder="Örn: 587 veya 465">
+                            <datalist id="port-options">
+                                <option value="587">587 — TLS</option>
+                                <option value="465">465 — SSL</option>
+                                <option value="25">25 — Standart</option>
+                                <option value="2525">2525 — Alternatif</option>
+                            </datalist>
+                        </div>
+
+                        <!-- Kullanıcı Adı & Şifre -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">SMTP Kullanıcı Adı (E-posta)</label>
+                            <input type="email" name="mail_user" class="form-control" value="<?= htmlspecialchars($settings['mail_user'] ?? '') ?>" placeholder="mail@domain.com" autocomplete="off">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">SMTP Şifresi</label>
+                            <input type="password" name="mail_pass" class="form-control" placeholder="Boş bırakırsanız mevcut şifre korunur" autocomplete="new-password">
+                            <?php if (!empty($settings['mail_pass'])): ?>
+                                <small class="text-success"><i class="fa-solid fa-check-circle me-1"></i>Şifre kayıtlı.</small>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="col-12"><hr class="my-1"></div>
+
+                        <!-- Gönderici Adı & Adresi -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Gönderici E-posta Adresi</label>
+                            <input type="email" name="mail_from" class="form-control" value="<?= htmlspecialchars($settings['mail_from'] ?? '') ?>" placeholder="noreply@domain.com">
+                            <small class="text-muted">Maillerin &quot;From&quot; alanında görünen adres.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Gönderici Adı</label>
+                            <input type="text" name="mail_from_name" class="form-control" value="<?= htmlspecialchars($settings['mail_from_name'] ?? '') ?>" placeholder="Örn: Kıbrıs Rehberim">
+                        </div>
+
+                        <div class="col-12"><hr class="my-1"></div>
+
+                        <!-- Yönetici Bildirimleri -->
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold"><i class="fa-solid fa-user-shield me-1 text-warning"></i>Yönetici Bildirim E-postası</label>
+                            <input type="email" name="mail_admin_email" class="form-control" value="<?= htmlspecialchars($settings['mail_admin_email'] ?? '') ?>" placeholder="admin@domain.com">
+                            <small class="text-muted">İletişim formu, işletme başvurusu gibi tüm site bildirimleri bu adrese gelir.</small>
+                        </div>
+
+                        <div class="col-12 mt-3 d-flex gap-2">
+                            <button type="submit" name="update_mail" class="btn btn-primary px-4">
+                                <i class="fa-solid fa-floppy-disk me-1"></i> Ayarları Kaydet
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Test Mail Formu (ayrı form) -->
+                <form action="" method="POST" class="mt-4 pt-3 border-top">
+                    <?= CSRFMiddleware::field() ?>
+                    <input type="hidden" name="test_mail" value="1">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-12">
+                            <h6 class="fw-bold text-navy mb-1"><i class="fa-solid fa-paper-plane me-2 text-success"></i>SMTP Bağlantı Testi</h6>
+                            <p class="text-muted small mb-0">Kaydettiğiniz ayarların çalışıp çalışmadığını test edin. Mail, Yönetici Bildirim E-postası adresine gönderilir.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Test Gönderilecek Adres</label>
+                            <input type="email" name="mail_admin_email" class="form-control" value="<?= htmlspecialchars($settings['mail_admin_email'] ?? '') ?>" placeholder="admin@domain.com">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-outline-success w-100">
+                                <i class="fa-solid fa-vial me-1"></i> Test Maili Gönder
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
             <div class="tab-pane fade" id="account-pane" role="tabpanel" aria-labelledby="account-tab" tabindex="0">
                 <form action="" method="POST">
     <?= CSRFMiddleware::field() ?>
@@ -1012,6 +1198,27 @@ document.addEventListener('DOMContentLoaded', updateSeoCounters);
         });
     }
 })();
+
+// Sekme (Tab) hatırlama özelliği
+document.addEventListener('DOMContentLoaded', function() {
+    const settingsTabs = document.querySelectorAll('#settingsTab button[data-bs-toggle="tab"]');
+    if (settingsTabs.length > 0) {
+        settingsTabs.forEach(tab => {
+            tab.addEventListener('shown.bs.tab', event => {
+                localStorage.setItem('activeSettingsTab', event.target.id);
+            });
+        });
+        
+        const activeTabId = localStorage.getItem('activeSettingsTab');
+        if (activeTabId) {
+            const activeTab = document.getElementById(activeTabId);
+            if (activeTab) {
+                const bootstrapTab = new bootstrap.Tab(activeTab);
+                bootstrapTab.show();
+            }
+        }
+    }
+});
 </script>
 </body>
 </html>

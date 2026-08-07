@@ -69,25 +69,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'bio' => $bio,
             ]);
 
-            $emailService = new EmailService();
-            $emailContent = "
-                <p><strong>Ad Soyad:</strong> {$name}</p>
-                <p><strong>E-posta:</strong> {$email}</p>
-                <p><strong>Telefon:</strong> {$phone}</p>
-                <p><strong>İlçe:</strong> {$district}</p>
-                <p><strong>Kategori:</strong> {$niche}</p>
-                <p><strong>Instagram:</strong> {$instagram}</p>
-                <p><strong>TikTok:</strong> {$tiktok}</p>
-                <p><strong>YouTube:</strong> {$youtube}</p>
-                <p><strong>Bio:</strong><br/>{$bio}</p>
-            ";
-            $emailService->sendAdminNotification('Yeni Influencer Başvurusu', $emailContent, $email);
+            try {
+                $emailService = new EmailService();
+                $emailContent = "
+                    <p><strong>Ad Soyad:</strong> {$name}</p>
+                    <p><strong>E-posta:</strong> {$email}</p>
+                    <p><strong>Telefon:</strong> {$phone}</p>
+                    <p><strong>İlçe:</strong> {$district}</p>
+                    <p><strong>Kategori:</strong> {$niche}</p>
+                    <p><strong>Instagram:</strong> {$instagram}</p>
+                    <p><strong>TikTok:</strong> {$tiktok}</p>
+                    <p><strong>YouTube:</strong> {$youtube}</p>
+                    <p><strong>Bio:</strong><br/>{$bio}</p>
+                ";
+                $emailService->sendAdminNotification('Yeni Influencer Başvurusu', $emailContent, $email);
+            } catch (\Throwable $e) {
+                error_log("Influencer başvuru mail hatası: " . $e->getMessage());
+            }
 
             $successMsg = 'Başvurunuz alındı. Profiliniz incelendikten ve onayınız doğrulandıktan sonra yayına alınacaktır.';
             $name = $email = $phone = $instagram = $tiktok = $youtube = $bio = '';
             $district = '';
             $niche = 'diger';
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $errorMsg = 'Başvuru gönderilirken hata oluştu. Lütfen tekrar deneyin.';
         }
     }

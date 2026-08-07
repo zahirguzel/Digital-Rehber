@@ -401,7 +401,7 @@ require_once 'includes/header.php';
 
                             <div class="portal-directory-item__body">
                                 <div class="portal-directory-item__head">
-                                    <h3><a href="<?= seoGetBaseUrl() ?>/esnaf/<?= SecurityHelper::escape($biz['slug']) ?>" target="_blank" rel="noopener noreferrer"><?= SecurityHelper::escape($biz['name']) ?></a></h3>
+                                    <h3><a href="<?= seoGetBaseUrl() ?>/esnaf/<?= SecurityHelper::escape($biz['slug']) ?>"><?= SecurityHelper::escape($biz['name']) ?></a></h3>
                                     <?php if ($biz['is_premium']): ?>
                                         <span class="badge-premium-inline"><i class="fa-solid fa-crown me-1"></i>Premium</span>
                                     <?php endif; ?>
@@ -419,7 +419,7 @@ require_once 'includes/header.php';
                             </div>
 
                             <div class="portal-directory-item__actions">
-                                <a href="<?= seoGetBaseUrl() ?>/esnaf/<?= SecurityHelper::escape($biz['slug']) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm fw-semibold">
+                                <a href="<?= seoGetBaseUrl() ?>/esnaf/<?= SecurityHelper::escape($biz['slug']) ?>" class="btn btn-outline-primary btn-sm fw-semibold">
                                     Profil <i class="fa-solid fa-arrow-right ms-1"></i>
                                 </a>
                                 <?php if (!empty($biz['phone'])): ?>
@@ -479,10 +479,10 @@ require_once 'includes/header.php';
             </div>
             <?php
             $vipWaPhone = preg_replace('/[^0-9]/', '', $siteSettings['contact_whatsapp'] ?? ($siteSettings['contact_phone'] ?? ''));
-            $vipWaUrl = !empty($vipWaPhone) ? ('https://wa.me/' . $vipWaPhone . '?text=' . urlencode('İşletmemi ekletmek istiyorum bilgi alabilir miyim?')) : seoResolveAbsoluteUrl('iletisim.php', seoGetBaseUrl());
+            $vipWaUrl = !empty($vipWaPhone) ? ('https://wa.me/' . $vipWaPhone . '?text=' . urlencode('İşletmemi ekletmek istiyorum bilgi alabilir miyim?')) : seoResolveAbsoluteUrl('isletme-basvuru.php', seoGetBaseUrl());
             ?>
             <div class="home-vip-cta__actions">
-                <a href="<?= seoResolveAbsoluteUrl('iletisim.php', seoGetBaseUrl()) ?>" class="home-vip-cta__btn-primary">
+                <a href="<?= seoResolveAbsoluteUrl('isletme-basvuru.php', seoGetBaseUrl()) ?>" class="home-vip-cta__btn-primary">
                     <i class="fa-solid fa-store"></i> Hemen İşletmeni Ekle
                 </a>
                 <a href="<?= $vipWaUrl ?>" class="home-vip-cta__btn-secondary" target="_blank" rel="noopener noreferrer">

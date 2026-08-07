@@ -384,10 +384,10 @@ $siteUrl = function ($path = '') use ($seoBaseUrlTrimmed) {
                     </div>
                 <?php endif; ?>
                 
-                <a href="<?= SecurityHelper::escape($siteUrl('iletisim.php')) ?>" class="btn btn-primary btn-add-business portal-nav-cta-primary px-3 d-none d-lg-inline-flex">
+                <a href="<?= SecurityHelper::escape($siteUrl('isletme-basvuru.php')) ?>" class="btn btn-primary btn-add-business portal-nav-cta-primary px-3 d-none d-md-inline-flex">
                     <i class="fa-solid fa-plus"></i>
-                    <span class="d-none d-xl-inline ms-1">İşletme Ekle</span>
-                    <i class="fa-solid fa-arrow-right d-none d-xxl-inline ms-1"></i>
+                    <span class="ms-1">İşletme Ekle</span>
+                    <i class="fa-solid fa-arrow-right ms-1"></i>
                 </a>
             </div>
         </div>

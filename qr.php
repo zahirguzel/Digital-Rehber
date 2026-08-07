@@ -116,8 +116,8 @@ if (!empty($business['google_maps_iframe'])) {
     $directMapUrl = "https://www.google.com/maps/search/?api=1&query=" . urlencode($business['name'] . ' ' . $business['address']);
     
     $buttons[] = [
-        'label' => 'GOOGLE',
-        'icon' => 'fa-brands fa-google',
+        'label' => 'KONUM',
+        'icon' => 'fa-solid fa-location-dot',
         'url' => $directMapUrl,
         'color' => '#4285F4'
     ];

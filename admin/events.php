@@ -73,6 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && in_array
                     if ($curData) {
                         $currentCover = $curData['cover_image_path'];
                     }
+                } elseif ($_POST['action'] === 'add' && !empty($_POST['existing_cover'])) {
+                    $currentCover = trim($_POST['existing_cover']);
                 }
                 if (!empty($_POST['remove_cover'])) {
                     $currentCover = '';
@@ -123,7 +125,7 @@ if ($action === 'delete' && $id > 0) {
         $stmtName->execute([$id]);
         $delTitle = $stmtName->fetchColumn() ?: 'Etkinlik ID: ' . $id;
 
-        $db->getPDO()->prepare('UPDATE events SET is_deleted = 1 WHERE id = ?')->execute([$id]);
+        $db->getPDO()->prepare('UPDATE events SET is_deleted = 1, is_published = 0 WHERE id = ?')->execute([$id]);
         if (function_exists('logAction')) logAction('delete', 'events', 'Soft Delete: ' . $delTitle, $id);
         $successMsg = 'Etkinlik başarıyla silindi (Çöp Kutusuna taşındı).';
     } catch (Exception $e) {
@@ -239,7 +241,7 @@ endif; ?>
                     <td class="text-end pe-4">
                         <a href="../etkinlik/<?= htmlspecialchars($ev['slug']) ?>" target="_blank" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-eye"></i></a>
                         <a href="events.php?action=edit&id=<?= $ev['id'] ?>" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-pen"></i></a>
-                        <a href="events.php?action=delete&id=<?= $ev['id'] ?>" class="btn btn-outline-danger btn-sm confirm-btn" data-confirm="Bu etkinliği silmek istediğinize emin misiniz?" data-confirm-title="Etkinliği Sil" data-confirm-btn="Evet, Sil"><i class="fa-solid fa-trash"></i></a>
+                        <a href="events.php?action=delete&id=<?= $ev['id'] ?>" class="btn btn-outline-danger btn-sm confirm-btn" data-confirm="Bu etkinlik silinecek ve yayından kaldırılacaktır. Onaylıyor musunuz?" data-confirm-title="Etkinliği Sil" data-confirm-btn="Evet, Sil ve Kaldır"><i class="fa-solid fa-trash"></i></a>
                     </td>
                 </tr>
             <?php
@@ -289,6 +291,7 @@ endforeach; ?></select></div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Kapak (dosya veya URL)</label>
+                    <input type="hidden" name="existing_cover" value="<?= htmlspecialchars($ev['cover_image_path'] ?? '') ?>">
                     <input type="file" name="cover_file" class="form-control">
                     <input type="url" name="cover_url" class="form-control mt-1" placeholder="veya görsel URL (http://...)" value="<?= (strpos($ev['cover_image_path'] ?? '', 'http') === 0) ? htmlspecialchars($ev['cover_image_path']) : '' ?>">
                     <?php if (!empty($ev['cover_image_path'])): 
@@ -329,7 +332,7 @@ endforeach; ?>
                     <small class="text-muted">Ctrl/Cmd ile çoklu seçim</small>
                 </div>
                 <div class="col-12">
-                    <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="is_published" id="is_published" value="1" <?= !empty($ev['is_published']) ? 'checked' : '' ?>><label class="form-check-label" for="is_published">Yayında</label></div>
+                    <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="is_published" id="is_published" value="1" <?= (!empty($ev['is_published']) || $prefillSubmission) ? 'checked' : '' ?>><label class="form-check-label" for="is_published">Yayında</label></div>
                     <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="is_featured" id="is_featured" value="1" <?= !empty($ev['is_featured']) ? 'checked' : '' ?>><label class="form-check-label" for="is_featured">Öne çıkan (ana sayfa)</label></div>
                 </div>
                 <div class="col-12">

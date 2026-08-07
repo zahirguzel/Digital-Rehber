@@ -1,7 +1,7 @@
 ErrorDocument 404 404.php
 
 RewriteEngine On
-RewriteBase /
+# RewriteBase / # Localhost'ta (alt klasörde) çalışırken burayı yoruma alıyoruz. Canlıda açabilirsiniz.
 AddDefaultCharset UTF-8
 
 <IfModule mod_headers.c>

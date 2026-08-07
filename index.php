@@ -492,7 +492,7 @@ require_once 'includes/header.php';
 <section class="portal-section portal-section--light portal-section--compact">
     <div class="container">
         <div class="portal-banner reveal-on-scroll">
-            <a href="<?= seoResolveAbsoluteUrl('iletisim.php', $baseUrl) ?>" class="d-flex flex-column align-items-center justify-content-center text-center p-4 shadow-sm" style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; color: #64748b; text-decoration: none; min-height: 250px; transition: all 0.3s; width: 100%;">
+            <a href="<?= seoResolveAbsoluteUrl('isletme-basvuru.php', $baseUrl) ?>" class="d-flex flex-column align-items-center justify-content-center text-center p-4 shadow-sm" style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; color: #64748b; text-decoration: none; min-height: 250px; transition: all 0.3s; width: 100%;">
                 <i class="fa-solid fa-rectangle-ad fs-1 mb-3 text-danger" style="opacity: 0.85;"></i>
                 <strong class="text-dark d-block mb-2 fs-5">Buraya Reklam Verebilirsiniz</strong>
                 <span class="text-muted">İşletmenizi ana sayfada on binlerce kişiye ulaştırmak ve detaylı bilgi almak için bizimle iletişime geçin.</span>
@@ -515,10 +515,10 @@ require_once 'includes/header.php';
             </div>
             <?php
             $vipWaPhone = preg_replace('/[^0-9]/', '', $siteSettings['contact_whatsapp'] ?? ($siteSettings['contact_phone'] ?? ''));
-            $vipWaUrl = !empty($vipWaPhone) ? ('https://wa.me/' . $vipWaPhone . '?text=' . urlencode('İşletmemi ekletmek istiyorum bilgi alabilir miyim?')) : seoResolveAbsoluteUrl('iletisim.php', $baseUrl);
+            $vipWaUrl = !empty($vipWaPhone) ? ('https://wa.me/' . $vipWaPhone . '?text=' . urlencode('İşletmemi ekletmek istiyorum bilgi alabilir miyim?')) : seoResolveAbsoluteUrl('isletme-basvuru.php', $baseUrl);
             ?>
             <div class="home-vip-cta__actions">
-                <a href="<?= seoResolveAbsoluteUrl('iletisim.php', $baseUrl) ?>" class="home-vip-cta__btn-primary">
+                <a href="<?= seoResolveAbsoluteUrl('isletme-basvuru.php', $baseUrl) ?>" class="home-vip-cta__btn-primary">
                     <i class="fa-solid fa-store"></i> Hemen İşletmeni Ekle
                 </a>
                 <a href="<?= $vipWaUrl ?>" class="home-vip-cta__btn-secondary" target="_blank" rel="noopener noreferrer">

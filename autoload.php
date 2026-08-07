@@ -4,7 +4,15 @@
  * Automatically loads core, models, controllers, middleware, services, helpers
  */
 
+// Önce Composer Autoload (PHPMailer vb. kütüphaneler için)
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
+
 spl_autoload_register(function ($class) {
+    // Sınıf adından namespace'i çıkar (Örn: App\Services\EmailService -> EmailService)
+    $className = basename(str_replace('\\', '/', $class));
+
     $directories = [
         __DIR__ . '/core/',
         __DIR__ . '/models/',
@@ -15,7 +23,7 @@ spl_autoload_register(function ($class) {
     ];
 
     foreach ($directories as $directory) {
-        $file = $directory . $class . '.php';
+        $file = $directory . $className . '.php';
         if (file_exists($file)) {
             require_once $file;
             return true;

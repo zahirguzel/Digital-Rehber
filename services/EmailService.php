@@ -8,6 +8,7 @@ use Environment;
 class EmailService {
     private $isDev;
     private $logFile;
+    private $cfg; // mail config (DB öncelikli, .env fallback)
 
     public function __construct() {
         if (!class_exists('Environment')) {
@@ -16,6 +17,49 @@ class EmailService {
         }
         $this->isDev = Environment::get('APP_ENV', 'development') !== 'production';
         $this->logFile = __DIR__ . '/../logs/email.log';
+        $this->cfg = $this->loadMailConfig();
+    }
+
+    /**
+     * Mail ayarlarını DB'den okur, boşsa .env'e düşer.
+     */
+    private function loadMailConfig(): array {
+        $dbHost  = Environment::get('MAIL_HOST', 'smtp.gmail.com');
+        $dbPort  = (int)Environment::get('MAIL_PORT', '587');
+        $dbUser  = Environment::get('MAIL_USER', '');
+        $dbPass  = Environment::get('MAIL_PASS', '');
+        $dbFrom  = Environment::get('MAIL_FROM', '');
+        $dbFromName = Environment::get('MAIL_FROM_NAME', 'Sistem');
+        $dbAdminEmail = Environment::get('ADMIN_EMAIL', '');
+
+        // DB'den oku (settings tablosu id=1)
+        try {
+            if (class_exists('Database')) {
+                $pdo = \Database::getInstance()->getPDO();
+                $row = $pdo->query("SELECT mail_host, mail_port, mail_user, mail_pass, mail_from, mail_from_name, mail_admin_email FROM settings WHERE id = 1")->fetch(\PDO::FETCH_ASSOC);
+                if ($row) {
+                    if (!empty($row['mail_host']))       $dbHost       = $row['mail_host'];
+                    if (!empty($row['mail_port']))       $dbPort       = (int)$row['mail_port'];
+                    if (!empty($row['mail_user']))       $dbUser       = $row['mail_user'];
+                    if (!empty($row['mail_pass']))       $dbPass       = $row['mail_pass'];
+                    if (!empty($row['mail_from']))       $dbFrom       = $row['mail_from'];
+                    if (!empty($row['mail_from_name'])) $dbFromName   = $row['mail_from_name'];
+                    if (!empty($row['mail_admin_email'])) $dbAdminEmail = $row['mail_admin_email'];
+                }
+            }
+        } catch (\Exception $e) {
+            // DB okunamazsa .env değerleri kullanılmaya devam eder
+        }
+
+        return [
+            'host'        => $dbHost,
+            'port'        => $dbPort,
+            'user'        => $dbUser,
+            'pass'        => $dbPass,
+            'from'        => $dbFrom ?: $dbUser,
+            'from_name'   => $dbFromName,
+            'admin_email' => $dbAdminEmail,
+        ];
     }
 
     /**
@@ -37,26 +81,21 @@ class EmailService {
         // Canlı (Production) modunda PHPMailer ile gönder
         $mail = new PHPMailer(true);
         try {
-            // SMTP Ayarları
+            // SMTP Ayarları (DB öncelikli)
             $mail->isSMTP();
-            $mail->Host       = Environment::get('MAIL_HOST', 'smtp.gmail.com');
-            $mail->SMTPAuth   = true;
-            $mail->Username   = Environment::get('MAIL_USER', '');
-            $mail->Password   = Environment::get('MAIL_PASS', '');
-            
-            // Port'a göre şifreleme türü belirle
-            $port = (int)Environment::get('MAIL_PORT', '587');
-            $mail->Port = $port;
-            if ($port === 465) {
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            } else {
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            }
+            $mail->Host     = $this->cfg['host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->cfg['user'];
+            $mail->Password = $this->cfg['pass'];
+            $mail->Port     = $this->cfg['port'];
+            $mail->SMTPSecure = ($this->cfg['port'] === 465)
+                ? PHPMailer::ENCRYPTION_SMTPS
+                : PHPMailer::ENCRYPTION_STARTTLS;
 
-            // Gönderici ve Alıcı Ayarları
-            $mail->setFrom(Environment::get('MAIL_FROM', 'noreply@example.com'), Environment::get('MAIL_FROM_NAME', 'Sistem'));
+            // Gönderici ve Alıcı
+            $mail->setFrom($this->cfg['from'], $this->cfg['from_name']);
             $mail->addAddress($toEmail, $toName);
-            if ($replyTo) {
+            if ($replyTo && filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
                 $mail->addReplyTo($replyTo);
             }
 
@@ -112,7 +151,7 @@ class EmailService {
      * Admin İletişim / Başvuru Bilgilendirme Gönder
      */
     public function sendAdminNotification($subject, $content, $replyTo = null) {
-        $adminEmail = Environment::get('ADMIN_EMAIL', '');
+        $adminEmail = $this->cfg['admin_email'] ?: Environment::get('ADMIN_EMAIL', '');
         if (empty($adminEmail)) {
             error_log("EmailService: ADMIN_EMAIL tanimli degil.");
             return false;

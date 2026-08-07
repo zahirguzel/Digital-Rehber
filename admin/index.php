@@ -84,7 +84,7 @@ try {
     });
     $recentInfluencerItems = array_slice($influencerFeed, 0, 5);
 
-    $recentEventSubmissions = $db->query("SELECT id, title, contact_name, district, start_date, created_at FROM event_submissions WHERE status = 'pending' ORDER BY created_at DESC LIMIT 5")->fetchAll();
+    $recentEventSubmissions = $db->query("SELECT id, title, contact_name, district, start_date, created_at FROM event_submissions WHERE status = 'pending' AND is_deleted = 0 ORDER BY created_at DESC LIMIT 5")->fetchAll();
 } catch (Exception $e) {
     die("İstatistik yükleme hatası: " . $e->getMessage());
 }

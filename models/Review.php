@@ -157,7 +157,7 @@ class Review extends BaseModel {
             'user_id' => $userId,
             'rating' => $rating,
             'comment' => $comment,
-            'status' => 'approved' // Could be pending if moderation is enabled
+            'status' => 'pending' // Admin onayı gerektirmesi için pending yapıldı
         ]);
         
         // Update average rating

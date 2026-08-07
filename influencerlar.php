@@ -79,18 +79,20 @@ require_once 'includes/header.php';
     </div>
     <div class="container directory-portal-hero__inner">
         <div class="directory-portal-hero__head reveal-on-scroll">
-            <div>
+            <div style="flex:1; min-width:0;">
                 <span class="portal-eyebrow">Şehir Dijital Vitrin</span>
-                <h1 class="directory-portal-hero__title"><?= $heroTitle ?></h1>
+                <div class="d-flex justify-content-between align-items-center gap-3" style="margin-bottom: 12px;">
+                    <h1 class="directory-portal-hero__title mb-0"><?= $heroTitle ?></h1>
+                    <div class="directory-portal-hero__stat m-0 flex-shrink-0">
+                        <strong><?= (int) $resultCount ?></strong>
+                        <span>Profil</span>
+                    </div>
+                </div>
                 <p class="directory-portal-hero__lead">Şehir'da içerik üreten doğrulanmış profiller. Takipçi sayıları manuel onaylıdır; iş birliği için güvenilir rehberiniz.</p>
                 <div class="directory-portal-hero__actions">
                     <a href="<?= seoGetBaseUrl() ?>/influencer-basvuru" class="btn btn-primary fw-semibold"><i class="fa-solid fa-user-plus me-2"></i> Profil Başvurusu</a>
                     <a href="<?= seoGetBaseUrl() ?>/blog/" class="btn btn-outline-primary fw-semibold"><i class="fa-solid fa-book-open me-2"></i> Influencer Rehberi</a>
                 </div>
-            </div>
-            <div class="directory-portal-hero__stat">
-                <strong><?= (int) $resultCount ?></strong>
-                <span>Profil</span>
             </div>
         </div>
 

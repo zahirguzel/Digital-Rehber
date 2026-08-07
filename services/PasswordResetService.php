@@ -102,9 +102,9 @@ class PasswordResetService {
                 'email'     => $email
             ];
 
-        } catch (Exception $e) {
-            $this->logSecurity($ip, $email, 'ERROR', 'OTP kaydı sırasında veritabanı hatası: ' . $e->getMessage());
-            return ['success' => false, 'message' => 'Bir sistem hatası oluştu, lütfen tekrar deneyin.'];
+        } catch (\Throwable $e) {
+            $this->logSecurity($ip, $email, 'ERROR', 'OTP kaydı/gönderimi sırasında hata: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Bir sistem hatası oluştu veya e-posta gönderilemedi, lütfen tekrar deneyin.'];
         }
     }
 

@@ -103,18 +103,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $consentKvkk,
             ]);
             
-            $emailService = new EmailService();
-            $emailContent = "
-                <p><strong>İletişim Ad Soyad:</strong> {$contact_name}</p>
-                <p><strong>E-posta:</strong> {$contact_email}</p>
-                <p><strong>Telefon:</strong> {$contact_phone}</p>
-                <p><strong>Etkinlik Adı:</strong> {$title}</p>
-                <p><strong>Kategori:</strong> {$category}</p>
-                <p><strong>İlçe:</strong> {$district}</p>
-                <p><strong>Mekan:</strong> {$venue_name}</p>
-                <p><strong>Başlangıç:</strong> {$start_date} {$start_time}</p>
-            ";
-            $emailService->sendAdminNotification('Yeni Etkinlik Başvurusu', $emailContent, $contact_email);
+            try {
+                $emailService = new EmailService();
+                $emailContent = "
+                    <p><strong>İletişim Ad Soyad:</strong> {$contact_name}</p>
+                    <p><strong>E-posta:</strong> {$contact_email}</p>
+                    <p><strong>Telefon:</strong> {$contact_phone}</p>
+                    <p><strong>Etkinlik Adı:</strong> {$title}</p>
+                    <p><strong>Kategori:</strong> {$category}</p>
+                    <p><strong>İlçe:</strong> {$district}</p>
+                    <p><strong>Mekan:</strong> {$venue_name}</p>
+                    <p><strong>Başlangıç:</strong> {$start_date} {$start_time}</p>
+                ";
+                $emailService->sendAdminNotification('Yeni Etkinlik Başvurusu', $emailContent, $contact_email);
+            } catch (\Throwable $e) {
+                error_log("Etkinlik başvuru mail hatası: " . $e->getMessage());
+            }
 
             $successMsg = 'Etkinlik başvurunuz alındı. Editör ekibimiz inceledikten sonra takvimde yayınlanacaktır.';
             $contact_name = $contact_email = $contact_phone = $title = $venue_name = $address = '';
@@ -122,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ticket_url = $ticket_price = $organizer = $cover_image_url = $notes = '';
             $district = '';
             $category = 'diger';
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $errorMsg = 'Başvuru gönderilirken hata oluştu. Lütfen tekrar deneyin.';
         }
     }
